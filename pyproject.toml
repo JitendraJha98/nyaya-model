@@ -1,22 +1,21 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "nyaya"
-version = "0.1.0"
 description = "Nyaya — an open Indian legal guidance model (Qwen2.5-3B-Instruct + QLoRA)"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 authors = [{ name = "Jitendra Jha" }]
 keywords = ["legal", "india", "llm", "qwen", "qlora", "nyaya", "bns", "hinglish"]
 classifiers = [
-    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
-dynamic = ["dependencies"]
+dynamic = ["version", "dependencies"]
 
 [project.urls]
 Homepage = "https://github.com/JitendraJha98/nyaya-model"
@@ -29,4 +28,5 @@ package-dir = { "" = "src" }
 where = ["src"]
 
 [tool.setuptools.dynamic]
+version = { attr = "nyaya.__version__" }
 dependencies = { file = ["requirements.txt"] }

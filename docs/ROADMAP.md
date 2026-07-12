@@ -55,7 +55,7 @@ BF16 · gradient checkpointing · paged AdamW 8-bit · Flash Attention 2 if supp
 2. **Held-out-acts generalization** — accuracy on the 2 acts excluded from training; the honest overfitting detector.
 3. **AIBE bar-exam MCQs** — a single comparable headline number.
 4. **IL-TUR + BhashaBench-Legal** — standardized benchmarks, before/after deltas.
-5. **Blind human eval (ship gate)** — real questions, 2 raters, scored on correctness / completeness / language / safety.
+5. **Blind human eval (ship gate)** — 100 real questions, 2 raters, scored on correctness / completeness / language / safety; ship criteria: win/tie ≥60% on Hinglish citizen queries, zero dangerous answers.
 
 Plus a 50-question regression set every checkpoint must pass (the project's unit tests).
 

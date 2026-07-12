@@ -12,7 +12,8 @@ Nyaya-Eval-v0 (data/eval/) is separate and completely untouched.
 Input:  data/validated/*_deduped.jsonl
 Output: data/splits/{train,val,test}.jsonl
 
-TODO: implement grouped splitting keyed on metadata.source_sections.
+TODO: thin wrapper over src/nyaya/dataset.py::grouped_split (keyed on
+metadata.source_sections).
 """
 
 raise NotImplementedError("Implement grouped-by-source splitting after steps 5–6.")

@@ -7,17 +7,23 @@ __pycache__/
 # Experiment tracking
 wandb/
 
-# Model outputs / checkpoints — too large for git
+# Model outputs / checkpoints — too large for git.
+# The bare `!outputs/**/` is required: git cannot re-include .gitkeep files
+# inside a directory that is itself excluded.
 outputs/**
+!outputs/**/
 !outputs/**/.gitkeep
 
 # Bulk data is not versioned in git (HF hub / dataset versioning instead).
 # Exceptions: canonical statute DB, mappings, and the frozen eval set ARE versioned.
+# As with outputs/, `!data/**/` keeps directories visitable so nested .gitkeep
+# files can actually be re-included.
 data/raw/**
 data/hf/**
 data/generated/**
 data/validated/**
 data/splits/**
+!data/**/
 !data/**/.gitkeep
 
 # OS
