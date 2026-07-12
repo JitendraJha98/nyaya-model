@@ -1,0 +1,37 @@
+Nyaya — Indian Legal Guidance Model
+Copyright 2026 Jitendra Jha
+
+This project is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+---------------------------------------------------------------------------
+IMPORTANT — NOT LEGAL ADVICE
+---------------------------------------------------------------------------
+Nyaya provides legal *information / guidance*, not legal advice. It is not a
+substitute for a licensed advocate. The practice of law in India is reserved
+for advocates enrolled under the Advocates Act, 1961. Any deployment must
+carry a prominent "not legal advice — consult a licensed advocate" disclaimer
+and route users to free legal aid (NALSA / DLSA, Legal Services Authorities
+Act, 1987) where appropriate.
+
+---------------------------------------------------------------------------
+THIRD-PARTY COMPONENTS & DATA LICENSING
+---------------------------------------------------------------------------
+Code in this repository is Apache-2.0. The models, datasets, and legal texts
+it builds on carry their own licenses, which you MUST verify before any
+commercial use or redistribution:
+
+* Base model: Qwen/Qwen2.5-3B-Instruct is distributed under its own license
+  (Apache-2.0 for Qwen2.5 at the time of writing) — confirm on the model card.
+
+* Indian primary law (bare acts, judgments) is public domain in India under
+  Section 52(1)(q) of the Copyright Act, 1957. Do NOT scrape Indian Kanoon
+  HTML; use official government sources or the paid API.
+
+* Aggregated / research datasets carry MIXED licenses. Notably, parts of
+  opennyaiorg/aalap_instruction_dataset are CC-BY-NC (non-commercial). Some
+  IL-TUR / BhashaBench / NyayaAnumana subsets have their own terms. Check each
+  dataset's license (configs/hf_datasets.yaml notes this per entry).
+
+* Any synthetic instruction data generated in this project should be published
+  under the project's own license (Apache-2.0 / CC-BY), keeping non-commercial
+  source slices separate.

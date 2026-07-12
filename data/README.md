@@ -1,0 +1,21 @@
+# Data — flow through the pipeline
+
+```
+raw/  +  hf/  ──▶  canonical/  ──▶  generated/  ──▶  validated/  ──▶  splits/
+(scraped)  (HF)    (statute DB,     (synthetic,       (passed all       (train/val/test,
+                    mappings,        added later)      checks)           grouped by section)
+                    procedure KB)
+eval/  = Nyaya-Eval-v0, 500 frozen questions. Built FIRST. Never trained on.
+```
+
+| Folder | Contents | Versioned in git? |
+|---|---|---|
+| `raw/` | Scraped statutes (indiacode.nic.in), MHA mapping tables, hand-written procedure docs | no |
+| `hf/` | Hugging Face datasets pulled by `scripts/00_download_hf_datasets.py` (edit `configs/hf_datasets.yaml`) | no |
+| `canonical/` | Statute DB, IPC↔BNS mapping, procedure KB as clean JSONL — the single source of truth | **yes** |
+| `generated/` | Raw synthetic training examples (later phase) | no |
+| `validated/` | Examples that survived validation + dedup | no |
+| `splits/` | train / val / internal-test, split by source section — never by row | no |
+| `eval/` | `nyaya_eval_v0.jsonl` — frozen | **yes** |
+
+Every dataset gets a version. Never throw away metadata.

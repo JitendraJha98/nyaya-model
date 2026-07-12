@@ -1,0 +1,39 @@
+# Nyaya-3B-v1 full training run — 8K–15K validated examples (not 25K automatically).
+# Benchmark every meaningful checkpoint; the best model might be checkpoint-750, not the last.
+
+run_name: nyaya-3b-v1
+model_id: Qwen/Qwen2.5-3B-Instruct
+output_dir: outputs/nyaya-3b-v1
+
+data:
+  train_file: data/splits/train.jsonl
+  val_file: data/splits/val.jsonl
+
+method: qlora
+quantization:
+  load_in_4bit: true
+  bnb_4bit_quant_type: nf4
+  bnb_4bit_compute_dtype: bfloat16
+
+lora:
+  r: 32
+  alpha: 64
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+training:
+  max_seq_length: 4096
+  num_train_epochs: 1
+  learning_rate: 1.0e-4
+  warmup_ratio: 0.03
+  lr_scheduler_type: cosine
+  gradient_checkpointing: true
+  bf16: true
+  optim: paged_adamw_8bit
+  # effective batch size target: 32–64
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 8
+  logging_steps: 10
+  eval_steps: 250        # evaluate every 100–250 steps
+  save_steps: 250        # checkpoint every 250–500 steps
+  # flash_attention_2: enable if environment supports it

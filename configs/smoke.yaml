@@ -1,0 +1,38 @@
+# Smoke training run — 1,000 examples.
+# Goal is NOT model quality. Goal: dataset loads, chat template correct, tokenization
+# correct, loss decreases, no OOM, checkpoint saves, adapter reloads, inference works,
+# eval pipeline works.
+
+run_name: nyaya-3b-smoke
+model_id: Qwen/Qwen2.5-3B-Instruct
+output_dir: outputs/smoke
+
+data:
+  train_file: data/splits/train.jsonl
+  max_examples: 1000
+
+method: qlora
+quantization:
+  load_in_4bit: true
+  bnb_4bit_quant_type: nf4
+  bnb_4bit_compute_dtype: bfloat16
+
+lora:
+  r: 32
+  alpha: 64
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+training:
+  max_seq_length: 4096
+  num_train_epochs: 1
+  learning_rate: 1.0e-4
+  warmup_ratio: 0.03
+  lr_scheduler_type: cosine
+  gradient_checkpointing: true
+  bf16: true
+  optim: paged_adamw_8bit
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 4
+  logging_steps: 10
+  save_steps: 250

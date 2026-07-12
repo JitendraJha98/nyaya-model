@@ -1,0 +1,20 @@
+# Nyaya training stack — kept deliberately small (roadmap: "do not install 50 libraries").
+# Version floors are conservative; pin exact versions in your GPU environment once it works.
+torch>=2.3
+transformers>=4.44
+datasets>=2.20
+accelerate>=0.33
+peft>=0.12
+trl>=0.9
+bitsandbytes>=0.43
+sentencepiece>=0.2
+protobuf>=4.25
+wandb>=0.17
+pyyaml>=6.0
+huggingface_hub>=0.24
+
+# PDF extraction for building the statute DB (docs are image-only PDFs; render with PyMuPDF).
+pymupdf>=1.24
+
+# Optional, install later only if the environment supports it:
+#   pip install flash-attn --no-build-isolation

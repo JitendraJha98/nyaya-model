@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# Experiment tracking
+wandb/
+
+# Model outputs / checkpoints — too large for git
+outputs/**
+!outputs/**/.gitkeep
+
+# Bulk data is not versioned in git (HF hub / dataset versioning instead).
+# Exceptions: canonical statute DB, mappings, and the frozen eval set ARE versioned.
+data/raw/**
+data/hf/**
+data/generated/**
+data/validated/**
+data/splits/**
+!data/**/.gitkeep
+
+# OS
+Thumbs.db
+.DS_Store
