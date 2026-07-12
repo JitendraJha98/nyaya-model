@@ -1,0 +1,14 @@
+# Persists the Hugging Face cache (HF_HOME, set in the Dockerfile) across
+# Job runs so Qwen2.5-3B-Instruct (~6GB) is downloaded once, not on every retry.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nyaya-hf-cache
+  namespace: nyaya
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  # storageClassName: gp3   # set to your cluster's storage class if the default isn't suitable

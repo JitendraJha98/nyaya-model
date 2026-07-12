@@ -1,0 +1,16 @@
+.git
+.github
+.claude
+.pytest_cache
+.benchmarks
+.venv
+__pycache__
+*.pyc
+tests/
+docs/
+data/
+outputs/
+reports/
+k8s/
+*.md
+!README.md

@@ -1,0 +1,43 @@
+# Runs scripts/01_download_model.py once on a single GPU: loads
+# Qwen2.5-3B-Instruct and generates one response, proving GPU inference
+# works in-cluster. Not a serving Deployment — the pod exits after the run.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nyaya-gpu-smoke-test
+  namespace: nyaya
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 1800
+  template:
+    metadata:
+      labels:
+        app: nyaya-gpu-smoke-test
+    spec:
+      restartPolicy: Never
+      # nodeSelector:
+      #   cloud.google.com/gke-accelerator: nvidia-tesla-t4   # adjust to your cluster's GPU node label
+      # tolerations:
+      #   - key: nvidia.com/gpu
+      #     operator: Exists
+      #     effect: NoSchedule
+      containers:
+        - name: nyaya-smoke-test
+          image: nyaya-model:latest   # replace with your registry path, e.g. ghcr.io/org/nyaya-model:latest
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "2"
+              memory: 16Gi
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "4"
+              memory: 24Gi
+              nvidia.com/gpu: "1"   # must equal the request — GPUs are not overcommittable
+          volumeMounts:
+            - name: hf-cache
+              mountPath: /data/hf-cache
+      volumes:
+        - name: hf-cache
+          persistentVolumeClaim:
+            claimName: nyaya-hf-cache
