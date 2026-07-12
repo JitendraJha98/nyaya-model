@@ -5,7 +5,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: nyaya-gpu-smoke-test
-  namespace: nyaya
+  namespace: askdata-ng
 spec:
   backoffLimit: 2
   activeDeadlineSeconds: 1800
@@ -15,15 +15,12 @@ spec:
         app: nyaya-gpu-smoke-test
     spec:
       restartPolicy: Never
-      # nodeSelector:
-      #   cloud.google.com/gke-accelerator: nvidia-tesla-t4   # adjust to your cluster's GPU node label
-      # tolerations:
-      #   - key: nvidia.com/gpu
-      #     operator: Exists
-      #     effect: NoSchedule
+      nodeSelector:
+        accelerator: nvidia   # matches both GPU pools in this cluster; the tainted
+                               # A100 "aidp" pool is skipped since we tolerate nothing
       containers:
         - name: nyaya-smoke-test
-          image: nyaya-model:latest   # replace with your registry path, e.g. ghcr.io/org/nyaya-model:latest
+          image: acrcgipulsescusdev.azurecr.io/nyaya:smoke-v2
           imagePullPolicy: IfNotPresent
           resources:
             requests:
