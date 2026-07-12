@@ -14,4 +14,4 @@ training improved anything. Requires data/eval/nyaya_eval_v0.jsonl to exist firs
 TODO: implement using src/nyaya/evaluation.py once Nyaya-Eval-v0 is curated.
 """
 
-raise NotImplementedError("Build Nyaya-Eval-v0 (data/eval/nyaya_eval_v0.jsonl) first — see docs/ROADMAP.md, Step 5.")
+raise NotImplementedError("Build Nyaya-Eval-v0 (data/eval/nyaya_eval_v0.jsonl) first — see docs/ROADMAP.md, Step 4.")

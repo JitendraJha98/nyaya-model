@@ -1,6 +1,6 @@
 # Nyaya-Eval-v0 — 500 manually curated questions (BUILD THIS FIRST)
 
-This is roadmap Step 5, and it comes **before** creating any training data.
+This is roadmap Step 4, and it comes **before** creating any training data.
 The file `nyaya_eval_v0.jsonl` is frozen once created: never train on it,
 never edit it mid-experiment (make a v1 instead).
 

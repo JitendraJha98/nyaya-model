@@ -4,6 +4,8 @@
 # Add any dataset by its HF id. `enabled: false` keeps it listed but skipped.
 # NOTE: verify the exact HF id on huggingface.co before enabling ones marked "verify" —
 # the planning docs name the dataset but not always the canonical hub id.
+# NOTE: some datasets (aalap, IL-TUR) are gated on the Hub — run
+# `huggingface-cli login` and accept each dataset's terms on huggingface.co first.
 
 datasets:
   - id: opennyaiorg/aalap_instruction_dataset
@@ -31,3 +33,7 @@ datasets:
   - id: L-NLProc/MILDSum                # verify id on HF
     enabled: false
     purpose: "Judgment summarization English->Hindi — summarization slice"
+
+  - id: Exploration-Lab/ILDC            # verify id on HF (access may require a signed agreement)
+    enabled: false
+    purpose: "ILDC judgment prediction + explanation corpus — v2 case-law reasoning"

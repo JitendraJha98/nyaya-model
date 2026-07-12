@@ -6,12 +6,23 @@ does not resolve against the statute DB, drop the whole example.
 
 import re
 
-# Matches "Section 318", "Sec. 173", "§420", "dhara 154", etc.
-CITATION_PATTERN = re.compile(r"(Section|Sec\.?|§|dhara)\s+[\dA-Z()]+", re.IGNORECASE)
+# Matches "Section 318", "Sections 34", "Sec. 173", "§420", "§ 420", "dhara 154",
+# "धारा 154", "Section 66A", "Section 318(4)". The token after the marker must
+# start with a digit so prose like "this section is important" never matches,
+# and must end at a word boundary so glued shorthand like "34IPC" is cleanly
+# skipped rather than half-captured as a plausible-but-wrong "34IP".
+CITATION_PATTERN = re.compile(
+    r"(?:\b(?:Sections?|Sec\.?|dhara|धारा)\s+|§\s*)\d+[A-Za-z]{0,2}\b(?:\(\w+\))*",
+    re.IGNORECASE,
+)
 
 
 def extract_citations(text: str) -> list[str]:
-    """Regex-extract every section citation + act mention from an answer."""
+    """Regex-extract every section-number citation from an answer.
+
+    Extraction only — resolving each citation to its act (and expanding
+    enumerations like "Sections 34 and 120B") is verify_citations' job.
+    """
     return [m.group(0) for m in CITATION_PATTERN.finditer(text)]
 
 

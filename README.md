@@ -68,7 +68,7 @@ Training method for v1: **SFT with QLoRA** (4-bit NF4, BF16 compute).
 │   ├── baseline/            # Base Qwen predictions on Nyaya-Eval-v0
 │   ├── smoke/               # Smoke-run checkpoints
 │   └── nyaya-3b-v1/         # v1 checkpoints
-└── reports/                 # baseline.json, training_metrics.json, error_analysis.json
+└── reports/                 # baseline.json, validation_report.json, per-checkpoint metrics, error_analysis.json
 ```
 
 ## The 12-step roadmap (do in exactly this order)
@@ -76,10 +76,10 @@ Training method for v1: **SFT with QLoRA** (4-bit NF4, BF16 compute).
 ```
 1. Freeze model (Qwen2.5-3B-Instruct)     7. Generate training examples
 2. Set up repository          ✅ done      8. Validate + deduplicate dataset
-3. Download base model                     9. Run 1K-example smoke training
-4. Create Nyaya-Eval-v0 (500 questions)   10. Train Nyaya-3B-v1 (8K–15K examples)
-5. Run base-model benchmark               11. Evaluate + analyze failures
-6. Build raw legal corpus                 12. Improve data → train v2
+3. Download base model                     9. Create splits (by source section)
+4. Create Nyaya-Eval-v0 (500 questions)   10. Run 1K-example smoke training
+5. Run base-model benchmark               11. Train Nyaya-3B-v1 (8K–15K examples)
+6. Build raw legal corpus                 12. Evaluate + error analysis → v2 data
 ```
 
 The core loop: **DATA → TRAIN → EVALUATE → FAILURE ANALYSIS → BETTER DATA → TRAIN AGAIN.**
@@ -100,7 +100,9 @@ pip install -r requirements.txt
 nvidia-smi
 python -c "import torch; print(torch.cuda.is_available())"
 
-# Pull the ready-made Indian legal datasets from Hugging Face
+# Pull the ready-made Indian legal datasets from Hugging Face.
+# aalap + IL-TUR are gated: log in and accept their terms on huggingface.co first.
+huggingface-cli login
 python scripts/00_download_hf_datasets.py
 
 # Download + smoke-test the base model (do not train until this works)
