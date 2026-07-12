@@ -2,7 +2,7 @@
 # in-cluster (scripts/01_download_model.py). Not a serving image — no API,
 # no training — see docs/ROADMAP.md for what's implemented so far.
 
-FROM pytorch/pytorch:2.3.1-cuda12.1-cudnn8-runtime
+FROM pytorch/pytorch:2.4.1-cuda12.1-cudnn9-runtime
 
 WORKDIR /app
 

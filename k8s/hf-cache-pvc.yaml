@@ -4,11 +4,11 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: nyaya-hf-cache
-  namespace: nyaya
+  namespace: askdata-ng
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: 20Gi
-  # storageClassName: gp3   # set to your cluster's storage class if the default isn't suitable
+  # cluster default storageClassName is "default" (disk.csi.azure.com) — fine for RWO single-pod use
