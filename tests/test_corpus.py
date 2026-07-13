@@ -88,6 +88,26 @@ class TestSliceActBody:
         body = slice_act_body(text)
         assert "Schedule content" not in body
 
+    def test_constitution_preamble_anchor_and_bare_schedule(self):
+        # The Constitution has no enacting formula — the body starts at the
+        # Preamble ("WE, THE PEOPLE OF INDIA") — and its schedules begin
+        # "[FIRST SCHEDULE" without a leading "THE".
+        text = (
+            "CONTENTS\n"
+            "1. Name and territory of the Union.\n"
+            "THE CONSTITUTION OF INDIA\n"
+            "PREAMBLE\n"
+            "WE, THE PEOPLE OF INDIA, having solemnly resolved.\n"
+            "PART I\n"
+            "THE UNION AND ITS TERRITORY\n"
+            "1. Name and territory of the Union.—India, that is Bharat.\n"
+            "[FIRST SCHEDULE\n[Articles 1 and 4]\nI. THE STATES\n"
+        )
+        body = slice_act_body(text)
+        assert body.startswith("WE, THE PEOPLE OF INDIA")
+        assert "THE STATES" not in body
+        assert "Bharat" in body
+
     def test_statement_of_objects_excluded(self):
         # India Code "updated" PDFs append the Statement of Objects and
         # Reasons after the last section (Code on Wages 2019).
