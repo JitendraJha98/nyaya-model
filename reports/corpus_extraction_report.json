@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "generated_at": "2026-07-13 15:03:42",
+    "gate": 0.98
+  },
+  "acts": {
+    "bns_2023": {
+      "extracted": 358,
+      "expected": 358,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0
+    },
+    "bnss_2023": {
+      "extracted": 531,
+      "expected": 531,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0
+    },
+    "bsa_2023": {
+      "extracted": 170,
+      "expected": 170,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0
+    },
+    "rti_2005": {
+      "extracted": 31,
+      "expected": 31,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0
+    }
+  }
+}
