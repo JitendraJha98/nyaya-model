@@ -1,0 +1,31 @@
+# Bulk judgment archives — AWS Open Data, anonymous access (no account/key).
+# Synced by scripts/12_bulk_judgments.py into data/raw/judgments/<source_id>/.
+#
+# Buckets confirmed from registry.opendata.aws 2026-07-14 (both CC-BY-4.0,
+# ap-south-1, maintained by Dattam Labs from the official eCourts site):
+#   indian-supreme-court-judgments   SC 1950-2025; per-year tars split into
+#                                    english/ and regional/; parquet metadata
+#   indian-high-court-judgments      25 High Courts; metadata parquet + pdf
+#                                    tars (PDF corpus is ~1 TB — NOT synced)
+#
+# Cap is enforced across ALL sources combined. Current plan ≈ 29 GiB:
+#   SC english tars ~21.1 GiB + SC parquet ~0.05 GiB + HC parquet ~7.4 GiB.
+max_total_gb: 80
+
+sources:
+  - source_id: sc_judgments
+    bucket: "indian-supreme-court-judgments"
+    region: "ap-south-1"
+    # full English judgment corpus (every year) + all structured metadata;
+    # regional-language tars (~48 GiB) are excluded by the contains filter.
+    prefixes: ["data/tar/", "metadata/parquet/"]
+    contains: ["/english/", "metadata/parquet/"]
+    enabled: true
+
+  - source_id: hc_judgments
+    bucket: "indian-high-court-judgments"
+    region: "ap-south-1"
+    # structured metadata only (case number, parties, date, disposal, bench —
+    # enough for v2 planning/filtering); judgment PDFs stay in the bucket.
+    prefixes: ["metadata/parquet/"]
+    enabled: true
