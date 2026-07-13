@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-07-13 15:03:42",
+    "generated_at": "2026-07-13 18:26:28",
     "gate": 0.98
   },
   "acts": {
@@ -36,5 +36,10 @@
       "empty_or_short": [],
       "clean_fraction": 1.0
     }
+  },
+  "mappings": {
+    "bns_ipc": 544,
+    "bnss_crpc": 528,
+    "bsa_iea": 185
   }
 }

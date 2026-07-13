@@ -34,7 +34,13 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from nyaya.corpus import extract_pdf_text, slice_act_body, split_sections, validate_sections
+from nyaya.corpus import (
+    extract_pdf_text,
+    parse_ncrb_mapping,
+    slice_act_body,
+    split_sections,
+    validate_sections,
+)
 
 CONFIG = ROOT / "configs" / "acts.yaml"
 RAW_DIR = ROOT / "data" / "raw" / "acts"
@@ -91,6 +97,32 @@ def build_act(act: dict) -> tuple[list[dict], dict]:
     return rows, report
 
 
+def build_mappings(mapping_configs: list[dict]) -> dict:
+    """NCRB corresponding-section tables -> data/canonical/law_mappings.jsonl."""
+    rows, counts = [], {}
+    for m in mapping_configs:
+        pdf = download_pdf(m["url"], RAW_DIR / "mappings" / f"{m['mapping_id']}.pdf")
+        pairs = sorted(set(parse_ncrb_mapping(pdf)))
+        counts[m["mapping_id"]] = len(pairs)
+        print(f"  [{m['mapping_id']}] {m['old_act']}->{m['new_act']}: {len(pairs)} pairs")
+        rows.extend(
+            {
+                "old_act": m["old_act"],
+                "old_section": old,
+                "new_act": m["new_act"],
+                "new_section": new,
+                "note": None,
+            }
+            for new, old in pairs
+        )
+    out = OUT_DIR / "law_mappings.jsonl"
+    with out.open("w", encoding="utf-8") as fh:
+        for row in rows:
+            fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+    print(f"  -> {out.relative_to(ROOT)} ({len(rows)} rows)")
+    return counts
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--act", help="build a single act_id from the config")
@@ -129,9 +161,17 @@ def main() -> None:
             for r in sampler.sample(rows, min(k, len(rows)))
         ]
 
+    mapping_counts = {}
+    if not args.act and config.get("mappings"):
+        print("[mappings] NCRB corresponding-section tables")
+        mapping_counts = build_mappings(config["mappings"])
+
     meta = {"generated_at": time.strftime("%Y-%m-%d %H:%M:%S"), "gate": CLEAN_GATE}
     (REPORTS / "corpus_extraction_report.json").write_text(
-        json.dumps({"meta": meta, "acts": full_report}, indent=2), encoding="utf-8"
+        json.dumps(
+            {"meta": meta, "acts": full_report, "mappings": mapping_counts}, indent=2
+        ),
+        encoding="utf-8",
     )
     (REPORTS / "corpus_spotcheck_sample.json").write_text(
         json.dumps(spotcheck, ensure_ascii=False, indent=2), encoding="utf-8"

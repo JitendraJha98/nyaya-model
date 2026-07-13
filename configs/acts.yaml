@@ -97,3 +97,21 @@ acts:
     url: null
     expected_sections: null
     effective_date: "1950-01-26"
+
+# Old-law <-> new-law corresponding-section tables (NCRB Sankalan, official).
+# Parsed by scripts/03_build_corpus.py into data/canonical/law_mappings.jsonl.
+mappings:
+  - mapping_id: bns_ipc
+    new_act: BNS
+    old_act: IPC
+    url: "https://www.ncrb.gov.in/uploads/SankalanPortal/DownloadPDF/BNS2023.pdf"
+
+  - mapping_id: bnss_crpc
+    new_act: BNSS
+    old_act: CrPC
+    url: "https://www.ncrb.gov.in/uploads/SankalanPortal/DownloadPDF/BNSS2023.pdf"
+
+  - mapping_id: bsa_iea
+    new_act: BSA
+    old_act: IEA
+    url: "https://www.ncrb.gov.in/uploads/SankalanPortal/DownloadPDF/BSA2023.pdf"
