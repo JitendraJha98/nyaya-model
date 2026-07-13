@@ -1,0 +1,73 @@
+# Runs scripts/02_run_baseline.py (base Qwen2.5-3B on Nyaya-Eval-v0) on 1 GPU.
+# The nyaya:smoke-v2 image predates the evaluation harness, so the current
+# code + eval data are injected via ConfigMaps (no image rebuild needed):
+#
+#   kubectl create configmap nyaya-baseline-src     -n askdata-ng --from-file=src/nyaya/
+#   kubectl create configmap nyaya-baseline-scripts -n askdata-ng --from-file=02_run_baseline.py=scripts/02_run_baseline.py
+#   kubectl create configmap nyaya-baseline-data    -n askdata-ng --from-file=nyaya_eval_v0_draft.jsonl=data/eval/nyaya_eval_v0_draft.jsonl
+#   kubectl apply -f k8s/baseline-job.yaml
+#
+# Results land on the nyaya-hf-cache PVC under /data/hf-cache/nyaya-runs/baseline/
+# (reports/baseline.json + outputs/baseline/predictions.jsonl). Retrieve with a
+# helper pod mounting the same PVC, then commit reports/baseline.json.
+# For a quick smoke first, add --limit 24 to the args.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nyaya-baseline
+  namespace: askdata-ng
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 14400
+  template:
+    metadata:
+      labels:
+        app: nyaya-baseline
+    spec:
+      restartPolicy: Never
+      nodeSelector:
+        accelerator: nvidia
+      containers:
+        - name: nyaya-baseline
+          image: acrcgipulsescusdev.azurecr.io/nyaya:smoke-v2
+          imagePullPolicy: IfNotPresent
+          command: ["python", "/work/scripts/02_run_baseline.py"]
+          args: ["--out-dir", "/data/hf-cache/nyaya-runs/baseline", "--batch-size", "8"]
+          env:
+            - name: PYTHONPATH
+              value: /work/src
+            - name: PYTHONIOENCODING
+              value: utf-8
+            - name: HF_HOME
+              value: /data/hf-cache
+          resources:
+            requests:
+              cpu: "4"
+              memory: 24Gi
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "8"
+              memory: 32Gi
+              nvidia.com/gpu: "1"
+          volumeMounts:
+            - name: hf-cache
+              mountPath: /data/hf-cache
+            - name: src
+              mountPath: /work/src/nyaya
+            - name: scripts
+              mountPath: /work/scripts
+            - name: data
+              mountPath: /work/data/eval
+      volumes:
+        - name: hf-cache
+          persistentVolumeClaim:
+            claimName: nyaya-hf-cache
+        - name: src
+          configMap:
+            name: nyaya-baseline-src
+        - name: scripts
+          configMap:
+            name: nyaya-baseline-scripts
+        - name: data
+          configMap:
+            name: nyaya-baseline-data
