@@ -48,6 +48,14 @@ class TestVerifyCitations:
     def test_unknown_act_family_rejected(self, db):
         assert not verify_citations("See Section 154 of the CrPC.", db)
 
+    def test_old_law_whitelist_from_mapping_table(self):
+        # With include_old_law=True the mapping table whitelists old-law
+        # sections for historical references ("IPC 420 was replaced by...").
+        db = load_statute_db(include_old_law=True)
+        assert verify_citations("Section 154 of the CrPC is now Section 173 BNSS.", db)
+        assert verify_citations("IPC Section 420 became Section 318 of the BNS.", db)
+        assert not verify_citations("Section 9999 of the IPC.", db)
+
     def test_subsection_resolves_to_base_section(self, db):
         assert verify_citations("Punishable under Section 318(4) of the BNS.", db)
 

@@ -61,13 +61,21 @@ def extract_citations(text: str) -> list[str]:
     return [m.group(0) for m in CITATION_PATTERN.finditer(text)]
 
 
-def load_statute_db(canonical_dir: str | Path | None = None) -> dict[str, set[str]]:
-    """Load data/canonical/*.jsonl into {act_family: {section numbers}}."""
+def load_statute_db(
+    canonical_dir: str | Path | None = None, include_old_law: bool = False
+) -> dict[str, set[str]]:
+    """Load data/canonical/*.jsonl into {act_family: {section numbers}}.
+
+    include_old_law=True additionally whitelists repealed-act sections
+    (IPC/CrPC/IEA) listed in law_mappings.jsonl, so historical references
+    like "IPC 420 was replaced by BNS 318" verify. Default excludes them:
+    grounded generation should cite current law only.
+    """
     directory = Path(canonical_dir) if canonical_dir else CANONICAL_DIR
     db: dict[str, set[str]] = {}
     for path in sorted(directory.glob("*.jsonl")):
         if path.name.startswith("law_mappings"):
-            continue  # mapping table has its own loader
+            continue  # handled below
         with path.open(encoding="utf-8") as fh:
             for line in fh:
                 if not line.strip():
@@ -77,6 +85,16 @@ def load_statute_db(canonical_dir: str | Path | None = None) -> dict[str, set[st
                 family = _ACT_ID_FAMILY.get(act_id.rsplit("_", 1)[0])
                 if family:
                     db.setdefault(family, set()).add(row["section"].upper())
+    if include_old_law:
+        mapping_file = directory / "law_mappings.jsonl"
+        if mapping_file.exists():
+            with mapping_file.open(encoding="utf-8") as fh:
+                for line in fh:
+                    if not line.strip():
+                        continue
+                    row = json.loads(line)
+                    family = row["old_act"].lower()
+                    db.setdefault(family, set()).add(row["old_section"].upper())
     if not db:
         raise FileNotFoundError(
             f"no statute JSONL found in {directory} — run scripts/03_build_corpus.py"

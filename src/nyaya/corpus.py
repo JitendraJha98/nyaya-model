@@ -125,6 +125,115 @@ def split_sections(text: str) -> list[dict]:
     return sections
 
 
+# "(?=\s|$)" not "\s": a right-column number whose title wrapped to the next
+# line is a bare "498A." with nothing after the period. Letter-suffixed
+# sections ("41A Notice…") sometimes omit the period entirely — distinctive
+# enough to accept; bare digits without a period are NOT (prose risk).
+_PLAIN_SECTION = re.compile(r"^[ \t]*(\d{1,3})\.(?=\s|$)")
+_SUFFIXED_SECTION = re.compile(r"^[ \t]*(\d{1,3}[A-Z]{1,2})\.?(?=\s|$)")
+_CELL_SECTION = re.compile(r"^[ \t]*(\d{1,3}[A-Z]{0,2})\.(?:\s|$)", re.MULTILINE)
+_SUBSECTION_MARKER = re.compile(r"^\s*(\d{1,3})\s*\(\d+\)")
+
+
+def _cell_sections(cell: str) -> list[str]:
+    """Line-leading section numbers in a table cell."""
+    out = []
+    for line in cell.splitlines():
+        m = _PLAIN_SECTION.match(line) or _SUFFIXED_SECTION.match(line)
+        if m:
+            out.append(m.group(1))
+    return out
+
+
+def extract_mapping_pairs(rows: list[tuple[str, str]]) -> list[tuple[str, str]]:
+    """(new-act cell, old-act cell) rows -> (new_section, old_section) pairs.
+
+    Semantics from the NCRB Sankalan corresponding-section tables: a
+    line-leading "N." in the left cell sets the current new-act section, and
+    so does a subsection marker "N (k)" / "N(k)" (consolidating sections
+    appear only as subsection-level lines). Every line-leading "M." in the
+    right cell pairs with the current section. Header/chapter rows and
+    "New Section" markers yield no pairs.
+    """
+    pairs = []
+    current_new = None
+    for left, right in rows:
+        left, right = left or "", right or ""
+        if "CHAPTER" in left.upper() or not (left.strip() or right.strip()):
+            continue
+        left_sections = _cell_sections(left)
+        if left_sections:
+            current_new = left_sections[0]
+        else:
+            marker = _SUBSECTION_MARKER.match(left)
+            if marker:
+                current_new = marker.group(1)
+        if current_new is None:
+            continue
+        for old in _cell_sections(right):
+            pairs.append((current_new, old))
+    return pairs
+
+
+def _column_lines(page) -> list[tuple[float, int, str]]:
+    """Reconstruct (y, column, text) lines from word positions.
+
+    fitz's find_tables drops/mis-merges rows of the NCRB tables (borderless,
+    irregular), so columns are split positionally instead: a line belongs to
+    the right column when it starts past ~48% of the page width.
+    """
+    mid = page.rect.width * 0.48
+    lines: dict[tuple[int, int, int], list[tuple[int, float, float, str]]] = {}
+    for x0, y0, _x1, _y1, word, block, line, word_no in page.get_text("words"):
+        # partition each physical line at the column boundary: fitz sometimes
+        # merges both columns' words into one line object
+        column = 0 if x0 < mid else 1
+        lines.setdefault((block, line, column), []).append((word_no, x0, y0, word))
+    out = []
+    for words in lines.values():
+        words.sort()
+        x_start = min(w[1] for w in words)
+        y = min(w[2] for w in words)
+        text = " ".join(w[3] for w in words)
+        out.append((y, 0 if x_start < mid else 1, text))
+    # Band y into 3pt buckets before sorting: cells on the same visual row can
+    # differ by sub-point y, and a right cell sorting before its left setter
+    # attaches the old section to the wrong new section. Row pitch is >=12pt,
+    # so banding never merges adjacent rows.
+    return sorted(out, key=lambda item: (round(item[0] / 3), item[1], item[0]))
+
+
+def parse_ncrb_mapping(pdf_path) -> list[tuple[str, str]]:
+    """Extract (new_section, old_section) pairs from an NCRB Sankalan PDF.
+
+    The corresponding-section table is a contiguous block of two-column pages
+    beginning at the "CORRESPONDING SECTION TABLE" header; the block ends at
+    the first page with no numbered right-column lines (the act text)."""
+    import fitz
+
+    rows: list[tuple[str, str]] = []
+    started = False
+    with fitz.open(pdf_path) as doc:
+        for page in doc:
+            has_header = "CORRESPONDING SECTION TABLE" in page.get_text().upper()
+            lines = _column_lines(page)
+            right_numbered = any(
+                col == 1 and _CELL_SECTION.match(text) for _y, col, text in lines
+            )
+            if not started:
+                # the index/cover pages mention the header too — the block
+                # starts at the first page that also has two-column content
+                if has_header and right_numbered:
+                    started = True
+                else:
+                    continue
+            elif not right_numbered:
+                break
+            for _y, col, text in lines:
+                rows.append((text, "") if col == 0 else ("", text))
+    return extract_mapping_pairs(rows)
+
+
 def _numeric(section: str) -> int:
     return int(re.match(r"\d+", section).group(0))
 
