@@ -1,0 +1,99 @@
+# Statute-DB act registry — consumed by scripts/03_build_corpus.py.
+# One entry per priority act (docs/ROADMAP.md "Core data assets").
+# `enabled: false` + "verify URL" means the official India Code bitstream URL
+# has not been confirmed yet — verify on indiacode.nic.in before enabling.
+# expected_sections drives the >=98%-clean extraction gate; null = report only.
+
+acts:
+  - act_id: bns_2023
+    act_name: "Bharatiya Nyaya Sanhita, 2023"
+    enabled: true
+    url: "https://www.indiacode.nic.in/bitstream/123456789/20062/1/a202345.pdf"
+    expected_sections: 358
+    effective_date: "2024-07-01"
+
+  - act_id: bnss_2023
+    act_name: "Bharatiya Nagarik Suraksha Sanhita, 2023"
+    enabled: true
+    url: "https://www.indiacode.nic.in/bitstream/123456789/21544/1/the_bharatiya_nagarik_suraksha_sanhita,_2023.pdf"
+    expected_sections: 531
+    effective_date: "2024-07-01"
+
+  - act_id: bsa_2023
+    act_name: "Bharatiya Sakshya Adhiniyam, 2023"
+    enabled: true
+    url: "https://www.indiacode.nic.in/bitstream/123456789/20063/1/aa202347.pdf"
+    expected_sections: 170
+    effective_date: "2024-07-01"
+
+  - act_id: rti_2005
+    act_name: "Right to Information Act, 2005"
+    enabled: true
+    url: "https://www.indiacode.nic.in/bitstream/123456789/2065/1/aa2005.pdf"
+    expected_sections: 31
+    effective_date: "2005-10-12"
+
+  # --- verify official bitstream URLs before enabling ---
+
+  - act_id: cpa_2019
+    act_name: "Consumer Protection Act, 2019"
+    enabled: false   # verify URL on indiacode.nic.in
+    url: null
+    expected_sections: 107
+    effective_date: "2020-07-20"
+
+  - act_id: it_act_2000
+    act_name: "Information Technology Act, 2000"
+    enabled: false   # verify URL; heavy amendment footnotes — check clean fraction
+    url: null
+    expected_sections: null
+    effective_date: "2000-10-17"
+
+  - act_id: ni_act_1881
+    act_name: "Negotiable Instruments Act, 1881"
+    enabled: false   # verify URL
+    url: null
+    expected_sections: null
+    effective_date: "1882-03-01"
+
+  - act_id: dv_act_2005
+    act_name: "Protection of Women from Domestic Violence Act, 2005"
+    enabled: false   # verify URL
+    url: null
+    expected_sections: 37
+    effective_date: "2006-10-26"
+
+  - act_id: mv_act_1988
+    act_name: "Motor Vehicles Act, 1988"
+    enabled: false   # verify URL; large act with many amendments
+    url: null
+    expected_sections: null
+    effective_date: "1989-07-01"
+
+  - act_id: posh_2013
+    act_name: "Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013"
+    enabled: false   # verify URL
+    url: null
+    expected_sections: 30
+    effective_date: "2013-12-09"
+
+  - act_id: hma_1955
+    act_name: "Hindu Marriage Act, 1955"
+    enabled: false   # verify URL
+    url: null
+    expected_sections: null
+    effective_date: "1955-05-18"
+
+  - act_id: wages_code_2019
+    act_name: "Code on Wages, 2019"
+    enabled: false   # verify URL; in force 2025-11-21
+    url: null
+    expected_sections: 69
+    effective_date: "2025-11-21"
+
+  - act_id: constitution_1950
+    act_name: "Constitution of India"
+    enabled: false   # Articles/Parts/Schedules structure — needs a dedicated parser
+    url: null
+    expected_sections: null
+    effective_date: "1950-01-26"
