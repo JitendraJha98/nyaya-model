@@ -6,7 +6,7 @@ datasets>=2.20
 accelerate>=0.33
 peft>=0.12
 trl>=0.9
-bitsandbytes>=0.43
+# bitsandbytes intentionally absent: full-precision bf16 LoRA, no QLoRA/4-bit.
 sentencepiece>=0.2
 protobuf>=4.25
 wandb>=0.17

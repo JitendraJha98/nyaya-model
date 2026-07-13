@@ -11,7 +11,7 @@ primary metric — not train/val loss.
 
 ## The 12 steps (do in exactly this order)
 
-1. **Freeze the base model** — `Qwen/Qwen2.5-3B-Instruct`. Don't change models during an experiment cycle. Method for v1: SFT with QLoRA (4-bit NF4, BF16 compute).
+1. **Freeze the base model** — `Qwen/Qwen2.5-3B-Instruct`. Don't change models during an experiment cycle. Method for v1: SFT with LoRA (full-precision bf16 base — no quantization).
 2. **Set up the repository** — versioned data, config per experiment, traceable checkpoints.
 3. **Download + smoke-test the base model** — verify inference before training anything (`scripts/01_download_model.py`).
 4. **Create Nyaya-Eval-v0** — 500 manually curated eval questions, frozen. Built *before* any training data. Category split in `data/eval/README.md`.
@@ -44,10 +44,10 @@ First 10K target composition: 3,000 grounded QA · 1,500 procedural · 1,000 old
 
 ## Training configuration (v1)
 
-QLoRA · seq 4096 · LoRA r=32 / alpha=64 / dropout 0.05 · target all attention + MLP linear modules
-(`q,k,v,o,gate,up,down`) · lr 1e-4 · cosine · warmup 0.03 · 1 epoch · effective batch 32–64 ·
-BF16 · gradient checkpointing · paged AdamW 8-bit · Flash Attention 2 if supported. Full configs in
-`configs/smoke.yaml` and `configs/train_v1.yaml`.
+LoRA on the full-precision bf16 base (no quantization) · seq 4096 · r=32 / alpha=64 / dropout 0.05 ·
+target all attention + MLP linear modules (`q,k,v,o,gate,up,down`) · lr 1e-4 · cosine · warmup 0.03 ·
+1 epoch · effective batch 32–64 · gradient checkpointing · fused AdamW · Flash Attention 2 if
+supported. Full configs in `configs/smoke.yaml` and `configs/train_v1.yaml`.
 
 ## Evaluation plan (build the harness before training run 1)
 

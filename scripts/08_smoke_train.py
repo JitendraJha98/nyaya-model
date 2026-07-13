@@ -9,9 +9,17 @@ model. Look for: legal terminology improved? Hinglish improved? repetitive?
 answers too long? general reasoning degraded? citation hallucinations increased?
 "consult a lawyer" for everything? memorized training examples?
 
-Only after this passes do we train v1.
-
-TODO: thin wrapper over src/nyaya/trainer.py with configs/smoke.yaml.
+Only after this passes do we train v1. Method: bf16 LoRA (no quantization).
 """
 
-raise NotImplementedError("Implement via src/nyaya/trainer.py once splits exist.")
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from nyaya.trainer import train
+
+if __name__ == "__main__":
+    metrics = train(ROOT / "configs" / "smoke.yaml")
+    print(f"[done] smoke training metrics: {metrics}")

@@ -16,7 +16,7 @@ plain-language, citation-verified answer — with a clear signal of when they ne
 faster iteration on data quality, cheaper experiments, and the pipeline scales up to 7B later
 without changes. Do **not** change models during the first experiment cycle.
 
-Training method for v1: **SFT with QLoRA** (4-bit NF4, BF16 compute).
+Training method for v1: **SFT with LoRA** (full-precision bf16 base — no quantization).
 
 ## What "best" means (the four axes)
 
@@ -62,7 +62,7 @@ Training method for v1: **SFT with QLoRA** (4-bit NF4, BF16 compute).
 │   ├── prompts.py           # System prompts + grounded generation prompt skeletons
 │   ├── validators.py        # Citation verification, dedup, leakage detection
 │   ├── dataset.py           # Dataset loading/formatting for TRL
-│   ├── trainer.py           # QLoRA training wrapper
+│   ├── trainer.py           # LoRA training wrapper (bf16, no quantization)
 │   └── evaluation.py        # Eval harness (citation accuracy, benchmarks)
 ├── outputs/                 # Model outputs and checkpoints (gitignored)
 │   ├── baseline/            # Base Qwen predictions on Nyaya-Eval-v0
