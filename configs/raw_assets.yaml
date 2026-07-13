@@ -1,0 +1,127 @@
+# Raw official assets fetched by scripts/13_download_raw_assets.py into
+# data/raw/assets/<group>/<asset_id>.<filetype>  (+ manifest.json checksums).
+#
+# Every url below was verified live (HTTP 200, correct content) on 2026-07-14.
+# Anything that could not be verified by script stays commented out under
+# "UNVERIFIED — manual": the user downloads it by hand into the same layout,
+# then re-runs the fetcher to record it in the manifest.
+#
+# Groups:
+#   hindi_statutes    official Hindi PDFs of the priority acts (India Code
+#                     handle pages carry a Hindi bitstream next to English).
+#                     IT Act 2000 has no Hindi bitstream; the Constitution's
+#                     diglot PDF already contains Hindi.
+#   procedure_sources official citizen-facing pages grounding the procedure KB
+#   law_commission_reports / aibe_papers — manual for now (JS-only portals)
+
+assets:
+  # --- hindi_statutes ---
+  - asset_id: bns_2023_hi
+    group: hindi_statutes
+    url: "https://www.indiacode.nic.in/bitstream/123456789/20062/2/Hh202345.pdf"
+    referer: "https://www.indiacode.nic.in/handle/123456789/20062"
+    filetype: pdf
+
+  - asset_id: bnss_2023_hi
+    group: hindi_statutes
+    url: "https://www.indiacode.nic.in/bitstream/123456789/20099/2/hindi.pdf"
+    referer: "https://www.indiacode.nic.in/handle/123456789/20099"
+    filetype: pdf
+
+  - asset_id: bsa_2023_hi
+    group: hindi_statutes
+    url: "https://www.indiacode.nic.in/bitstream/123456789/20063/2/hh202347.pdf"
+    referer: "https://www.indiacode.nic.in/handle/123456789/20063"
+    filetype: pdf
+
+  - asset_id: rti_2005_hi
+    group: hindi_statutes
+    url: "https://www.indiacode.nic.in/bitstream/123456789/2065/2/H2005.pdf"
+    referer: "https://www.indiacode.nic.in/handle/123456789/2065"
+    filetype: pdf
+
+  - asset_id: cpa_2019_hi
+    group: hindi_statutes
+    url: "https://www.indiacode.nic.in/bitstream/123456789/15256/2/hindi201935.pdf"
+    referer: "https://www.indiacode.nic.in/handle/123456789/15256"
+    filetype: pdf
+
+  - asset_id: ni_act_1881_hi
+    group: hindi_statutes
+    url: "https://www.indiacode.nic.in/bitstream/123456789/2189/2/H1881-26.pdf"
+    referer: "https://www.indiacode.nic.in/handle/123456789/2189"
+    filetype: pdf
+
+  - asset_id: dv_act_2005_hi
+    group: hindi_statutes
+    url: "https://www.indiacode.nic.in/bitstream/123456789/2021/2/H2005-43.pdf"
+    referer: "https://www.indiacode.nic.in/handle/123456789/2021"
+    filetype: pdf
+
+  - asset_id: mv_act_1988_hi
+    group: hindi_statutes
+    url: "https://www.indiacode.nic.in/bitstream/123456789/1798/2/Hh198859.pdf"
+    referer: "https://www.indiacode.nic.in/handle/123456789/1798"
+    filetype: pdf
+
+  - asset_id: posh_2013_hi
+    group: hindi_statutes
+    url: "https://www.indiacode.nic.in/bitstream/123456789/2104/3/H2013-14.pdf"
+    referer: "https://www.indiacode.nic.in/handle/123456789/2104"
+    filetype: pdf
+
+  - asset_id: hma_1955_hi
+    group: hindi_statutes
+    url: "https://www.indiacode.nic.in/bitstream/123456789/1560/2/H1955-25Hi.pdf"
+    referer: "https://www.indiacode.nic.in/handle/123456789/1560"
+    filetype: pdf
+
+  - asset_id: sma_1954_hi
+    group: hindi_statutes
+    url: "https://www.indiacode.nic.in/bitstream/123456789/1387/2/HH1954-43H.pdf"
+    referer: "https://www.indiacode.nic.in/handle/123456789/1387"
+    filetype: pdf
+
+  - asset_id: wages_code_2019_hi
+    group: hindi_statutes
+    url: "https://www.indiacode.nic.in/bitstream/123456789/15793/2/hH2019-29OCR.pdf"
+    referer: "https://www.indiacode.nic.in/handle/123456789/15793"
+    filetype: pdf
+
+  # --- procedure_sources (official citizen-facing pages) ---
+  - asset_id: rti_online_faq
+    group: procedure_sources
+    url: "https://rtionline.gov.in/faq.php"
+    filetype: html
+
+  - asset_id: cybercrime_safety_tips
+    group: procedure_sources
+    url: "https://cybercrime.gov.in/Webform/Crime_OnlineSafetyTips.aspx"
+    filetype: html
+
+  - asset_id: consumerhelpline_home
+    group: procedure_sources
+    url: "https://consumerhelpline.gov.in/"
+    filetype: html
+
+  - asset_id: nalsa_home
+    group: procedure_sources
+    url: "https://nalsa.gov.in/"
+    filetype: html
+
+# ---------------------------------------------------------------------------
+# UNVERIFIED — manual. These portals are JS-rendered or block scripted
+# fetches; download by hand into data/raw/assets/<group>/<asset_id>.pdf.
+#
+# law_commission_reports (lawcommissionofindia.nic.in > Law Commission Reports;
+# the PDF links are behind a JS listing):
+#   - lci_report_262  (Report 262 — The Death Penalty)
+#   - lci_report_268  (Report 268 — Bail reform)
+#   - lci_report_277  (Report 277 — Wrongful Prosecution)
+#
+# aibe_papers (allindiabarexamination.com — JS site):
+#   - aibe previous-year question papers + answer keys
+#
+# procedure_sources:
+#   - parivahan challan/licence FAQ (parivahan.gov.in FAQ path is JS-routed)
+# ---------------------------------------------------------------------------
