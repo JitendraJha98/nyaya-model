@@ -1,14 +1,17 @@
-"""Tests for scripts/03_build_corpus.py — the statute-DB extraction pipeline.
+"""Tests for scripts/03_build_corpus.py — the statute-DB build ORCHESTRATOR.
 
-The section splitter is inherently heuristic (bare acts are not perfectly
-uniform), which is exactly why docs/ROADMAP.md mandates a 5% manual
-spot-check and a >=98% clean gate before this output feeds synthetic
-generation. These tests pin down the behavior the splitter *must* get right
-(TOC-entry rejection, header/footer stripping, retry/skip bookkeeping) using
-synthetic bare-act-style fixtures — no real network or PDF files involved.
+The heavy lifting (PDF text extraction, section splitting, validation, NCRB
+mapping parsing) lives in src/nyaya/corpus.py and is tested in test_corpus.py +
+test_mappings.py. This script is a thin I/O layer over that library, so these
+tests pin down the orchestration behaviour: download retry/skip bookkeeping,
+that build_act maps library output into full StatuteSection-shaped rows (the
+chapter/effective_date/source_url fields the canonical DB depends on), that
+build_mappings writes law_mappings.jsonl, and that spot-check sampling is
+deterministic. No real network or PDF files are involved.
 """
 
 import importlib.util
+import json
 from pathlib import Path
 
 import pytest
@@ -21,128 +24,6 @@ spec = importlib.util.spec_from_file_location(
 )
 bc = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(bc)
-
-
-# ---------------------------------------------------------------------------
-# clean_pages — running header/footer + page-number stripping
-# ---------------------------------------------------------------------------
-
-class TestCleanPages:
-    def test_strips_repeated_running_header(self):
-        pages = [
-            "THE CONSUMER PROTECTION ACT, 2019\n1. Short title.\nBody one.\n1",
-            "THE CONSUMER PROTECTION ACT, 2019\n2. Definitions.\nBody two.\n2",
-            "THE CONSUMER PROTECTION ACT, 2019\n3. Application.\nBody three.\n3",
-            "THE CONSUMER PROTECTION ACT, 2019\n4. Objects.\nBody four.\n4",
-        ]
-        text = bc.clean_pages(pages)
-        assert "THE CONSUMER PROTECTION ACT, 2019" not in text
-        assert "Short title" in text and "Definitions" in text
-
-    def test_strips_bare_page_numbers(self):
-        pages = ["Header\nSome section text.\n42", "Header\nMore text.\n43"] * 3
-        text = bc.clean_pages(pages)
-        assert " 42 " not in f" {text} "
-        assert " 43 " not in f" {text} "
-
-    def test_collapses_whitespace_into_single_spaces(self):
-        text = bc.clean_pages(["Line one.\n\n  Line   two.  "])
-        assert "  " not in text
-        assert "\n" not in text
-
-    def test_short_document_keeps_content_lines(self):
-        # Fewer than 4 pages: nothing should be treated as a "repeated" header.
-        pages = ["THE ACT\n1. Short title.\nBody.", "THE ACT\n2. Extent.\nBody two."]
-        text = bc.clean_pages(pages)
-        assert "Short title" in text
-        assert "Extent" in text
-
-
-# ---------------------------------------------------------------------------
-# split_sections — the core regex splitter
-# ---------------------------------------------------------------------------
-
-class TestSplitSectionsNumeric:
-    def test_basic_two_sections(self):
-        text = (
-            "1. Short title, extent and commencement.—This Act may be called "
-            "the Test Act, 2024. "
-            "2. Definitions.—In this Act, unless the context otherwise requires, "
-            "(a) 'court' means a court of competent jurisdiction."
-        )
-        result = bc.split_sections(text)
-        assert [r["section"] for r in result] == ["1", "2"]
-        assert result[0]["title"] == "Short title, extent and commencement"
-        assert "Test Act, 2024" in result[0]["text"]
-        assert result[1]["title"] == "Definitions"
-
-    def test_toc_entry_is_dropped_in_favor_of_full_section(self):
-        # "ARRANGEMENT OF SECTIONS" table-of-contents entries match the same
-        # header pattern but have little/no body — the real section (with a
-        # substantial body) must win.
-        text = (
-            "ARRANGEMENT OF SECTIONS "
-            "1. Short title, extent and commencement. "
-            "2. Definitions. "
-            "CHAPTER I PRELIMINARY "
-            "1. Short title, extent and commencement.—This Act extends to the "
-            "whole of India and shall come into force on such date as the "
-            "Central Government may notify. "
-            "2. Definitions.—In this Act, unless the context otherwise "
-            "requires, (a) 'appropriate Government' means the Central "
-            "Government or a State Government, as the case may be."
-        )
-        result = bc.split_sections(text)
-        by_num = {r["section"]: r for r in result}
-        assert len(by_num) == 2
-        assert "whole of India" in by_num["1"]["text"]
-        assert "appropriate Government" in by_num["2"]["text"]
-
-    def test_alphanumeric_section_number(self):
-        text = (
-            "66. Computer related offences.—If any person dishonestly does any "
-            "act referred to in section 43. "
-            "66A. Punishment for offensive messages.—Any person who sends, by "
-            "means of a computer resource, any information that is grossly "
-            "offensive shall be punishable."
-        )
-        result = bc.split_sections(text)
-        nums = [r["section"] for r in result]
-        assert "66A" in nums
-
-    def test_no_markers_returns_empty_list(self):
-        assert bc.split_sections("This document has no numbered sections at all.") == []
-
-    def test_section_without_title_dash_falls_back_to_full_text(self):
-        text = "5. This section has no em dash separator at all so title stays empty."
-        result = bc.split_sections(text)
-        assert len(result) == 1
-        assert result[0]["section"] == "5"
-        assert result[0]["text"]
-
-    def test_preserves_document_order(self):
-        text = (
-            "3. Third section.—Body three. "
-            "1. First section.—Body one. "  # out of numeric order in text stream is unusual but code order must follow text order
-        )
-        result = bc.split_sections(text)
-        assert [r["section"] for r in result] == ["3", "1"]
-
-
-class TestSplitSectionsArticles:
-    def test_constitution_style_articles(self):
-        text = (
-            "Article 14. Equality before law.—The State shall not deny to any "
-            "person equality before the law or the equal protection of the laws "
-            "within the territory of India. "
-            "Article 21. Protection of life and personal liberty.—No person "
-            "shall be deprived of his life or personal liberty except according "
-            "to procedure established by law."
-        )
-        result = bc.split_sections(text, use_articles=True)
-        nums = [r["section"] for r in result]
-        assert nums == ["14", "21"]
-        assert "equal protection" in result[0]["text"]
 
 
 # ---------------------------------------------------------------------------
@@ -159,23 +40,39 @@ class FakeResponse:
             raise requests.HTTPError(f"{self.status_code} error")
 
 
+def _session(get):
+    """Build a fake requests.Session whose .get is `get(self, url, headers, timeout)`."""
+    return type("S", (), {"get": get})()
+
+
 class TestDownloadPdf:
-    def test_skips_existing_nonempty_file(self, tmp_path, monkeypatch):
+    def test_skips_existing_nonempty_file(self, tmp_path):
         dest = tmp_path / "act.pdf"
         dest.write_bytes(b"already here")
 
-        def boom(*a, **k):
+        def boom(self, *a, **k):
             raise AssertionError("must not re-download an existing file")
 
-        session = type("S", (), {"get": boom})()
-        assert bc.download_pdf("http://example.test/a.pdf", dest, "http://example.test/", session) is True
+        assert bc.download_pdf("http://example.test/a.pdf", dest, _session(boom)) is True
         assert dest.read_bytes() == b"already here"
 
-    def test_succeeds_on_first_try(self, tmp_path, monkeypatch):
+    def test_succeeds_on_first_try(self, tmp_path):
         dest = tmp_path / "act.pdf"
-        session = type("S", (), {"get": lambda self, url, headers, timeout: FakeResponse()})()
-        assert bc.download_pdf("http://example.test/a.pdf", dest, "http://example.test/", session) is True
+        session = _session(lambda self, url, headers, timeout: FakeResponse())
+        assert bc.download_pdf("http://example.test/a.pdf", dest, session) is True
         assert dest.exists()
+
+    def test_sends_referer_when_given(self, tmp_path):
+        dest = tmp_path / "act.pdf"
+        seen = {}
+
+        def capture(self, url, headers, timeout):
+            seen.update(headers)
+            return FakeResponse()
+
+        bc.download_pdf("http://x/a.pdf", dest, _session(capture), referer="http://handle/")
+        assert seen.get("Referer") == "http://handle/"
+        assert "Mozilla" in seen.get("User-Agent", "")
 
     def test_retries_then_succeeds(self, tmp_path, monkeypatch):
         dest = tmp_path / "act.pdf"
@@ -187,57 +84,129 @@ class TestDownloadPdf:
                 raise requests.ConnectionError("transient network error")
             return FakeResponse()
 
-        session = type("S", (), {"get": flaky_get})()
         monkeypatch.setattr(bc.time, "sleep", lambda _s: None)
-        assert bc.download_pdf("http://example.test/a.pdf", dest, "http://example.test/", session) is True
+        assert bc.download_pdf("http://example.test/a.pdf", dest, _session(flaky_get)) is True
         assert calls["n"] == 3
 
     def test_gives_up_after_exhausting_retries(self, tmp_path, monkeypatch):
         dest = tmp_path / "act.pdf"
-
-        def always_403(self, url, headers, timeout):
-            return FakeResponse(status=403)
-
-        session = type("S", (), {"get": always_403})()
+        session = _session(lambda self, url, headers, timeout: FakeResponse(status=403))
         monkeypatch.setattr(bc.time, "sleep", lambda _s: None)
-        assert bc.download_pdf("http://example.test/a.pdf", dest, "http://example.test/", session) is False
+        assert bc.download_pdf("http://example.test/a.pdf", dest, session) is False
         assert not dest.exists()
         assert not dest.with_suffix(dest.suffix + ".tmp").exists()
 
+    def test_skip_download_of_missing_file_returns_false(self, tmp_path):
+        dest = tmp_path / "act.pdf"
+
+        def boom(self, *a, **k):
+            raise AssertionError("--skip-download must not hit the network")
+
+        assert bc.download_pdf("http://x/a.pdf", dest, _session(boom), skip_download=True) is False
+
 
 # ---------------------------------------------------------------------------
-# write_jsonl / write_spot_check — output bookkeeping
+# build_act — library output -> full StatuteSection-shaped rows
 # ---------------------------------------------------------------------------
 
-class TestOutputWriting:
-    def test_write_jsonl_roundtrip(self, tmp_path):
-        from nyaya.schemas import StatuteSection
+_ACT = {
+    "act_id": "bns_2023",
+    "act_name": "Bharatiya Nyaya Sanhita, 2023",
+    "url": "http://indiacode/bns.pdf",
+    "handle_url": "http://indiacode/handle/bns",
+    "expected_sections": 2,
+    "effective_date": "2024-07-01",
+}
 
-        records = [
-            StatuteSection(act_id="bns", act_name="BNS", section="318", title="Cheating", text="Whoever cheats..."),
-        ]
-        out = tmp_path / "canonical" / "bns.jsonl"
-        bc.write_jsonl(records, out)
-        assert out.exists()
-        import json
-        row = json.loads(out.read_text(encoding="utf-8").splitlines()[0])
-        assert row["section"] == "318"
-        assert row["act_id"] == "bns"
 
-    def test_spot_check_samples_five_percent_with_minimum_one(self, tmp_path):
-        from nyaya.schemas import StatuteSection
+def _patch_extraction(monkeypatch, sections):
+    monkeypatch.setattr(bc, "download_pdf", lambda *a, **k: True)
+    monkeypatch.setattr(bc, "extract_pdf_text", lambda pdf: "raw text")
+    monkeypatch.setattr(bc, "slice_act_body", lambda text: text)
+    monkeypatch.setattr(bc, "split_sections", lambda text: sections)
+    monkeypatch.setattr(
+        bc, "validate_sections",
+        lambda secs, expected_count=None: {
+            "extracted": len(secs), "expected": expected_count, "monotonic": True,
+            "numbering_gaps": [], "empty_or_short": [], "clean_fraction": 1.0,
+        },
+    )
 
-        records = [
-            StatuteSection(act_id="bns", act_name="BNS", section=str(i), title="T", text="body")
-            for i in range(40)
-        ]
-        out = tmp_path / "spotcheck.jsonl"
-        n = bc.write_spot_check(records, out, fraction=0.05)
-        assert n == 2  # round(40 * 0.05)
-        assert len(out.read_text(encoding="utf-8").splitlines()) == 2
 
-    def test_spot_check_of_empty_records_writes_nothing(self, tmp_path):
-        out = tmp_path / "spotcheck.jsonl"
-        n = bc.write_spot_check([], out)
-        assert n == 0
-        assert not out.exists()
+class TestBuildAct:
+    def test_rows_carry_chapter_effective_date_and_source_url(self, monkeypatch):
+        _patch_extraction(monkeypatch, [
+            {"section": "103", "title": "Punishment for murder", "text": "Whoever...", "chapter": "CHAPTER VI — Offences Affecting The Human Body"},
+        ])
+        rows, report = bc.build_act(_ACT, session=object())
+        row = rows[0]
+        # the regression the fix repairs: chapter must survive, not be dropped
+        assert row["chapter"].startswith("CHAPTER VI")
+        assert row["effective_date"] == "2024-07-01"
+        assert row["source_url"] == "http://indiacode/bns.pdf"
+        assert row["act_id"] == "bns_2023"
+        assert row["section"] == "103"
+        # StatuteSection-shaped: every dataclass field present
+        for key in ("subsection", "replaces", "punishment_summary", "tags"):
+            assert key in row
+        assert report["clean_fraction"] == 1.0
+
+    def test_missing_pdf_raises(self, monkeypatch):
+        monkeypatch.setattr(bc, "download_pdf", lambda *a, **k: False)
+        with pytest.raises(FileNotFoundError):
+            bc.build_act(_ACT, session=object())
+
+
+# ---------------------------------------------------------------------------
+# build_mappings — NCRB pairs -> law_mappings.jsonl
+# ---------------------------------------------------------------------------
+
+class TestBuildMappings:
+    def test_writes_pairs_and_counts(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(bc, "OUT_DIR", tmp_path)
+        monkeypatch.setattr(bc, "RAW_DIR", tmp_path / "raw")
+        monkeypatch.setattr(bc, "download_pdf", lambda *a, **k: True)
+        monkeypatch.setattr(bc, "parse_ncrb_mapping", lambda pdf: [("103", "302"), ("115", "323")])
+
+        counts = bc.build_mappings(
+            [{"mapping_id": "bns_ipc", "new_act": "BNS", "old_act": "IPC", "url": "http://ncrb/x.pdf"}],
+            session=object(),
+        )
+        assert counts == {"bns_ipc": 2}
+        rows = [json.loads(l) for l in (tmp_path / "law_mappings.jsonl").read_text(encoding="utf-8").splitlines()]
+        assert {"old_act": "IPC", "old_section": "302", "new_act": "BNS", "new_section": "103", "note": None} in rows
+
+    def test_unavailable_pdf_is_skipped_not_fatal(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(bc, "OUT_DIR", tmp_path)
+        monkeypatch.setattr(bc, "RAW_DIR", tmp_path / "raw")
+        monkeypatch.setattr(bc, "download_pdf", lambda *a, **k: False)
+        counts = bc.build_mappings(
+            [{"mapping_id": "bns_ipc", "new_act": "BNS", "old_act": "IPC", "url": "http://ncrb/x.pdf"}],
+            session=object(),
+        )
+        assert counts == {}
+        assert not (tmp_path / "law_mappings.jsonl").exists()
+
+
+# ---------------------------------------------------------------------------
+# spot_check_sample — deterministic 5% sampling
+# ---------------------------------------------------------------------------
+
+class TestSpotCheckSample:
+    def test_samples_five_percent_with_minimum_three(self):
+        rows = [{"section": str(i), "title": "T", "text": "body", "chapter": None} for i in range(100)]
+        sample = bc.spot_check_sample(rows, fraction=0.05)
+        assert len(sample) == 5
+        # only the reviewer-facing fields are kept
+        assert set(sample[0]) == {"section", "title", "text"}
+
+    def test_minimum_three_when_fraction_would_round_lower(self):
+        rows = [{"section": str(i), "title": "T", "text": "body"} for i in range(10)]
+        assert len(bc.spot_check_sample(rows, fraction=0.05)) == 3
+
+    def test_deterministic_across_calls(self):
+        rows = [{"section": str(i), "title": "T", "text": "body"} for i in range(50)]
+        assert bc.spot_check_sample(rows) == bc.spot_check_sample(rows)
+
+    def test_empty_rows_returns_empty(self):
+        assert bc.spot_check_sample([]) == []
