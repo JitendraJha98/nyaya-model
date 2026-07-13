@@ -26,14 +26,40 @@ import re
 # period before the dash (s.217 "…person—Whoever") — accepted only for
 # em/en dashes so hyphens like "co-operative" never terminate a title —
 # and a stray dash right after the number (s.255 "255.—Title.—").
+# U+2015 HORIZONTAL BAR is included: India Code's re-typeset "As on" PDFs of
+# older acts (SMA 1954, HMA 1955) use it instead of an em dash after titles.
+# The optional "[" before the number is a wholly-substituted section
+# ("[16. Title.—…") whose footnote superscript the extractor stripped.
+# The title is tempered so it can never run across the next section's own
+# start line — otherwise a dash-less line (e.g. an omitted section) makes the
+# lazy title swallow its successor — nor across a blank line (real wrapped
+# titles never contain one; trailing ToC entries otherwise bleed into the
+# act header when fed unsliced text).
+# "\s?\." tolerates the stray space in Code on Wages s."39 .Time limit…".
+_NEXT_SECTION_GUARD = r"(?!\n\s*\n)(?!\n\s*\[?\d{1,3}[A-Z]{0,2}\s?\.\s)"
 _SECTION_START = re.compile(
-    r"^\s*(\d{1,3}[A-Z]{0,2})\.\s*[—–]{0,2}\s*([\s\S]{3,300}?)(?:\.\s*[—–-]{1,2}|\s*[—–]{1,2})",
+    r"^\s*\[?(\d{1,3}[A-Z]{0,2})\s?\.\s*[—–―]{0,2}\s*"
+    r"((?:" + _NEXT_SECTION_GUARD + r"[\s\S]){3,300}?)"
+    r"(?:\.\s*[—–―-]{1,2}|\s*[—–―]{1,2})",
+    re.MULTILINE,
+)
+# Omitted/repealed sections have no dash separator at all:
+# "6. [Guardianship in marriage.] Omitted by the Child Marriage …".
+_OMITTED_SECTION = re.compile(
+    r"^\s*\[?(\d{1,3}[A-Z]{0,2})\s?\.\s*\[([^\]\n]{3,200}?)\.?\]\s*(?=Omitted|Rep)",
     re.MULTILINE,
 )
 _CHAPTER = re.compile(r"^\s*(CHAPTER\s+[IVXLC]+[A-Z]?)\s*$", re.MULTILINE)
-_ENACTING = re.compile(r"BE it enacted by Parliament", re.IGNORECASE)
+# Post-1950 acts: "BE it enacted by Parliament…"; pre-Constitution acts
+# (NI Act 1881): "It is hereby enacted as follows".
+_ENACTING = re.compile(
+    r"BE it enacted by Parliament|It is hereby enacted", re.IGNORECASE
+)
+# "\[?" tolerates schedules inserted by amendment ("[THE FIRST SCHEDULE").
 _TERMINATORS = re.compile(
-    r"^\s*(THE\s+(FIRST\s+|SECOND\s+|THIRD\s+)?SCHEDULE|APPENDIX)\b", re.MULTILINE
+    r"^\s*\[?(THE\s+(FIRST\s+|SECOND\s+|THIRD\s+)?SCHEDULE|APPENDIX"
+    r"|STATEMENT OF OBJECTS AND REASONS)\b",
+    re.MULTILINE,
 )
 
 
@@ -101,13 +127,25 @@ def split_sections(text: str) -> list[dict]:
         return current
 
     sections = []
-    matches = [
-        m
-        for m in _SECTION_START.finditer(text)
+    candidates = sorted(
+        list(_SECTION_START.finditer(text)) + list(_OMITTED_SECTION.finditer(text)),
+        key=lambda m: (m.start(), m.end()),
+    )
+    matches, last_end, seen = [], -1, set()
+    for m in candidates:
+        if m.start() < last_end:  # overlapping duplicate from the other regex
+            continue
         # A title containing its own section-start line means the match
         # swallowed ToC entries (no-dash lines) — not a real section.
-        if not re.search(r"^\s*\d{1,3}[A-Z]{0,2}\.\s", m.group(2), re.MULTILINE)
-    ]
+        if re.search(r"^\s*\d{1,3}[A-Z]{0,2}\.\s", m.group(2), re.MULTILINE):
+            continue
+        # A repeated section number is footnote noise (commencement
+        # notifications print as "1. 18 December, 2020.—…" mid-act).
+        if m.group(1) in seen:
+            continue
+        matches.append(m)
+        last_end = m.end()
+        seen.add(m.group(1))
     for i, m in enumerate(matches):
         end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
         body = text[m.end():end]

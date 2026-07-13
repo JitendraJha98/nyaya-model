@@ -56,6 +56,46 @@ class TestSliceActBody:
         assert "THE SCHEDULE" not in body
         assert "Forms and procedures" not in body
 
+    def test_pre_constitution_enacting_formula(self):
+        # Pre-1950 acts (NI Act 1881) enact via "It is hereby enacted as
+        # follows" — not "BE it enacted by Parliament". The ToC must still
+        # be trimmed or its entries poison section detection.
+        text = (
+            "ARRENGMENT OF SECTIONS\n"
+            "1. Short title.\n"
+            "21. “At sight”.\n"
+            "Preamble.—Whereas it is expedient to define the law; "
+            "It is hereby enacted as follows:—\n"
+            "1. Short title.—This Act may be called the Test Act, 1881.\n"
+        )
+        body = slice_act_body(text)
+        assert "ARRENGMENT" not in body
+        assert body.startswith("It is hereby enacted")
+
+    def test_bracketed_schedule_heading_terminates(self):
+        # IT Act 2000: an inserted-by-amendment schedule prints as
+        # "[THE FIRST SCHEDULE" — leading bracket must not defeat the anchor.
+        text = (
+            "BE it enacted by Parliament as follows:—\n"
+            "1. Short title.—This Act may be called the Test Act.\n"
+            "[THE FIRST SCHEDULE\n[See section 1]\nSchedule content here.\n"
+        )
+        body = slice_act_body(text)
+        assert "Schedule content" not in body
+
+    def test_statement_of_objects_excluded(self):
+        # India Code "updated" PDFs append the Statement of Objects and
+        # Reasons after the last section (Code on Wages 2019).
+        text = (
+            "BE it enacted by Parliament as follows:—\n"
+            "1. Short title.—This Code may be called the Test Code.\n"
+            "STATEMENT OF OBJECTS AND REASONS\n"
+            "The salient features of the Code, inter alia, are as follows.\n"
+        )
+        body = slice_act_body(text)
+        assert "salient features" not in body
+        assert "Short title" in body
+
 
 class TestSplitSections:
     def _sections(self):
@@ -103,6 +143,82 @@ class TestSplitSections:
         sections = {s["section"]: s for s in self._sections()}
         assert sections["1"]["chapter"].startswith("CHAPTER I")
         assert sections["3"]["chapter"].startswith("CHAPTER II")
+
+    def test_horizontal_bar_separator(self):
+        # Older acts re-typeset by India Code (SMA 1954, HMA 1955 "As on"
+        # snapshots) use U+2015 HORIZONTAL BAR, not an em dash, after titles:
+        # "1. Short title, extent and commencement.―(1) This Act..."
+        text = (
+            "BE it enacted by Parliament as follows:―\n"
+            "1. Short title.―(1) This Act may be called the Test Act.\n"
+            "2. Definitions.―In this Act, unless the context otherwise requires,―\n"
+            "(a) a term means what it says.\n"
+        )
+        sections = split_sections(text)
+        assert [s["section"] for s in sections] == ["1", "2"]
+        assert sections[0]["title"] == "Short title"
+        assert sections[1]["text"].startswith("In this Act")
+
+    def test_omitted_section_and_following_section(self):
+        # HMA 1955 s.6: "6. [Guardianship in marriage.] Omitted by ..." — no
+        # dash separator. Must extract as its own section AND must not swallow
+        # the following section's line into a phantom title.
+        text = (
+            "BE it enacted by Parliament as follows:—\n"
+            "5. Conditions.—A marriage may be solemnized.\n"
+            "6. [Guardianship in marriage.] Omitted by the Amendment Act, 1978 "
+            "(2 of 1978), s. 6 and Sch. (w.e.f. 1-10-1978). \n"
+            "7. Ceremonies.—(1) A marriage may be solemnized in accordance "
+            "with customary rites.\n"
+        )
+        sections = split_sections(text)
+        assert [s["section"] for s in sections] == ["5", "6", "7"]
+        assert sections[1]["title"] == "Guardianship in marriage"
+        assert sections[1]["text"].startswith("Omitted by")
+        assert sections[2]["title"] == "Ceremonies"
+
+    def test_bracket_substituted_section(self):
+        # Wholly substituted sections print as "[16. Title.—..." after the
+        # extractor strips the footnote superscript (HMA 16/19/22).
+        text = (
+            "BE it enacted by Parliament as follows:—\n"
+            "15. Divorced persons.—When a marriage has been dissolved.\n"
+            "[16. Legitimacy of children.—(1) Notwithstanding the decree.]\n"
+            "17. Punishment.—Any marriage between two Hindus.\n"
+        )
+        sections = split_sections(text)
+        assert [s["section"] for s in sections] == ["15", "16", "17"]
+        assert sections[1]["title"] == "Legitimacy of children"
+
+    def test_space_before_period_in_section_number(self):
+        # Code on Wages 2019 s.39 is typeset " 39 .Time limit…" — a stray
+        # space between the number and the period.
+        text = (
+            "BE it enacted by Parliament as follows:—\n"
+            "38. Deduction of certain amounts from bonus payable.—Where in any "
+            "accounting year an employee is found guilty.\n"
+            " 39 .Time limit for payment of bonus.—(1) All amounts payable to "
+            "an employee by way of bonus shall be paid within eight months.\n"
+        )
+        sections = split_sections(text)
+        assert [s["section"] for s in sections] == ["38", "39"]
+        assert sections[1]["title"] == "Time limit for payment of bonus"
+
+    def test_duplicate_number_footnote_block_dropped(self):
+        # Commencement-notification footnotes print as "1. 18 December,
+        # 2020.—Sub-section (1)…" at a page bottom, mid-act — a phantom
+        # duplicate of section 1. First occurrence wins; later dupes drop.
+        text = (
+            "BE it enacted by Parliament as follows:—\n"
+            "1. Short title.—This Code may be called the Test Code, 2019.\n"
+            "2. Definitions.—In this Code, wages means all remuneration.\n"
+            "1. 18 December, 2020.—Sub-section (1), (2) and (3) of section 42 "
+            "vide notification number S.O. 4604(E).\n"
+            "3. Payment.—Wages shall be paid in current coin.\n"
+        )
+        sections = split_sections(text)
+        assert [s["section"] for s in sections] == ["1", "2", "3"]
+        assert sections[0]["title"] == "Short title"
 
     def test_toc_style_lines_do_not_create_sections(self):
         # A ToC line like "3. Offence of testing." has no em-dash separator —
