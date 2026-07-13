@@ -1,16 +1,19 @@
 # Runs scripts/02_run_baseline.py (base Qwen2.5-3B on Nyaya-Eval-v0) on 1 GPU.
-# The nyaya:smoke-v2 image predates the evaluation harness, so the current
-# code + eval data are injected via ConfigMaps (no image rebuild needed):
+# The current harness code + eval set are injected via ConfigMaps and take
+# precedence over whatever tree the image was built from (PYTHONPATH), so an
+# image rebuild is never needed for harness iterations:
 #
 #   kubectl create configmap nyaya-baseline-src     -n askdata-ng --from-file=src/nyaya/
 #   kubectl create configmap nyaya-baseline-scripts -n askdata-ng --from-file=02_run_baseline.py=scripts/02_run_baseline.py
-#   kubectl create configmap nyaya-baseline-data    -n askdata-ng --from-file=nyaya_eval_v0_draft.jsonl=data/eval/nyaya_eval_v0_draft.jsonl
+#   kubectl create configmap nyaya-baseline-data    -n askdata-ng \
+#       --from-file=nyaya_eval_v0_draft.jsonl=data/eval/nyaya_eval_v0_draft.jsonl
 #   kubectl apply -f k8s/baseline-job.yaml
 #
 # Results land on the nyaya-hf-cache PVC under /data/hf-cache/nyaya-runs/baseline/
 # (reports/baseline.json + outputs/baseline/predictions.jsonl). Retrieve with a
 # helper pod mounting the same PVC, then commit reports/baseline.json.
-# For a quick smoke first, add --limit 24 to the args.
+# NOTE: while the eval set is a draft this is the DRAFT baseline — re-run after
+# the freeze for the official number.
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -29,10 +32,16 @@ spec:
         accelerator: nvidia
       containers:
         - name: nyaya-baseline
-          image: acrcgipulsescusdev.azurecr.io/nyaya:smoke-v2
+          image: acrcgipulsescusdev.azurecr.io/nyaya:smoke-v3
           imagePullPolicy: IfNotPresent
           command: ["python", "/work/scripts/02_run_baseline.py"]
-          args: ["--out-dir", "/data/hf-cache/nyaya-runs/baseline", "--batch-size", "8"]
+          args:
+            - "--eval-file"
+            - "/work/data/eval/nyaya_eval_v0_draft.jsonl"
+            - "--out-dir"
+            - "/data/hf-cache/nyaya-runs/baseline"
+            - "--batch-size"
+            - "8"
           env:
             - name: PYTHONPATH
               value: /work/src

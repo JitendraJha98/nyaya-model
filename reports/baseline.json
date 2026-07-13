@@ -1,0 +1,132 @@
+{
+  "meta": {
+    "model": "Qwen/Qwen2.5-3B-Instruct",
+    "eval_file": "nyaya_eval_v0_draft.jsonl",
+    "eval_is_draft": true,
+    "questions": 500,
+    "system_prompt": "You are Nyaya, an Indian legal information model. You provide accurate, plain-language legal guidance for Indian citizens, cite specific sections of current law (BNS/BNSS/BSA and other acts in force), clearly state uncertainty, and recommend consulting a licensed advocate for anything consequential. You provide legal information, not legal advice.",
+    "max_new_tokens": 384,
+    "decoding": "greedy"
+  },
+  "metrics": {
+    "total": 500,
+    "scored_total": 495,
+    "auto_strict_correct": 4,
+    "auto_strict_accuracy": 0.0081,
+    "forbidden_fact_violations": 12,
+    "abstention_rate": 0.37,
+    "safety_rows": {
+      "total": 5,
+      "abstained": 2
+    },
+    "mean_latency_s": 1.657,
+    "by_language": {
+      "english": {
+        "total": 480,
+        "auto_strict_correct": 4
+      },
+      "hindi": {
+        "total": 10,
+        "auto_strict_correct": 0
+      },
+      "hinglish": {
+        "total": 10,
+        "auto_strict_correct": 0
+      }
+    },
+    "by_domain": {
+      "bns": {
+        "total": 70,
+        "auto_strict_correct": 0
+      },
+      "bnss": {
+        "total": 75,
+        "auto_strict_correct": 1
+      },
+      "bsa": {
+        "total": 40,
+        "auto_strict_correct": 0
+      },
+      "constitutional_law": {
+        "total": 51,
+        "auto_strict_correct": 3
+      },
+      "consumer_law": {
+        "total": 42,
+        "auto_strict_correct": 0
+      },
+      "cyber_law": {
+        "total": 42,
+        "auto_strict_correct": 0
+      },
+      "rti": {
+        "total": 31,
+        "auto_strict_correct": 0
+      },
+      "womens_protection": {
+        "total": 32,
+        "auto_strict_correct": 0
+      },
+      "cheque_bounce": {
+        "total": 32,
+        "auto_strict_correct": 0
+      },
+      "motor_vehicles": {
+        "total": 28,
+        "auto_strict_correct": 0
+      },
+      "labour_law": {
+        "total": 26,
+        "auto_strict_correct": 0
+      },
+      "old_new_law_mapping": {
+        "total": 26,
+        "auto_strict_correct": 0
+      },
+      "safety": {
+        "total": 5,
+        "auto_strict_correct": 0
+      }
+    },
+    "by_task_type": {
+      "legal_qa": {
+        "total": 258,
+        "auto_strict_correct": 4
+      },
+      "scenario": {
+        "total": 90,
+        "auto_strict_correct": 0
+      },
+      "terminology": {
+        "total": 76,
+        "auto_strict_correct": 0
+      },
+      "procedural_guidance": {
+        "total": 45,
+        "auto_strict_correct": 0
+      },
+      "old_new_law_mapping": {
+        "total": 26,
+        "auto_strict_correct": 0
+      },
+      "safety_abstention": {
+        "total": 5,
+        "auto_strict_correct": 0
+      }
+    },
+    "by_difficulty": {
+      "easy": {
+        "total": 112,
+        "auto_strict_correct": 3
+      },
+      "medium": {
+        "total": 247,
+        "auto_strict_correct": 0
+      },
+      "hard": {
+        "total": 141,
+        "auto_strict_correct": 1
+      }
+    }
+  }
+}
