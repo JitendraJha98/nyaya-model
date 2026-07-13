@@ -74,6 +74,20 @@ def test_allow_patterns_uses_snapshot_download(out_dir, monkeypatch):
     assert (out_dir / "org__name" / "test.zip").exists()
 
 
+def test_multi_config_dataset_downloads_every_config(out_dir, monkeypatch):
+    # IL-TUR style: load_dataset(id) raises until a config name is given.
+    def fake_load(dataset_id, *args, **kwargs):
+        if not args:
+            raise ValueError("Config name is missing. Please pick one among ...")
+        return FakeDataset()
+
+    monkeypatch.setattr(dl, "load_dataset", fake_load)
+    monkeypatch.setattr(dl, "get_dataset_config_names", lambda _id: ["bail", "cjpe"])
+    assert dl.download("org/multi") is True
+    assert (out_dir / "org__multi" / "bail" / "dataset_dict.json").exists()
+    assert (out_dir / "org__multi" / "cjpe" / "dataset_dict.json").exists()
+
+
 def test_successful_download_persists_and_reports_success(out_dir, monkeypatch):
     monkeypatch.setattr(dl, "load_dataset", lambda _id: FakeDataset())
     assert dl.download("org/name") is True
