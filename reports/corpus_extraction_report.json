@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-07-14 00:45:38",
+    "generated_at": "2026-07-14 01:00:48",
     "gate": 0.98
   },
   "acts": {
@@ -39,6 +39,75 @@
     "cpa_2019": {
       "extracted": 107,
       "expected": 107,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0
+    },
+    "it_act_2000": {
+      "extracted": 122,
+      "expected": 122,
+      "monotonic": true,
+      "numbering_gaps": [
+        "50",
+        "61"
+      ],
+      "empty_or_short": [],
+      "clean_fraction": 0.9836
+    },
+    "ni_act_1881": {
+      "extracted": 154,
+      "expected": 154,
+      "monotonic": true,
+      "numbering_gaps": [
+        "47"
+      ],
+      "empty_or_short": [],
+      "clean_fraction": 0.9935
+    },
+    "dv_act_2005": {
+      "extracted": 37,
+      "expected": 37,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0
+    },
+    "mv_act_1988": {
+      "extracted": 257,
+      "expected": 257,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0
+    },
+    "posh_2013": {
+      "extracted": 30,
+      "expected": 30,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0
+    },
+    "hma_1955": {
+      "extracted": 37,
+      "expected": 37,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0
+    },
+    "sma_1954": {
+      "extracted": 57,
+      "expected": 57,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0
+    },
+    "wages_code_2019": {
+      "extracted": 69,
+      "expected": 69,
       "monotonic": true,
       "numbering_gaps": [],
       "empty_or_short": [],

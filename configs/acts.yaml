@@ -6,10 +6,10 @@
 # data/canonical/<act_id>.jsonl AND is how src/nyaya/validators.py maps a row
 # back to its act family. Do not rename act_ids casually.
 #
-# `enabled: false` means the extraction has not been verified yet — the 4
-# enabled acts (BNS/BNSS/BSA/RTI) extracted 100% clean; the rest carry the
-# official India Code URLs (verified 2026-07-13) but still need a section-count
-# + spot-check pass before flipping enabled: true.
+# `enabled: false` means the extraction has not been verified yet. All 13
+# priority acts verified + enabled 2026-07-14 (each ≥98% clean with a passing
+# spot-check); only the Constitution remains disabled pending the article
+# splitter (see splitter note on its entry).
 #
 # expected_sections drives the >=98%-clean extraction gate; null = report only.
 # `url` is the direct India Code PDF; `handle_url` is the stable item page used
@@ -57,8 +57,6 @@ acts:
     effective_date: "2005-10-12"
     notes: "Amended by the RTI (Amendment) Act, 2019."
 
-  # --- URLs verified 2026-07-13; verify section counts + spot-check before enabling ---
-
   - act_id: cpa_2019
     act_name: "Consumer Protection Act, 2019"
     enabled: true
@@ -69,42 +67,42 @@ acts:
 
   - act_id: it_act_2000
     act_name: "Information Technology Act, 2000"
-    enabled: false   # heavy amendment footnotes — check clean fraction
+    enabled: true
     url: "https://www.indiacode.nic.in/bitstream/123456789/13116/1/it_act_2000_updated.pdf"
     handle_url: "https://www.indiacode.nic.in/handle/123456789/13116?view_type=browse"
-    expected_sections: null
+    expected_sections: 122
     effective_date: "2000-10-17"
     notes: "Use the amended (2008) 'updated' PDF, not the original 2000 text."
 
   - act_id: ni_act_1881
     act_name: "Negotiable Instruments Act, 1881"
-    enabled: false
+    enabled: true
     url: "https://www.indiacode.nic.in/bitstream/123456789/15327/1/negotiable_instruments_act,_1881.pdf"
     handle_url: "https://www.indiacode.nic.in/handle/123456789/2189?locale=en"
-    expected_sections: null
+    expected_sections: 154
     effective_date: "1882-03-01"
     notes: "Cheque-bounce provisions (Section 138 etc.) are high-value for the procedure KB."
 
   - act_id: dv_act_2005
     act_name: "Protection of Women from Domestic Violence Act, 2005"
-    enabled: false
-    url: "https://www.indiacode.nic.in/bitstream/123456789/2021/1/200543.pdf"
+    enabled: true
+    url: "https://www.indiacode.nic.in/bitstream/123456789/2021/5/A2005-43.pdf"
     handle_url: "https://www.indiacode.nic.in/handle/123456789/2021"
     expected_sections: 37
     effective_date: "2006-10-26"
 
   - act_id: mv_act_1988
     act_name: "Motor Vehicles Act, 1988"
-    enabled: false   # large act with many amendments
-    url: "https://www.indiacode.nic.in/bitstream/123456789/1798/1/eng.pdf"
+    enabled: true
+    url: "https://www.indiacode.nic.in/bitstream/123456789/1798/1/aA1988-59.pdf"
     handle_url: "https://www.indiacode.nic.in/handle/123456789/1798"
-    expected_sections: null
+    expected_sections: 257
     effective_date: "1989-07-01"
     notes: "Latest known PDF snapshot '[As on the 21st May, 2025]'."
 
   - act_id: posh_2013
     act_name: "Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013"
-    enabled: false
+    enabled: true
     url: "https://www.indiacode.nic.in/bitstream/123456789/2104/1/A2013-14.pdf"
     handle_url: "https://www.indiacode.nic.in/handle/123456789/2104?sam_handle=123456789%2F1362"
     expected_sections: 30
@@ -112,25 +110,25 @@ acts:
 
   - act_id: hma_1955
     act_name: "Hindu Marriage Act, 1955"
-    enabled: false
-    url: "https://www.indiacode.nic.in/bitstream/123456789/1560/1/A1955-25.pdf"
+    enabled: true
+    url: "https://www.indiacode.nic.in/bitstream/123456789/1560/1/A1955-25Eng.pdf"
     handle_url: "https://www.indiacode.nic.in/handle/123456789/1560"
-    expected_sections: null
+    expected_sections: 37
     effective_date: "1955-05-18"
     notes: "Paired with the Special Marriage Act, 1954 under README's 'HMA/SMA' entry."
 
   - act_id: sma_1954
     act_name: "Special Marriage Act, 1954"
-    enabled: false
-    url: "https://www.indiacode.nic.in/bitstream/123456789/1387/1/A195443.pdf"
+    enabled: true
+    url: "https://www.indiacode.nic.in/bitstream/123456789/1387/1/A1954-43E.pdf"
     handle_url: "https://www.indiacode.nic.in/handle/123456789/1387"
-    expected_sections: null
+    expected_sections: 57
     effective_date: "1954-10-09"
     notes: "Paired with the Hindu Marriage Act, 1955 under README's 'HMA/SMA' entry."
 
   - act_id: wages_code_2019
     act_name: "Code on Wages, 2019"
-    enabled: false   # in force 2025-11-21
+    enabled: true
     url: "https://www.indiacode.nic.in/bitstream/123456789/15793/1/aA2019-29.pdf"
     handle_url: "https://www.indiacode.nic.in/handle/123456789/15793?view_type=browse"
     expected_sections: 69
