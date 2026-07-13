@@ -136,12 +136,16 @@ acts:
 
   - act_id: constitution_1950
     act_name: "Constitution of India"
-    enabled: false   # Articles/Parts/Schedules structure — split with use_articles=True
+    enabled: true
+    splitter: articles
     url: "https://www.indiacode.nic.in/bitstream/123456789/19632/1/the_constitution_of_india.pdf"
-    handle_url: "https://www.indiacode.nic.in/handle/123456789/15240?locale=en"
-    expected_sections: null
+    handle_url: "https://www.indiacode.nic.in/handle/123456789/19632"
+    expected_sections: 498
     effective_date: "1950-01-26"
-    notes: "Verify pdf_url points to the latest amended snapshot on the handle page before scraping."
+    notes: >-
+      India Code diglot edition '[As on May 2022]' — includes amendments up to
+      the 105th (2021). The 106th Amendment (women's reservation, Sep 2023)
+      postdates this snapshot; re-download when India Code republishes.
 
 # Old-law <-> new-law corresponding-section tables (NCRB Sankalan, official).
 # Parsed by src/nyaya/corpus.py::parse_ncrb_mapping into

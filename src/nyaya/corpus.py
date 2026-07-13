@@ -52,13 +52,16 @@ _OMITTED_SECTION = re.compile(
 _CHAPTER = re.compile(r"^\s*(CHAPTER\s+[IVXLC]+[A-Z]?)\s*$", re.MULTILINE)
 _PART = re.compile(r"^\s*(PART\s+[IVXLC]+[A-Z]?)\s*$", re.MULTILINE)
 # Post-1950 acts: "BE it enacted by Parliament…"; pre-Constitution acts
-# (NI Act 1881): "It is hereby enacted as follows".
+# (NI Act 1881): "It is hereby enacted as follows"; the Constitution itself
+# has no enacting formula — its body starts at the Preamble.
 _ENACTING = re.compile(
-    r"BE it enacted by Parliament|It is hereby enacted", re.IGNORECASE
+    r"BE it enacted by Parliament|It is hereby enacted|WE, THE PEOPLE OF INDIA",
+    re.IGNORECASE,
 )
-# "\[?" tolerates schedules inserted by amendment ("[THE FIRST SCHEDULE").
+# "\[?" tolerates schedules inserted by amendment ("[THE FIRST SCHEDULE");
+# the Constitution's schedules omit the leading "THE" ("[FIRST SCHEDULE").
 _TERMINATORS = re.compile(
-    r"^\s*\[?(THE\s+(FIRST\s+|SECOND\s+|THIRD\s+)?SCHEDULE|APPENDIX"
+    r"^\s*\[?((THE\s+)?(FIRST\s+|SECOND\s+|THIRD\s+)?SCHEDULE|APPENDIX"
     r"|STATEMENT OF OBJECTS AND REASONS)\b",
     re.MULTILINE,
 )

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-07-14 01:00:48",
+    "generated_at": "2026-07-14 01:07:01",
     "gate": 0.98
   },
   "acts": {
@@ -112,6 +112,19 @@
       "numbering_gaps": [],
       "empty_or_short": [],
       "clean_fraction": 1.0
+    },
+    "constitution_1950": {
+      "extracted": 498,
+      "expected": 498,
+      "monotonic": true,
+      "numbering_gaps": [
+        "238",
+        "389"
+      ],
+      "empty_or_short": [
+        "52"
+      ],
+      "clean_fraction": 0.994
     }
   },
   "mappings": {
