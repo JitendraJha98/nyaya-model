@@ -286,5 +286,32 @@
       "title": "Short title, extent and commencement",
       "text": "(1) This Act may be called the Right to Information Act, 2005. (2) It extends to the whole of India ***. (3) The provisions of sub-section (1) of section 4, sub-sections (1) and (2) of section 5, sections 12, 13, 15,16, 24, 27 and 28 shall come into force at once, and the remaining provisions of this Act shall come into force on the one hundred and twentieth day of its enactment."
     }
+  ],
+  "cpa_2019": [
+    {
+      "section": "82",
+      "title": "Application of Chapter",
+      "text": "This Chapter shall apply to every claim for compensation under a product liability action by a complainant for any harm caused by a defective product manufactured by a product manufacturer or serviced by a product service provider or sold by a product seller."
+    },
+    {
+      "section": "15",
+      "title": "Investigation Wing",
+      "text": "(1) The Central Authority shall have an Investigation Wing headed by a Director-General for the purpose of conducting inquiry or investigation under this Act as may be directed by the Central Authority. (2) The Central Government may appoint a Director-General and such number of Additional Director-General, Director, Joint Director, Deputy Director and Assistant Director, from amongst persons who have experience in investigation and possess such qualifications, in such manner, as may be prescribed. (3) Every Additional Director-General, Director, Joint Director, Deputy Director and Assistant Director shall exercise his powers, and discharge his functions, subject to the general control, supervision and direction of the Director-General. (4) The Director-General may delegate all or any of his powers to the Additional Director-General or Director, Joint Director or Deputy Director or Assistant Director, as the case may be, while conducting inquiries or investigations under this Act. (5) The inquiries or the investigations made by the Director-General shall be submitted to the Central Authority in such form, in such manner and within such time, as may be specified by regulations."
+    },
+    {
+      "section": "4",
+      "title": "Procedure for meetings of Central Council",
+      "text": "(1) The Central Council shall meet as and when necessary, but at least one meeting of the Council shall be held every year. (2) The Central Council shall meet at such time and place as the Chairperson may think fit and shall observe such procedure in regard to the transaction of its business as may be prescribed."
+    },
+    {
+      "section": "95",
+      "title": "Presidents, members, Chief Commissioner, Commissioner and certain officers to be public servants",
+      "text": "The Presidents and members of the District Commission, the State Commission and the National Commission, and officers and other employees thereof, the Chief Commissioner and the Commissioner of the Central Authority, the Director General, the Additional Director General, the Director, the Joint Director, the Deputy Director and the Assistant Director and all other officers and employees of the Central Authority and other persons performing any duty under this Act, while acting or purporting to act in pursuance of any of the provisions of this Act, shall be deemed to be public servants within the meaning of section 21 of the Indian Penal Code (45 of 1860)."
+    },
+    {
+      "section": "36",
+      "title": "Proceedings before District Commission",
+      "text": "(1) Every proceeding before the District Commission shall be conducted by the President of that Commission and atleast one member thereof, sitting together: Provided that where a member, for any reason, is unable to conduct a proceeding till it is completed, the President and the other member shall continue the proceeding from the stage at which it was last heard by the previous member. (2) On receipt of a complaint made under section 35, the District Commission may, by order, admit the complaint for being proceeded with or reject the same: Provided that a complaint shall not be rejected under this section unless an opportunity of being heard has been given to the complainant: Provided further that the admissibility of the complaint shall ordinarily be decided within twenty-one days from the date on which the complaint was filed. (3) Where the District Commission does not decide the issue of admissibility of the complaint within the period so specified, it shall be deemed to have been admitted."
+    }
   ]
 }

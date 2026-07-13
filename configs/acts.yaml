@@ -61,8 +61,8 @@ acts:
 
   - act_id: cpa_2019
     act_name: "Consumer Protection Act, 2019"
-    enabled: false
-    url: "https://www.indiacode.nic.in/bitstream/123456789/15256/1/a2019-35.pdf"
+    enabled: true
+    url: "https://www.indiacode.nic.in/bitstream/123456789/15256/1/eng201935.pdf"
     handle_url: "https://www.indiacode.nic.in/handle/123456789/15256?sam_handle=123456789%2F1362"
     expected_sections: 107
     effective_date: "2020-07-20"

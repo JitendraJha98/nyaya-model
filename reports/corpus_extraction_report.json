@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-07-13 18:26:28",
+    "generated_at": "2026-07-14 00:45:38",
     "gate": 0.98
   },
   "acts": {
@@ -31,6 +31,14 @@
     "rti_2005": {
       "extracted": 31,
       "expected": 31,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0
+    },
+    "cpa_2019": {
+      "extracted": 107,
+      "expected": 107,
       "monotonic": true,
       "numbering_gaps": [],
       "empty_or_short": [],
