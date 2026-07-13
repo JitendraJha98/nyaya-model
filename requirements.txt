@@ -16,5 +16,8 @@ huggingface_hub>=0.24
 # PDF extraction for building the statute DB (docs are image-only PDFs; render with PyMuPDF).
 pymupdf>=1.24
 
+# Statute-source downloads (indiacode.nic.in 403s plain requests; needs browser-like headers).
+requests>=2.32
+
 # Optional, install later only if the environment supports it:
 #   pip install flash-attn --no-build-isolation

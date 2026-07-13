@@ -1,0 +1,133 @@
+# Source URLs for the 13 priority acts (docs/ROADMAP.md "Core data assets" #1).
+#
+# Verified 2026-07-13 via India Code search (title/act-no/date cross-checked
+# against search snippets, e.g. Code on Wages 2019 snippet shows "[As on the
+# 21st November, 2025]", matching the labour-codes commencement date already
+# noted in data/eval/ commit history). NOT fetched/opened directly — see
+# "known issue" below.
+#
+# KNOWN ISSUE: indiacode.nic.in returns HTTP 403 to non-browser requests
+# (confirmed via WebFetch tool). scripts/03_build_corpus.py must use a real
+# browser User-Agent and session/cookie handling (e.g. requests.Session()
+# with headers mimicking Chrome, possibly retries/backoff) — a naive
+# `requests.get()` will also 403.
+#
+# `handle_url` is the India Code item page (stable, always shows current
+# version + amendments). `pdf_url` is a direct PDF link seen at verification
+# time — India Code periodically republishes PDFs at new bitstream IDs when
+# an act is amended, so prefer scraping the current PDF link FROM the handle
+# page rather than hardcoding pdf_url long-term. pdf_url here is a fallback /
+# spot-check reference.
+
+acts:
+  - id: constitution
+    name: Constitution of India
+    act_no: null
+    handle_url: https://www.indiacode.nic.in/handle/123456789/15240?locale=en
+    pdf_url: https://www.indiacode.nic.in/bitstream/123456789/19632/1/the_constitution_of_india.pdf
+    notes: >
+      Multiple PDF snapshots exist at different bitstream IDs (as amendments
+      are made). Verify pdf_url points to the most recent snapshot before
+      scraping — check the handle page for the latest link.
+
+  - id: bns
+    name: Bharatiya Nyaya Sanhita, 2023
+    act_no: 45 of 2023
+    enacted: 2023-12-25
+    handle_url: https://www.indiacode.nic.in/handle/123456789/20062?locale=en
+    pdf_url: https://www.indiacode.nic.in/bitstream/123456789/20062/1/a202345.pdf
+    notes: Repeals the Indian Penal Code, 1860. Prefer HTML/handle for Hindi to avoid Devanagari mojibake in PDF extraction.
+
+  - id: bnss
+    name: Bharatiya Nagarik Suraksha Sanhita, 2023
+    act_no: 46 of 2023
+    enacted: 2023-12-25
+    handle_url: https://www.indiacode.nic.in/handle/123456789/20099?view_type=browse
+    pdf_url: https://www.indiacode.nic.in/bitstream/123456789/21544/1/the_bharatiya_nagarik_suraksha_sanhita,_2023.pdf
+    notes: Chapters IX, XI, XII do not apply to Nagaland/tribal areas by default. Replaces CrPC.
+
+  - id: bsa
+    name: Bharatiya Sakshya Adhiniyam, 2023
+    act_no: 47 of 2023
+    enacted: 2023-12-25
+    handle_url: https://www.indiacode.nic.in/handle/123456789/20063
+    pdf_url: https://www.indiacode.nic.in/bitstream/123456789/20063/1/aa202347.pdf
+    notes: Replaces the Indian Evidence Act, 1872.
+
+  - id: consumer_protection
+    name: Consumer Protection Act, 2019
+    act_no: 35 of 2019
+    enacted: 2019-08-09
+    handle_url: https://www.indiacode.nic.in/handle/123456789/15256?sam_handle=123456789%2F1362
+    pdf_url: https://www.indiacode.nic.in/bitstream/123456789/15256/1/a2019-35.pdf
+    notes: null
+
+  - id: rti
+    name: Right to Information Act, 2005
+    act_no: 22 of 2005
+    enacted: 2005-06-15
+    handle_url: https://www.indiacode.nic.in/handle/123456789/2065
+    pdf_url: https://www.indiacode.nic.in/bitstream/123456789/2065/1/aa2005.pdf
+    notes: Amended by the RTI (Amendment) Act, 2019.
+
+  - id: domestic_violence
+    name: Protection of Women from Domestic Violence Act, 2005
+    act_no: 43 of 2005
+    enacted: 2005-01-01
+    handle_url: https://www.indiacode.nic.in/handle/123456789/2021
+    pdf_url: https://www.indiacode.nic.in/bitstream/123456789/2021/1/200543.pdf
+    notes: null
+
+  - id: hindu_marriage
+    name: Hindu Marriage Act, 1955
+    act_no: 25 of 1955
+    handle_url: https://www.indiacode.nic.in/handle/123456789/1560
+    pdf_url: https://www.indiacode.nic.in/bitstream/123456789/1560/1/A1955-25.pdf
+    notes: "Paired with Special Marriage Act, 1954 (id: special_marriage) under README's 'HMA/SMA' entry."
+
+  - id: special_marriage
+    name: Special Marriage Act, 1954
+    act_no: 43 of 1954
+    handle_url: https://www.indiacode.nic.in/handle/123456789/1387
+    pdf_url: https://www.indiacode.nic.in/bitstream/123456789/1387/1/A195443.pdf
+    notes: "Paired with Hindu Marriage Act, 1955 (id: hindu_marriage) under README's 'HMA/SMA' entry."
+
+  - id: negotiable_instruments
+    name: Negotiable Instruments Act, 1881
+    act_no: 26 of 1881
+    handle_url: https://www.indiacode.nic.in/handle/123456789/2189?locale=en
+    pdf_url: https://www.indiacode.nic.in/bitstream/123456789/15327/1/negotiable_instruments_act,_1881.pdf
+    notes: Cheque-bounce provisions (Section 138 etc.) are high-value for the procedure KB.
+
+  - id: motor_vehicles
+    name: Motor Vehicles Act, 1988
+    act_no: 59 of 1988
+    handle_url: https://www.indiacode.nic.in/handle/123456789/1798
+    pdf_url: https://www.indiacode.nic.in/bitstream/123456789/1798/1/eng.pdf
+    notes: "Latest known PDF snapshot dated '[As on the 21st May, 2025]' — includes aggregator/community-service definitions."
+
+  - id: it_act
+    name: Information Technology Act, 2000
+    act_no: 21 of 2000
+    handle_url: https://www.indiacode.nic.in/handle/123456789/13116?view_type=browse
+    pdf_url: https://www.indiacode.nic.in/bitstream/123456789/13116/1/it_act_2000_updated.pdf
+    notes: Amended by the IT (Amendment) Act, 2008 — use the "updated" PDF, not the original 2000 text.
+
+  - id: posh
+    name: Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013
+    act_no: 14 of 2013
+    enacted: 2013-04-22
+    handle_url: https://www.indiacode.nic.in/handle/123456789/2104?sam_handle=123456789%2F1362
+    pdf_url: https://www.indiacode.nic.in/bitstream/123456789/2104/1/A2013-14.pdf
+    notes: null
+
+  - id: code_on_wages
+    name: Code on Wages, 2019
+    act_no: 29 of 2019
+    enacted: 2019-08-08
+    handle_url: https://www.indiacode.nic.in/handle/123456789/15793?view_type=browse
+    pdf_url: https://www.indiacode.nic.in/bitstream/123456789/15793/1/aA2019-29.pdf
+    notes: >
+      Search snippet shows "[As on the 21th November, 2025]" — matches the
+      labour-codes commencement date (21-Nov-2025) already referenced in
+      data/eval/ commit history. Corroborates this is the current source.
