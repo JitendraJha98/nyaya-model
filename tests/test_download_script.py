@@ -48,6 +48,32 @@ def test_safe_name_replaces_slashes():
     assert dl.safe_name("org/name") == "org__name"
 
 
+def test_name_and_split_forwarded_to_load_dataset(out_dir, monkeypatch):
+    calls = []
+
+    def fake_load(dataset_id, *args, **kwargs):
+        calls.append((dataset_id, args, kwargs))
+        return FakeDataset()
+
+    monkeypatch.setattr(dl, "load_dataset", fake_load)
+    assert dl.download("org/name", name="single", split="train") is True
+    assert calls == [("org/name", ("single",), {"split": "train"})]
+
+
+def test_allow_patterns_uses_snapshot_download(out_dir, monkeypatch):
+    calls = []
+
+    def fake_snapshot(repo_id, **kwargs):
+        calls.append((repo_id, kwargs.get("allow_patterns")))
+        Path(kwargs["local_dir"]).mkdir(parents=True, exist_ok=True)
+        (Path(kwargs["local_dir"]) / "test.zip").write_text("zip")
+
+    monkeypatch.setattr(dl, "snapshot_download", fake_snapshot)
+    assert dl.download("org/name", allow_patterns=["test/*"]) is True
+    assert calls == [("org/name", ["test/*"])]
+    assert (out_dir / "org__name" / "test.zip").exists()
+
+
 def test_successful_download_persists_and_reports_success(out_dir, monkeypatch):
     monkeypatch.setattr(dl, "load_dataset", lambda _id: FakeDataset())
     assert dl.download("org/name") is True
