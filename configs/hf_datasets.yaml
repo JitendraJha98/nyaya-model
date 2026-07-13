@@ -20,20 +20,21 @@ datasets:
     enabled: true
     purpose: "Supplementary Indian law instruction data"
 
-  # --- verify exact hub ids before enabling ---
+  # --- ids verified against the HF API 2026-07-14 ---
 
-  - id: bharatgenai/BhashaBench-Legal   # verify id on HF
-    enabled: false
-    purpose: "24,365 exam-based legal MCQs (English + Hindi) — evaluation"
+  - id: bharatgenai/BhashaBench-Legal
+    enabled: true
+    purpose: "Exam-based legal MCQs, English + Hindi test parquets — evaluation only. CC-BY-4.0, gated:auto (needs huggingface-cli login)"
 
-  - id: L-NLProc/NyayaAnumana           # verify id on HF (largest Indian LJP corpus, ~702,945 cases)
-    enabled: false
-    purpose: "Judgment prediction corpus — v2 case-law reasoning"
+  - id: L-NLProc/NyayaAnumana-Classification-Data
+    enabled: true
+    allow_patterns: ["test/*", "dev/*"]
+    purpose: "Largest Indian LJP corpus (~1M+ rows; Apache-2.0, gated:auto). Repo ships raw zips, not load_dataset format — snapshot the test/dev slices only; train zips are a v2 decision"
 
-  - id: L-NLProc/MILDSum                # verify id on HF
-    enabled: false
+  - id: mohitskaushal/MILDSum_Dataset_Original_V2_with_eng_and_hindi_summary
+    enabled: false   # third-party re-upload; official MILDSum is on GitHub (verify provenance/license before training on it)
     purpose: "Judgment summarization English->Hindi — summarization slice"
 
-  - id: Exploration-Lab/ILDC            # verify id on HF (access may require a signed agreement)
-    enabled: false
+  - id: Exploration-Lab/ILDC
+    enabled: false   # no canonical HF id exists (only third-party re-uploads); access requires a signed agreement — skipped per plan
     purpose: "ILDC judgment prediction + explanation corpus — v2 case-law reasoning"

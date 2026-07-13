@@ -22,6 +22,7 @@ from pathlib import Path
 
 import yaml
 from datasets import load_dataset
+from huggingface_hub import snapshot_download
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "hf_datasets.yaml"
@@ -45,8 +46,19 @@ def _rename_with_retries(src: Path, dst: Path, attempts: int = 5) -> None:
             time.sleep(0.2 * (attempt + 1))
 
 
-def download(dataset_id: str) -> bool:
-    """Download one dataset. True if it is (or already was) fully downloaded."""
+def download(
+    dataset_id: str,
+    name: str | None = None,
+    split: str | None = None,
+    allow_patterns: list[str] | None = None,
+) -> bool:
+    """Download one dataset. True if it is (or already was) fully downloaded.
+
+    `name`/`split` select a single HF config/split (for corpora where the
+    full download is not needed). `allow_patterns` switches to a raw-file
+    snapshot download for repos that are not load_dataset-compatible (e.g.
+    NyayaAnumana ships plain zips) — only matching repo files are fetched.
+    """
     target = OUT_DIR / safe_name(dataset_id)
     if target.exists() and any(target.iterdir()):
         print(f"[skip] {dataset_id} already in {target}")
@@ -55,11 +67,22 @@ def download(dataset_id: str) -> bool:
     # Save to a temp sibling and rename only on success, so an interrupted
     # save is never mistaken for a completed download by the skip check above.
     tmp = target.with_name(target.name + ".tmp")
+    ds = None
     try:
-        ds = load_dataset(dataset_id)
         if tmp.exists():
             shutil.rmtree(tmp)
-        ds.save_to_disk(str(tmp))
+        if allow_patterns:
+            snapshot_download(
+                dataset_id,
+                repo_type="dataset",
+                allow_patterns=allow_patterns,
+                local_dir=str(tmp),
+            )
+        else:
+            args = (name,) if name else ()
+            kwargs = {"split": split} if split else {}
+            ds = load_dataset(dataset_id, *args, **kwargs)
+            ds.save_to_disk(str(tmp))
     except Exception as e:  # keep going; main() prints a failure summary at the end
         shutil.rmtree(tmp, ignore_errors=True)
         print(f"[FAILED] {dataset_id}: {e}")
@@ -73,8 +96,12 @@ def download(dataset_id: str) -> bool:
         # next run cleans it up and retries cheaply via the HF cache.
         print(f"[FAILED] {dataset_id}: saved to {tmp} but could not move into place: {e}")
         return False
-    for split, d in ds.items():
-        print(f"    {split}: {len(d)} rows")
+    if ds is not None:
+        if split:
+            print(f"    {split}: {len(ds)} rows")
+        else:
+            for split_name, d in ds.items():
+                print(f"    {split_name}: {len(d)} rows")
     return True
 
 
@@ -86,19 +113,28 @@ def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     if args.id:
-        ids = [args.id]
+        entries = [{"id": args.id}]
     else:
         config = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
-        ids = []
+        entries = []
         for entry in config["datasets"]:
             if entry.get("enabled"):
-                ids.append(entry["id"])
+                entries.append(entry)
             else:
                 print(f"[disabled] {entry['id']}  ({entry.get('purpose', '')})")
 
-    failed = [dataset_id for dataset_id in ids if not download(dataset_id)]
+    failed = [
+        e["id"]
+        for e in entries
+        if not download(
+            e["id"],
+            name=e.get("name"),
+            split=e.get("split"),
+            allow_patterns=e.get("allow_patterns"),
+        )
+    ]
     if failed:
-        print(f"\n{len(failed)}/{len(ids)} downloads FAILED: {', '.join(failed)}")
+        print(f"\n{len(failed)}/{len(entries)} downloads FAILED: {', '.join(failed)}")
         sys.exit(1)
 
 
