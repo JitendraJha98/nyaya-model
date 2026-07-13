@@ -50,6 +50,7 @@ _OMITTED_SECTION = re.compile(
     re.MULTILINE,
 )
 _CHAPTER = re.compile(r"^\s*(CHAPTER\s+[IVXLC]+[A-Z]?)\s*$", re.MULTILINE)
+_PART = re.compile(r"^\s*(PART\s+[IVXLC]+[A-Z]?)\s*$", re.MULTILINE)
 # Post-1950 acts: "BE it enacted by Parliament…"; pre-Constitution acts
 # (NI Act 1881): "It is hereby enacted as follows".
 _ENACTING = re.compile(
@@ -107,8 +108,22 @@ def slice_act_body(text: str) -> str:
 
 def split_sections(text: str) -> list[dict]:
     """Split act body into sections with chapter attribution."""
-    chapters = []  # (position, "CHAPTER I — HEADING")
-    for m in _CHAPTER.finditer(text):
+    return _split(text, _CHAPTER)
+
+
+def split_articles(text: str) -> list[dict]:
+    """Split Constitution text into Articles with PART attribution.
+
+    Same row shape as split_sections ('section' holds the article number,
+    'chapter' the PART label) so downstream code treats the Constitution
+    like any other act.
+    """
+    return _split(text, _PART)
+
+
+def _split(text: str, heading_re: re.Pattern) -> list[dict]:
+    chapters = []  # (position, "CHAPTER I — HEADING") / ("PART III — …")
+    for m in heading_re.finditer(text):
         label = m.group(1).strip()
         # the chapter heading is the next non-empty line if it is upper-case
         rest = text[m.end():].lstrip("\n")
@@ -149,8 +164,8 @@ def split_sections(text: str) -> list[dict]:
     for i, m in enumerate(matches):
         end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
         body = text[m.end():end]
-        # drop trailing chapter headings that belong to the next section
-        body = _CHAPTER.split(body)[0]
+        # drop trailing chapter/part headings that belong to the next section
+        body = heading_re.split(body)[0]
         body = re.sub(r"\s+", " ", body).strip()
         sections.append(
             {

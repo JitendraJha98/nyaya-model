@@ -55,6 +55,7 @@ from nyaya.corpus import (  # noqa: E402
     extract_pdf_text,
     parse_ncrb_mapping,
     slice_act_body,
+    split_articles,
     split_sections,
     validate_sections,
 )
@@ -145,7 +146,8 @@ def build_act(act: dict, session, skip_download: bool = False) -> tuple[list[dic
         raise FileNotFoundError(f"no PDF for {act['act_id']}")
 
     text = extract_pdf_text(pdf)
-    sections = split_sections(slice_act_body(text))
+    splitter = split_articles if act.get("splitter") == "articles" else split_sections
+    sections = splitter(slice_act_body(text))
     report = validate_sections(sections, expected_count=act.get("expected_sections"))
 
     rows = [

@@ -1,6 +1,11 @@
 """Tests for the statute-corpus extraction pipeline (pure logic, no network)."""
 
-from nyaya.corpus import slice_act_body, split_sections, validate_sections
+from nyaya.corpus import (
+    slice_act_body,
+    split_articles,
+    split_sections,
+    validate_sections,
+)
 
 # Mimics India Code gazette layout after PDF text extraction: ToC first
 # (must be excluded), enacting formula, chapters, sections with ".——" title
@@ -225,6 +230,40 @@ class TestSplitSections:
         # feeding un-sliced text must not double-count sections.
         sections = split_sections(FIXTURE)
         assert [s["section"] for s in sections] == ["1", "2", "3", "3A", "4", "5", "6"]
+
+
+CONSTITUTION_SNIPPET = """PART I
+THE UNION AND ITS TERRITORY
+1. Name and territory of the Union.—(1) India, that is Bharat, shall be a
+Union of States.
+(2) The States and the territories thereof shall be as specified in the First
+Schedule.
+2. Admission or establishment of new States.—Parliament may by law admit
+into the Union, or establish, new States.
+PART III
+FUNDAMENTAL RIGHTS
+21. Protection of life and personal liberty.—No person shall be deprived of
+his life or personal liberty except according to procedure established by law.
+21A. Right to education.—The State shall provide free and compulsory
+education to all children of the age of six to fourteen years.
+"""
+
+
+class TestSplitArticles:
+    def test_splits_articles_with_part_attribution(self):
+        arts = split_articles(CONSTITUTION_SNIPPET)
+        nums = [a["section"] for a in arts]
+        assert nums == ["1", "2", "21", "21A"]
+        assert arts[0]["title"] == "Name and territory of the Union"
+        assert "Union of States" in arts[0]["text"]
+        assert arts[0]["chapter"] == "PART I — The Union And Its Territory"
+        assert arts[3]["chapter"] == "PART III — Fundamental Rights"
+
+    def test_em_dash_separates_title_from_body(self):
+        arts = split_articles(CONSTITUTION_SNIPPET)
+        # title must not swallow the body after the em dash
+        assert arts[2]["title"] == "Protection of life and personal liberty"
+        assert arts[2]["text"].startswith("No person shall be deprived")
 
 
 class TestValidateSections:
