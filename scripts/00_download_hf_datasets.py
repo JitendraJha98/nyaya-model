@@ -21,7 +21,7 @@ import time
 from pathlib import Path
 
 import yaml
-from datasets import load_dataset
+from datasets import get_dataset_config_names, load_dataset
 from huggingface_hub import snapshot_download
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -81,8 +81,22 @@ def download(
         else:
             args = (name,) if name else ()
             kwargs = {"split": split} if split else {}
-            ds = load_dataset(dataset_id, *args, **kwargs)
-            ds.save_to_disk(str(tmp))
+            try:
+                ds = load_dataset(dataset_id, *args, **kwargs)
+                ds.save_to_disk(str(tmp))
+            except ValueError as e:
+                # Multi-config datasets (IL-TUR) refuse a bare load — fetch
+                # every config into its own subdirectory instead.
+                if name or "Config name is missing" not in str(e):
+                    raise
+                for cfg in get_dataset_config_names(dataset_id):
+                    d = load_dataset(dataset_id, cfg, **kwargs)
+                    d.save_to_disk(str(tmp / cfg))
+                    counts = (
+                        f"{split}: {len(d)} rows" if split
+                        else ", ".join(f"{s}: {len(x)}" for s, x in d.items())
+                    )
+                    print(f"    [{cfg}] {counts} rows")
     except Exception as e:  # keep going; main() prints a failure summary at the end
         shutil.rmtree(tmp, ignore_errors=True)
         print(f"[FAILED] {dataset_id}: {e}")
