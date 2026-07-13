@@ -22,25 +22,11 @@ import time
 from pathlib import Path
 
 from .dataset import load_jsonl
-from .validators import extract_citations
+from .validators import ACT_ALIASES, extract_citations
 
 ROOT = Path(__file__).resolve().parents[2]
 FROZEN_EVAL = ROOT / "data" / "eval" / "nyaya_eval_v0.jsonl"
 DRAFT_EVAL = ROOT / "data" / "eval" / "nyaya_eval_v0_draft.jsonl"
-
-# Act-name aliases so "Section 318 BNS" matches "Section 318 of the
-# Bharatiya Nyaya Sanhita" and vice versa. Keys and values in normalized form.
-ACT_ALIASES = {
-    "bns": ["bns", "bharatiya nyaya sanhita"],
-    "bnss": ["bnss", "bharatiya nagarik suraksha sanhita"],
-    "bsa": ["bsa", "bharatiya sakshya adhiniyam"],
-    "ipc": ["ipc", "indian penal code"],
-    "crpc": ["crpc", "code of criminal procedure", "criminal procedure code"],
-    "iea": ["iea", "indian evidence act", "evidence act"],
-    "ni act": ["ni act", "negotiable instruments act"],
-    "it act": ["it act", "information technology act"],
-    "mv act": ["mv act", "motor vehicles act", "motor vehicle act"],
-}
 
 _SECTION_FACT = re.compile(
     r"(?:section|sec\.?|§|dhara|धारा|अनुच्छेद|article|art\.?)\s*(\d+[A-Za-z]{0,2}(?:\(\w+\))*)",
