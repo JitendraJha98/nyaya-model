@@ -48,6 +48,32 @@ class TestVerifyCitations:
     def test_unknown_act_family_rejected(self, db):
         assert not verify_citations("See Section 154 of the CrPC.", db)
 
+    def test_all_fourteen_acts_loaded(self, db):
+        # dv/posh/hma/sma/wages/constitution were once silently dropped
+        assert "37" in db["dv act"]
+        assert "30" in db["posh"]
+        assert "13" in db["hma"]   # divorce
+        assert "4" in db["sma"]    # conditions for marriage
+        assert "69" in db["wages code"]
+        assert "21" in db["constitution"]
+
+    def test_devanagari_act_name_resolves(self, db):
+        assert verify_citations(
+            "भारतीय न्याय संहिता की धारा 318 के तहत धोखाधड़ी दंडनीय है।", db
+        )
+
+    def test_article_citations_extract_and_resolve(self, db):
+        assert verify_citations("Article 21 of the Constitution protects life.", db)
+        assert not verify_citations("Article 999 of the Constitution.", db)
+        assert verify_citations("संविधान का अनुच्छेद 21 जीवन की रक्षा करता है।", db)
+
+    def test_dv_and_posh_citations_resolve(self, db):
+        assert verify_citations(
+            "Section 18 of the Protection of Women from Domestic Violence Act grants protection orders.",
+            db,
+        )
+        assert verify_citations("Section 4 of the POSH Act mandates an Internal Committee.", db)
+
     def test_old_law_whitelist_from_mapping_table(self):
         # With include_old_law=True the mapping table whitelists old-law
         # sections for historical references ("IPC 420 was replaced by...").

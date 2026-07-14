@@ -1,0 +1,42 @@
+# Grounded synthetic generation (roadmap Step 7) — consumed by
+# scripts/04_generate_examples.py, logic in src/nyaya/generation.py.
+#
+# Teacher: any OpenAI-compatible endpoint. Default is the in-cluster vLLM
+# serving Gemma 4 31B-IT (k8s/teacher-vllm.yaml; Apache-2.0, so training
+# Nyaya on its outputs is clean). Swap model/base_url to change teachers —
+# the pipeline is teacher-agnostic by design.
+#
+# Counts are TASKS; each task asks the teacher for 4 Q&A pairs, so examples
+# ≈ 4x count. Composition targets follow README "Synthetic data".
+
+dataset_version: nyaya_instruct_v1
+seed: 42
+
+teacher:
+  base_url: "http://localhost:8000/v1"   # kubectl port-forward svc/nyaya-teacher 8000:8000 -n askdata-ng
+  model: "google/gemma-4-31b-it"
+  api_key_env: NYAYA_TEACHER_API_KEY     # optional; plain vLLM needs none
+  max_tokens: 2048
+  temperature: 0.8
+  timeout_s: 300
+
+# ~72 tasks -> ~290 examples: enough to judge teacher quality before scaling.
+pilot_composition:
+  grounded_qa:       {count: 24, language: english}
+  procedural:        {count: 10, language: english}
+  law_mapping:       {count: 8,  language: english}
+  hindi_qa:          {count: 10, language: hindi}
+  hinglish_qa:       {count: 10, language: hinglish}
+  terminology:       {count: 4,  language: english}
+  safety_abstention: {count: 6,  language: english}
+
+# First-10K target (README: 3000 QA / 1500 procedural / 1000 mapping /
+# 1500 Hindi / 1500 Hinglish / 500 safety + 500 ambiguous / 500 terminology).
+full_composition:
+  grounded_qa:       {count: 750, language: english}
+  procedural:        {count: 375, language: english}
+  law_mapping:       {count: 250, language: english}
+  hindi_qa:          {count: 375, language: hindi}
+  hinglish_qa:       {count: 375, language: hinglish}
+  terminology:       {count: 125, language: english}
+  safety_abstention: {count: 250, language: english}
