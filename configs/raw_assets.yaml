@@ -110,18 +110,18 @@ assets:
     filetype: html
 
 # ---------------------------------------------------------------------------
-# UNVERIFIED — manual. These portals are JS-rendered or block scripted
-# fetches; download by hand into data/raw/assets/<group>/<asset_id>.pdf.
+# MANUAL — downloaded by hand (JS-rendered portals), registered in
+# data/raw/assets/manifest.json by hand on 2026-07-14 with titles + checksums.
 #
-# law_commission_reports (lawcommissionofindia.nic.in > Law Commission Reports;
-# the PDF links are behind a JS listing):
-#   - lci_report_262  (Report 262 — The Death Penalty)
-#   - lci_report_268  (Report 268 — Bail reform)
-#   - lci_report_277  (Report 277 — Wrongful Prosecution)
+# law_commission_reports — 34 PDFs present as lci_report_<n>.pdf:
+#   reports 1(fragment), 3, 6, 12, 13, 263-267, 268(annexure only), 269-277,
+#   277(Hindi), 278-284, 286, 287, 289(parts 1-3), 280 dissent note.
+#   STILL MISSING: full Report 262 (Death Penalty) and full Report 268 (Bail) —
+#   only a 1-page fragment of Report 1 and Annexure A of 268 were retrievable.
 #
+# procedure_sources — parivahan_faq.txt (Parivahan Sewa FAQ: RC/DL/challan).
+#
+# STILL PENDING — manual:
 # aibe_papers (allindiabarexamination.com — JS site):
 #   - aibe previous-year question papers + answer keys
-#
-# procedure_sources:
-#   - parivahan challan/licence FAQ (parivahan.gov.in FAQ path is JS-routed)
 # ---------------------------------------------------------------------------
