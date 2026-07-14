@@ -16,7 +16,7 @@ Prints a live citation-gate preview (verify_citations against the statute DB)
 
 Usage:
     python scripts/04_generate_examples.py --composition pilot
-    python scripts/04_generate_examples.py --composition full
+    python scripts/04_generate_examples.py --composition full --concurrency 6
     python scripts/04_generate_examples.py --composition pilot --limit 5
 """
 
@@ -25,6 +25,7 @@ import json
 import os
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import requests
@@ -92,6 +93,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--composition", choices=["pilot", "full"], default="pilot")
     parser.add_argument("--limit", type=int, help="only run the first N pending tasks")
+    parser.add_argument("--concurrency", type=int, default=1,
+                        help="parallel teacher requests (vLLM batches server-side)")
     args = parser.parse_args()
 
     config = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
@@ -120,13 +123,21 @@ def main() -> None:
     stats = {"tasks_ok": 0, "tasks_unparseable": 0, "tasks_failed": 0,
              "records": 0, "gate_preview_pass": 0, "gate_preview_fail": 0}
     started = time.time()
-    with out_file.open("a", encoding="utf-8") as fh:
-        for i, task in enumerate(pending, 1):
+
+    def run_task(task):
+        return task, call_teacher(task["prompt"], teacher, session)
+
+    # Teacher calls run concurrently (vLLM batches server-side); parsing and
+    # JSONL writes stay on this thread so the output file is append-safe.
+    with out_file.open("a", encoding="utf-8") as fh, \
+         ThreadPoolExecutor(max_workers=max(1, args.concurrency)) as pool:
+        futures = [pool.submit(run_task, t) for t in pending]
+        for i, future in enumerate(as_completed(futures), 1):
             try:
-                raw = call_teacher(task["prompt"], teacher, session)
+                task, raw = future.result()
             except RuntimeError as e:
                 stats["tasks_failed"] += 1
-                print(f"  [{i}/{len(pending)}] {task['task_id']} FAILED: {e}")
+                print(f"  [{i}/{len(pending)}] FAILED: {e}")
                 continue
             records = parse_teacher_response(raw, task, version)
             if not records:
