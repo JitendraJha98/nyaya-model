@@ -22,7 +22,7 @@ import time
 from pathlib import Path
 
 from .dataset import load_jsonl
-from .validators import ACT_ALIASES, extract_citations
+from .validators import ACT_ALIASES, alias_pattern, extract_citations
 
 ROOT = Path(__file__).resolve().parents[2]
 FROZEN_EVAL = ROOT / "data" / "eval" / "nyaya_eval_v0.jsonl"

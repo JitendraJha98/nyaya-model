@@ -14,18 +14,30 @@ ROOT = Path(__file__).resolve().parents[2]
 CANONICAL_DIR = ROOT / "data" / "canonical"
 
 # Act-name aliases, shared with the evaluation harness. Keys are act families;
-# values are the normalized surface forms accepted in citations/answers.
+# values are the normalized surface forms accepted in citations/answers —
+# including Devanagari forms, since Hindi answers legitimately cite acts in
+# Devanagari ("भारतीय न्याय संहिता की धारा 318").
 ACT_ALIASES = {
-    "bns": ["bns", "bharatiya nyaya sanhita"],
-    "bnss": ["bnss", "bharatiya nagarik suraksha sanhita"],
-    "bsa": ["bsa", "bharatiya sakshya adhiniyam"],
-    "rti": ["rti", "right to information act"],
-    "ipc": ["ipc", "indian penal code"],
-    "crpc": ["crpc", "code of criminal procedure", "criminal procedure code"],
-    "iea": ["iea", "indian evidence act", "evidence act"],
-    "ni act": ["ni act", "negotiable instruments act"],
-    "it act": ["it act", "information technology act"],
-    "mv act": ["mv act", "motor vehicles act", "motor vehicle act"],
+    "bns": ["bns", "bharatiya nyaya sanhita", "भारतीय न्याय संहिता"],
+    "bnss": ["bnss", "bharatiya nagarik suraksha sanhita", "भारतीय नागरिक सुरक्षा संहिता"],
+    "bsa": ["bsa", "bharatiya sakshya adhiniyam", "भारतीय साक्ष्य अधिनियम"],
+    "rti": ["rti", "right to information act", "सूचना का अधिकार"],
+    "ipc": ["ipc", "indian penal code", "भारतीय दंड संहिता"],
+    "crpc": ["crpc", "code of criminal procedure", "criminal procedure code",
+             "दंड प्रक्रिया संहिता"],
+    "iea": ["iea", "indian evidence act", "evidence act", "भारतीय साक्ष्य अधिनियम 1872"],
+    "ni act": ["ni act", "negotiable instruments act", "परक्राम्य लिखत अधिनियम"],
+    "it act": ["it act", "information technology act", "सूचना प्रौद्योगिकी अधिनियम"],
+    "mv act": ["mv act", "motor vehicles act", "motor vehicle act", "मोटर यान अधिनियम"],
+    "cpa": ["cpa", "consumer protection act", "उपभोक्ता संरक्षण अधिनियम"],
+    "dv act": ["dv act", "domestic violence act",
+               "protection of women from domestic violence act", "घरेलू हिंसा अधिनियम"],
+    "posh": ["posh", "posh act", "sexual harassment of women at workplace",
+             "कार्यस्थल पर महिलाओं का लैंगिक उत्पीड़न"],
+    "hma": ["hma", "hindu marriage act", "हिंदू विवाह अधिनियम"],
+    "sma": ["sma", "special marriage act", "विशेष विवाह अधिनियम"],
+    "wages code": ["wages code", "code on wages", "वेतन संहिता"],
+    "constitution": ["constitution", "constitution of india", "संविधान"],
 }
 
 # act_id prefixes in data/canonical -> act family key above
@@ -38,15 +50,23 @@ _ACT_ID_FAMILY = {
     "it_act": "it act",
     "ni_act": "ni act",
     "mv_act": "mv act",
+    "dv_act": "dv act",
+    "posh": "posh",
+    "hma": "hma",
+    "sma": "sma",
+    "wages_code": "wages code",
+    "constitution": "constitution",
 }
 
 # Matches "Section 318", "Sections 34", "Sec. 173", "§420", "§ 420", "dhara 154",
-# "धारा 154", "Section 66A", "Section 318(4)". The token after the marker must
-# start with a digit so prose like "this section is important" never matches,
-# and must end at a word boundary so glued shorthand like "34IPC" is cleanly
-# skipped rather than half-captured as a plausible-but-wrong "34IP".
+# "धारा 154", "Article 21", "अनुच्छेद 21", "Section 66A", "Section 318(4)".
+# The token after the marker must start with a digit so prose like "this
+# section is important" never matches, and must end at a word boundary so
+# glued shorthand like "34IPC" is cleanly skipped rather than half-captured
+# as a plausible-but-wrong "34IP".
 CITATION_PATTERN = re.compile(
-    r"(?:\b(?:Sections?|Sec\.?|dhara|धारा)\s+|§\s*)\d+[A-Za-z]{0,2}\b(?:\(\w+\))*",
+    r"(?:\b(?:Sections?|Sec\.?|Articles?|Art\.?|dhara|धारा|अनुच्छेद)\s+|§\s*)"
+    r"\d+[A-Za-z]{0,2}\b(?:\(\w+\))*",
     re.IGNORECASE,
 )
 _SECTION_NUMBER = re.compile(r"(\d+[A-Za-z]{0,2})")
@@ -102,12 +122,21 @@ def load_statute_db(
     return db
 
 
+def alias_pattern(variant: str) -> str:
+    """Regex for an act alias. Latin aliases get \\b guards; Devanagari ones
+    must not — Python re's \\b misfires next to combining vowel signs (which
+    are not \\w), so a \\b-wrapped "संहिता" can never match."""
+    if variant.isascii():
+        return rf"\b{re.escape(variant)}\b"
+    return re.escape(variant)
+
+
 def _acts_in(text_norm: str) -> list[tuple[int, str]]:
     """(position, family) for every act alias mention in normalized text."""
     hits = []
     for family, variants in ACT_ALIASES.items():
         for variant in variants:
-            for m in re.finditer(rf"\b{re.escape(variant)}\b", text_norm):
+            for m in re.finditer(alias_pattern(variant), text_norm):
                 hits.append((m.start(), family))
     return sorted(hits)
 
@@ -174,6 +203,68 @@ def is_near_duplicate(a: str, b: str, threshold: float = 0.92) -> bool:
     if jaccard < 0.35:  # cheap prefilter — cannot be near-duplicate
         return False
     return SequenceMatcher(None, na, nb).ratio() > threshold
+
+
+_DEVANAGARI = re.compile(r"[ऀ-ॿ]")
+_GROUNDED_TASK_TYPES = {
+    "grounded_qa", "hindi_qa", "hinglish_qa", "terminology", "procedural", "law_mapping",
+}
+_REQUIRED_METADATA = ("language", "task_type", "source_sections", "dataset_version")
+
+
+def validate_example(
+    example: dict,
+    statute_db: dict,
+    eval_records: list[dict],
+    min_words: int = 80,
+    max_words: int = 600,
+) -> tuple[bool, list[str]]:
+    """The per-example gate for scripts/05 (docs/ROADMAP.md Step 8).
+
+    Checks, in order: schema -> source_sections for grounded tasks ->
+    citation verification (deterministic, non-negotiable) -> language/script
+    consistency -> answer length (safety/abstention answers are exempt from
+    the minimum — refusals are legitimately brief) -> eval-leakage.
+    Returns (ok, reasons); every failed check is reported, not just the first.
+    """
+    reasons: list[str] = []
+
+    messages = example.get("messages") or []
+    roles = [m.get("role") for m in messages if isinstance(m, dict)]
+    if roles[:3] != ["system", "user", "assistant"] or not all(
+        isinstance(m.get("content"), str) and m["content"].strip() for m in messages[:3]
+    ):
+        return False, ["schema: messages must be non-empty [system, user, assistant]"]
+    metadata = example.get("metadata") or {}
+    missing = [k for k in _REQUIRED_METADATA if k not in metadata]
+    if missing or not example.get("id"):
+        return False, [f"schema: missing {', '.join(missing) or 'id'}"]
+
+    task_type = metadata["task_type"]
+    question = messages[1]["content"]
+    answer = messages[2]["content"]
+
+    if task_type in _GROUNDED_TASK_TYPES and not metadata["source_sections"]:
+        reasons.append("source_sections: grounded task with no split key")
+
+    if not verify_citations(answer, statute_db):
+        reasons.append("citation: unresolved citation against the statute DB")
+
+    language = metadata["language"]
+    if language == "hindi" and not _DEVANAGARI.search(answer):
+        reasons.append("language: marked hindi but answer has no Devanagari")
+    elif language == "hinglish" and _DEVANAGARI.search(question):
+        reasons.append("language: marked hinglish but question uses Devanagari")
+
+    words = len(answer.split())
+    lower = 1 if task_type == "safety_abstention" else min_words
+    if not (lower <= words <= max_words):
+        reasons.append(f"length: {words} words outside [{lower}, {max_words}]")
+
+    if detect_eval_leakage(example, eval_records):
+        reasons.append("leakage: overlaps a Nyaya-Eval question/answer")
+
+    return (not reasons), reasons
 
 
 def detect_eval_leakage(

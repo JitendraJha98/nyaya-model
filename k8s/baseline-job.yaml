@@ -6,7 +6,7 @@
 #   kubectl create configmap nyaya-baseline-src     -n askdata-ng --from-file=src/nyaya/
 #   kubectl create configmap nyaya-baseline-scripts -n askdata-ng --from-file=02_run_baseline.py=scripts/02_run_baseline.py
 #   kubectl create configmap nyaya-baseline-data    -n askdata-ng \
-#       --from-file=nyaya_eval_v0_draft.jsonl=data/eval/nyaya_eval_v0_draft.jsonl
+#       --from-file=nyaya_eval_v0.jsonl=data/eval/nyaya_eval_v0.jsonl
 #   kubectl apply -f k8s/baseline-job.yaml
 #
 # Results land on the nyaya-hf-cache PVC under /data/hf-cache/nyaya-runs/baseline/
@@ -37,9 +37,9 @@ spec:
           command: ["python", "/work/scripts/02_run_baseline.py"]
           args:
             - "--eval-file"
-            - "/work/data/eval/nyaya_eval_v0_draft.jsonl"
+            - "/work/data/eval/nyaya_eval_v0.jsonl"
             - "--out-dir"
-            - "/data/hf-cache/nyaya-runs/baseline"
+            - "/data/hf-cache/nyaya-runs/baseline-official"
             - "--batch-size"
             - "8"
           env:

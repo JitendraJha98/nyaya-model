@@ -1,0 +1,108 @@
+# Teacher LLM for grounded synthetic generation (roadmap Step 7):
+# Gemma 4 31B-IT (Apache-2.0 — outputs are clean to train Nyaya on) served by
+# vLLM's OpenAI-compatible API on 1x A100-80GB (~62GB bf16 weights + KV cache
+# at 8K context).
+#
+#   kubectl apply -f k8s/teacher-vllm.yaml
+#   kubectl port-forward svc/nyaya-teacher 8000:8000 -n askdata-ng
+#   python scripts/04_generate_examples.py --composition pilot
+#
+# If the HF pull is denied (license click-through), create a token secret:
+#   kubectl create secret generic nyaya-hf-token -n askdata-ng --from-literal=token=hf_...
+# and uncomment the HF_TOKEN env block below.
+#
+# Tear down when generation is finished — this holds a whole A100:
+#   kubectl delete -f k8s/teacher-vllm.yaml
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nyaya-teacher-cache
+  namespace: askdata-ng
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nyaya-teacher
+  namespace: askdata-ng
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nyaya-teacher
+  template:
+    metadata:
+      labels:
+        app: nyaya-teacher
+    spec:
+      nodeSelector:
+        accelerator: nvidia
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:latest
+          args:
+            - "--model"
+            - "google/gemma-4-31b-it"
+            - "--dtype"
+            - "bfloat16"
+            - "--max-model-len"
+            - "8192"
+            - "--gpu-memory-utilization"
+            - "0.92"
+          env:
+            - name: HF_HOME
+              value: /cache
+            # - name: HF_TOKEN
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: nyaya-hf-token
+            #       key: token
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "8"
+              memory: 64Gi
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "16"
+              memory: 96Gi
+              nvidia.com/gpu: "1"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 120
+            periodSeconds: 15
+            failureThreshold: 60
+          volumeMounts:
+            - name: cache
+              mountPath: /cache
+            - name: shm
+              mountPath: /dev/shm
+      volumes:
+        - name: cache
+          persistentVolumeClaim:
+            claimName: nyaya-teacher-cache
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nyaya-teacher
+  namespace: askdata-ng
+spec:
+  selector:
+    app: nyaya-teacher
+  ports:
+    - port: 8000
+      targetPort: 8000
