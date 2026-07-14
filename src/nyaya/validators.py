@@ -145,12 +145,18 @@ def resolve_citations(text: str, statute_db: dict, window: int = 140) -> list[di
     """Resolve each extracted citation to (act, section) against the DB.
 
     Act attribution: the nearest act-alias mention within `window` characters
-    of the citation (searching the lowercased text). A citation with no act in
-    range, an act family absent from the DB, or a section the act does not
-    contain is unresolved.
+    of the citation. Fallback: legal prose commonly names the act once and then
+    cites bare sections ("…the DV Act, 2005 protects you. … Under Section 19…"),
+    so when the WHOLE text mentions exactly one act family, bare citations
+    attribute to it — hallucinated numbers still fail the section lookup, and
+    multi-act texts stay strict. A citation with no attributable act, an act
+    family absent from the DB, or a section the act does not contain is
+    unresolved.
     """
     text_norm = text.lower()
     act_positions = _acts_in(text_norm)
+    families_in_text = {family for _pos, family in act_positions}
+    sole_act = next(iter(families_in_text)) if len(families_in_text) == 1 else None
     results = []
     for m in CITATION_PATTERN.finditer(text):
         citation = m.group(0)
@@ -162,7 +168,7 @@ def resolve_citations(text: str, statute_db: dict, window: int = 140) -> list[di
             for a_pos, family in act_positions
             if m.start() - window <= a_pos <= m.end() + window
         ]
-        act = min(in_range)[2] if in_range else None
+        act = min(in_range)[2] if in_range else sole_act
         resolved = bool(
             act and section and act in statute_db and section in statute_db[act]
         )
@@ -210,6 +216,15 @@ _GROUNDED_TASK_TYPES = {
     "grounded_qa", "hindi_qa", "hinglish_qa", "terminology", "procedural", "law_mapping",
 }
 _REQUIRED_METADATA = ("language", "task_type", "source_sections", "dataset_version")
+# The 80-word plan floor was calibrated for essay-style grounded QA; mapping
+# ("IPC 420 is now BNS 318…") and terminology answers are legitimately
+# compact, and refusals are legitimately brief. Pilot evidence (2026-07-15):
+# 31/47 length rejections were good mapping answers.
+MIN_WORDS_BY_TASK = {
+    "law_mapping": 20,
+    "terminology": 50,
+    "safety_abstention": 1,
+}
 
 
 def validate_example(
@@ -257,7 +272,7 @@ def validate_example(
         reasons.append("language: marked hinglish but question uses Devanagari")
 
     words = len(answer.split())
-    lower = 1 if task_type == "safety_abstention" else min_words
+    lower = MIN_WORDS_BY_TASK.get(task_type, min_words)
     if not (lower <= words <= max_words):
         reasons.append(f"length: {words} words outside [{lower}, {max_words}]")
 

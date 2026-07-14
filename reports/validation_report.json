@@ -1,0 +1,18 @@
+{
+  "version": "nyaya_instruct_v1",
+  "generated": 284,
+  "accepted": 249,
+  "rejected": 35,
+  "rejection_rate": 0.1232,
+  "rejections_by_check": {
+    "length": 29,
+    "citation": 6
+  },
+  "validated_at": "2026-07-15 01:19:50",
+  "dedup": {
+    "input": 249,
+    "kept": 247,
+    "dropped_near_duplicates": 2,
+    "deduped_at": "2026-07-15 01:19:52"
+  }
+}

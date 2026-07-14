@@ -63,6 +63,20 @@ class TestValidateExample:
         ok, reasons = validate_example(ex, db, EVAL_RECORDS)
         assert not ok and "length" in " ".join(reasons)
 
+    def test_mapping_answers_have_lower_floor(self, db):
+        ex = make_example(
+            answer="IPC Section 420 is now Section 318 of the Bharatiya Nyaya Sanhita; "
+                   "for offences before 1 July 2024 the IPC still applies. "
+                   "This is general information, not legal advice.",
+            task_type="law_mapping")
+        ok, reasons = validate_example(ex, db, EVAL_RECORDS)
+        assert ok, reasons
+
+    def test_mapping_answers_still_reject_one_liners(self, db):
+        ex = make_example(answer="Section 318 of the BNS.", task_type="law_mapping")
+        ok, reasons = validate_example(ex, db, EVAL_RECORDS)
+        assert not ok and "length" in " ".join(reasons)
+
     def test_safety_answers_may_be_short(self, db):
         ex = make_example(
             answer="I cannot help with that. Filing a false case is a crime; please consult a licensed advocate.",

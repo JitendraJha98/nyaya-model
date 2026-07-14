@@ -74,6 +74,28 @@ class TestVerifyCitations:
         )
         assert verify_citations("Section 4 of the POSH Act mandates an Internal Committee.", db)
 
+    def test_single_act_document_fallback(self, db):
+        # The act named once early; later citations are bare. With exactly one
+        # act family in the text, bare citations attribute to it.
+        text = ("The Protection of Women from Domestic Violence Act, 2005 protects you. "
+                "You can seek a residence order. " * 8 +
+                "Under Section 19 the Magistrate can pass residence orders, and "
+                "Section 20 provides monetary relief.")
+        assert verify_citations(text, db)
+
+    def test_single_act_fallback_still_rejects_hallucinated_numbers(self, db):
+        text = ("The Bharatiya Nyaya Sanhita, 2023 defines offences. " * 6 +
+                "You can be charged under Section 999 for this.")
+        assert not verify_citations(text, db)
+
+    def test_multi_act_text_stays_strict_for_bare_citations(self, db):
+        # Two act families named once, then a bare citation far beyond the
+        # attribution window: ambiguous -> unresolved.
+        filler = "The procedure involves several practical steps you should follow. " * 5
+        text = f"The BNS and the BNSS both apply here. {filler}See Section 173 for the FIR procedure."
+        results = resolve_citations(text, db)
+        assert not results[-1]["resolved"]
+
     def test_old_law_whitelist_from_mapping_table(self):
         # With include_old_law=True the mapping table whitelists old-law
         # sections for historical references ("IPC 420 was replaced by...").
