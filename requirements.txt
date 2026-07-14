@@ -19,5 +19,9 @@ pymupdf>=1.24
 # Statute-source downloads (indiacode.nic.in 403s plain requests; needs browser-like headers).
 requests>=2.32
 
+# Bulk judgment sync from AWS Open Data (scripts/12_bulk_judgments.py); anonymous
+# S3 access, no AWS account needed.
+boto3>=1.34
+
 # Optional, install later only if the environment supports it:
 #   pip install flash-attn --no-build-isolation
