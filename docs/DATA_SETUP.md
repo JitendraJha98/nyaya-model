@@ -52,6 +52,14 @@ after an interruption is always safe.
 Note (Windows only): if console prints crash on Devanagari text, set
 `PYTHONIOENCODING=utf-8`. Downloads run fine on Linux without this.
 
+Troubleshooting — `CERTIFICATE_VERIFY_FAILED` on huggingface.co: machines
+behind a TLS-inspecting corporate proxy have the proxy's root CA in the OS
+trust store but not in Python's bundled `certifi` list. Fix without disabling
+verification: `pip install pip-system-certs` (patches Python's SSL to use the
+OS store). Side effect: urllib3 then prints spurious `InsecureRequestWarning`
+lines on some code paths (e.g. boto3 downloads) — verification is still
+active; we confirmed bad certificates are rejected.
+
 ## 4. Manual bundle (~135 MB, private HF dataset)
 
 34 Law Commission report PDFs and the Parivahan FAQ were downloaded by hand
