@@ -25,6 +25,8 @@ data/validated/**
 data/splits/**
 !data/**/
 !data/**/.gitkeep
+# Human-authored, not re-downloadable — always versioned.
+!data/raw/citizen_questions.txt
 
 # OS
 Thumbs.db
