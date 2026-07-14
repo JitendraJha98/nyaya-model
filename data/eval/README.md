@@ -4,6 +4,18 @@ This is roadmap Step 4, and it comes **before** creating any training data.
 The file `nyaya_eval_v0.jsonl` is frozen once created: never train on it,
 never edit it mid-experiment (make a v1 instead).
 
+## FROZEN — 2026-07-14
+
+Frozen as-is on the maintainer's instruction (built 2026-07-12; every
+section number in expected answers was verified against official sources
+at build time; validated by `tests/test_eval_set.py`). Any correction from
+later review goes into **Eval-v1**, never into this file.
+
+Time-sensitive facts baked into some answers — re-verify when building v1:
+BNS 106(2) deferral status, labour-code rules rollout, marital-rape and
+Section 69 BNS litigation, women's-reservation (106th Amdt) implementation,
+IT Rules traceability challenge, political-parties-under-RTI matter.
+
 ## Target category split (can evolve)
 
 | Category | Questions |
