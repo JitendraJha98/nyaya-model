@@ -1,0 +1,15 @@
+{
+  "dataset_version": "nyaya_instruct_v1",
+  "composition": "pilot",
+  "teacher": "google/gemma-4-31b-it",
+  "stats": {
+    "tasks_ok": 71,
+    "tasks_unparseable": 1,
+    "tasks_failed": 0,
+    "records": 284,
+    "gate_preview_pass": 262,
+    "gate_preview_fail": 22
+  },
+  "output": "data\\generated\\nyaya_instruct_v1_raw.jsonl",
+  "generated_at": "2026-07-15 01:16:28"
+}
