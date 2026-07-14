@@ -67,7 +67,7 @@ Training method for v1: **SFT with LoRA** (full-precision bf16 base — no quant
 ├── outputs/                 # Model outputs and checkpoints (gitignored)
 │   ├── baseline/            # Base Qwen predictions on Nyaya-Eval-v0
 │   ├── smoke/               # Smoke-run checkpoints
-│   └── nyaya-3b-v1/         # v1 checkpoints
+│   └── legal-3b-v1/         # v1 checkpoints
 └── reports/                 # baseline.json, validation_report.json, per-checkpoint metrics, error_analysis.json
 ```
 

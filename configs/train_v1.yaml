@@ -3,9 +3,9 @@
 #
 # Method: full-precision bf16 LoRA — NO quantization (project decision 2026-07-13).
 
-run_name: nyaya-3b-v1
+run_name: legal-3b-v1
 model_id: Qwen/Qwen2.5-3B-Instruct
-output_dir: outputs/nyaya-3b-v1
+output_dir: outputs/legal-3b-v1
 
 data:
   train_file: data/splits/train.jsonl

@@ -1,10 +1,10 @@
-# Runs scripts/01_download_model.py once on a single GPU: loads
-# Qwen2.5-3B-Instruct and generates one response, proving GPU inference
-# works in-cluster. Not a serving Deployment — the pod exits after the run.
+# Runs scripts/01_download_model.py once on a single GPU: loads the base model
+# and generates one response, proving GPU inference works in-cluster. Not a
+# serving Deployment — the pod exits after the run.
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: nyaya-gpu-smoke-test
+  name: gpu-smoke-test
   namespace: askdata-ng
 spec:
   backoffLimit: 2
@@ -12,15 +12,14 @@ spec:
   template:
     metadata:
       labels:
-        app: nyaya-gpu-smoke-test
+        app: gpu-smoke-test
     spec:
       restartPolicy: Never
       nodeSelector:
-        accelerator: nvidia   # matches both GPU pools in this cluster; the tainted
-                               # A100 "aidp" pool is skipped since we tolerate nothing
+        accelerator: nvidia
       containers:
-        - name: nyaya-smoke-test
-          image: acrcgipulsescusdev.azurecr.io/nyaya:smoke-v2
+        - name: smoke-test
+          image: acrcgipulsescusdev.azurecr.io/nyaya:smoke-v3
           imagePullPolicy: IfNotPresent
           resources:
             requests:
@@ -37,4 +36,4 @@ spec:
       volumes:
         - name: hf-cache
           persistentVolumeClaim:
-            claimName: nyaya-hf-cache
+            claimName: hf-model-cache

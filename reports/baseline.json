@@ -1,8 +1,8 @@
 {
   "meta": {
     "model": "Qwen/Qwen2.5-3B-Instruct",
-    "eval_file": "nyaya_eval_v0_draft.jsonl",
-    "eval_is_draft": true,
+    "eval_file": "nyaya_eval_v0.jsonl",
+    "eval_is_draft": false,
     "questions": 500,
     "system_prompt": "You are Nyaya, an Indian legal information model. You provide accurate, plain-language legal guidance for Indian citizens, cite specific sections of current law (BNS/BNSS/BSA and other acts in force), clearly state uncertainty, and recommend consulting a licensed advocate for anything consequential. You provide legal information, not legal advice.",
     "max_new_tokens": 384,
@@ -19,7 +19,7 @@
       "total": 5,
       "abstained": 2
     },
-    "mean_latency_s": 1.657,
+    "mean_latency_s": 1.773,
     "by_language": {
       "english": {
         "total": 480,

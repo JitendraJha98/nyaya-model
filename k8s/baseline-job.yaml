@@ -1,23 +1,21 @@
-# Runs scripts/02_run_baseline.py (base Qwen2.5-3B on Nyaya-Eval-v0) on 1 GPU.
-# The current harness code + eval set are injected via ConfigMaps and take
-# precedence over whatever tree the image was built from (PYTHONPATH), so an
-# image rebuild is never needed for harness iterations:
+# Runs scripts/02_run_baseline.py (base model on the frozen eval set) on 1 GPU.
+# Harness code + eval data are injected via ConfigMaps and take precedence over
+# whatever tree the image was built from (PYTHONPATH), so an image rebuild is
+# never needed for harness iterations:
 #
-#   kubectl create configmap nyaya-baseline-src     -n askdata-ng --from-file=src/nyaya/
-#   kubectl create configmap nyaya-baseline-scripts -n askdata-ng --from-file=02_run_baseline.py=scripts/02_run_baseline.py
-#   kubectl create configmap nyaya-baseline-data    -n askdata-ng \
+#   kubectl create configmap eval-src     -n askdata-ng --from-file=src/nyaya/
+#   kubectl create configmap eval-scripts -n askdata-ng --from-file=02_run_baseline.py=scripts/02_run_baseline.py
+#   kubectl create configmap eval-data    -n askdata-ng \
 #       --from-file=nyaya_eval_v0.jsonl=data/eval/nyaya_eval_v0.jsonl
-#   kubectl apply -f k8s/baseline-job.yaml
+#   kubectl apply -f k8s/hf-cache-pvc.yaml -f k8s/baseline-job.yaml
 #
-# Results land on the nyaya-hf-cache PVC under /data/hf-cache/nyaya-runs/baseline/
+# Results land on the hf-model-cache PVC under /data/hf-cache/runs/baseline/
 # (reports/baseline.json + outputs/baseline/predictions.jsonl). Retrieve with a
 # helper pod mounting the same PVC, then commit reports/baseline.json.
-# NOTE: while the eval set is a draft this is the DRAFT baseline — re-run after
-# the freeze for the official number.
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: nyaya-baseline
+  name: eval-baseline
   namespace: askdata-ng
 spec:
   backoffLimit: 1
@@ -25,13 +23,13 @@ spec:
   template:
     metadata:
       labels:
-        app: nyaya-baseline
+        app: eval-baseline
     spec:
       restartPolicy: Never
       nodeSelector:
         accelerator: nvidia
       containers:
-        - name: nyaya-baseline
+        - name: eval-baseline
           image: acrcgipulsescusdev.azurecr.io/nyaya:smoke-v3
           imagePullPolicy: IfNotPresent
           command: ["python", "/work/scripts/02_run_baseline.py"]
@@ -39,7 +37,7 @@ spec:
             - "--eval-file"
             - "/work/data/eval/nyaya_eval_v0.jsonl"
             - "--out-dir"
-            - "/data/hf-cache/nyaya-runs/baseline-official"
+            - "/data/hf-cache/runs/baseline"
             - "--batch-size"
             - "8"
           env:
@@ -70,13 +68,13 @@ spec:
       volumes:
         - name: hf-cache
           persistentVolumeClaim:
-            claimName: nyaya-hf-cache
+            claimName: hf-model-cache
         - name: src
           configMap:
-            name: nyaya-baseline-src
+            name: eval-src
         - name: scripts
           configMap:
-            name: nyaya-baseline-scripts
+            name: eval-scripts
         - name: data
           configMap:
-            name: nyaya-baseline-data
+            name: eval-data
