@@ -1,14 +1,14 @@
 # Teacher LLM for grounded synthetic generation (roadmap Step 7):
-# Gemma 4 31B-IT (Apache-2.0 — outputs are clean to train Nyaya on) served by
+# Gemma 4 31B-IT (Apache-2.0 — outputs are clean to train on) served by
 # vLLM's OpenAI-compatible API on 1x A100-80GB (~62GB bf16 weights + KV cache
 # at 8K context).
 #
 #   kubectl apply -f k8s/teacher-vllm.yaml
-#   kubectl port-forward svc/nyaya-teacher 8000:8000 -n askdata-ng
+#   kubectl port-forward svc/inference-server 8000:8000 -n askdata-ng
 #   python scripts/04_generate_examples.py --composition pilot
 #
 # If the HF pull is denied (license click-through), create a token secret:
-#   kubectl create secret generic nyaya-hf-token -n askdata-ng --from-literal=token=hf_...
+#   kubectl create secret generic hf-token -n askdata-ng --from-literal=token=hf_...
 # and uncomment the HF_TOKEN env block below.
 #
 # Tear down when generation is finished — this holds a whole A100:
@@ -17,7 +17,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: nyaya-teacher-cache
+  name: inference-model-cache
   namespace: askdata-ng
 spec:
   accessModes:
@@ -29,17 +29,17 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nyaya-teacher
+  name: inference-server
   namespace: askdata-ng
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nyaya-teacher
+      app: inference-server
   template:
     metadata:
       labels:
-        app: nyaya-teacher
+        app: inference-server
     spec:
       nodeSelector:
         accelerator: nvidia
@@ -61,7 +61,7 @@ spec:
             # - name: HF_TOKEN
             #   valueFrom:
             #     secretKeyRef:
-            #       name: nyaya-hf-token
+            #       name: hf-token
             #       key: token
           ports:
             - containerPort: 8000
@@ -89,7 +89,7 @@ spec:
       volumes:
         - name: cache
           persistentVolumeClaim:
-            claimName: nyaya-teacher-cache
+            claimName: inference-model-cache
         - name: shm
           emptyDir:
             medium: Memory
@@ -98,11 +98,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: nyaya-teacher
+  name: inference-server
   namespace: askdata-ng
 spec:
   selector:
-    app: nyaya-teacher
+    app: inference-server
   ports:
     - port: 8000
       targetPort: 8000

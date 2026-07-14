@@ -1,9 +1,9 @@
-# Persists the Hugging Face cache (HF_HOME, set in the Dockerfile) across
-# Job runs so Qwen2.5-3B-Instruct (~6GB) is downloaded once, not on every retry.
+# Persists the Hugging Face cache (HF_HOME) across eval/smoke Job runs so the
+# base model (~6GB) is downloaded once, not on every retry.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: nyaya-hf-cache
+  name: hf-model-cache
   namespace: askdata-ng
 spec:
   accessModes:

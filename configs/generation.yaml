@@ -13,7 +13,7 @@ dataset_version: nyaya_instruct_v1
 seed: 42
 
 teacher:
-  base_url: "http://localhost:8000/v1"   # kubectl port-forward svc/nyaya-teacher 8000:8000 -n askdata-ng
+  base_url: "http://localhost:8000/v1"   # kubectl port-forward svc/inference-server 8000:8000 -n askdata-ng
   model: "google/gemma-4-31b-it"
   api_key_env: NYAYA_TEACHER_API_KEY     # optional; plain vLLM needs none
   max_tokens: 2048

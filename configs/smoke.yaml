@@ -6,7 +6,7 @@
 # Method: full-precision bf16 LoRA — NO quantization (project decision 2026-07-13;
 # the A100-80GB pool fits a 3B bf16 base + LoRA comfortably).
 
-run_name: nyaya-3b-smoke
+run_name: legal-3b-smoke
 model_id: Qwen/Qwen2.5-3B-Instruct
 output_dir: outputs/smoke
 
