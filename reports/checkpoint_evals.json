@@ -1,0 +1,151 @@
+{
+  "run_dir": "outputs/legal-3b-v1",
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "frozen_eval_questions": 500,
+  "checkpoints": {
+    "checkpoint-50": {
+      "strict_accuracy": 0.0081,
+      "strict_correct": 4,
+      "scored_total": 495,
+      "forbidden_fact_violations": 1,
+      "abstention_rate": 0.424,
+      "safety_abstained": 2,
+      "by_language": {
+        "english": "4/480",
+        "hindi": "0/10",
+        "hinglish": "0/10"
+      },
+      "eval_seconds": 977
+    },
+    "checkpoint-100": {
+      "strict_accuracy": 0.004,
+      "strict_correct": 2,
+      "scored_total": 495,
+      "forbidden_fact_violations": 1,
+      "abstention_rate": 0.342,
+      "safety_abstained": 2,
+      "by_language": {
+        "english": "2/480",
+        "hindi": "0/10",
+        "hinglish": "0/10"
+      },
+      "eval_seconds": 938
+    },
+    "checkpoint-150": {
+      "strict_accuracy": 0.0081,
+      "strict_correct": 4,
+      "scored_total": 495,
+      "forbidden_fact_violations": 1,
+      "abstention_rate": 0.452,
+      "safety_abstained": 2,
+      "by_language": {
+        "english": "4/480",
+        "hindi": "0/10",
+        "hinglish": "0/10"
+      },
+      "eval_seconds": 869
+    },
+    "checkpoint-197": {
+      "strict_accuracy": 0.0081,
+      "strict_correct": 4,
+      "scored_total": 495,
+      "forbidden_fact_violations": 1,
+      "abstention_rate": 0.474,
+      "safety_abstained": 2,
+      "by_language": {
+        "english": "4/480",
+        "hindi": "0/10",
+        "hinglish": "0/10"
+      },
+      "eval_seconds": 869
+    },
+    "final": {
+      "strict_accuracy": 0.0081,
+      "strict_correct": 4,
+      "scored_total": 495,
+      "forbidden_fact_violations": 1,
+      "abstention_rate": 0.474,
+      "safety_abstained": 2,
+      "by_language": {
+        "english": "4/480",
+        "hindi": "0/10",
+        "hinglish": "0/10"
+      },
+      "eval_seconds": 868
+    }
+  },
+  "best": "checkpoint-50",
+  "best_dataset_eval": {
+    "total": 1068,
+    "citation_pass_rate": 0.9017,
+    "answers_with_citations": 0.9785,
+    "old_law_citation_rate": 0.0028,
+    "language_match_rate": 0.9906,
+    "mean_reference_similarity": 0.2515,
+    "by_language": {
+      "english": {
+        "total": 785,
+        "citation_ok": 707,
+        "language_ok": 784,
+        "old_law_cited": 3
+      },
+      "hinglish": {
+        "total": 168,
+        "citation_ok": 151,
+        "language_ok": 167,
+        "old_law_cited": 0
+      },
+      "hindi": {
+        "total": 115,
+        "citation_ok": 105,
+        "language_ok": 107,
+        "old_law_cited": 0
+      }
+    },
+    "by_task_type": {
+      "grounded_qa": {
+        "total": 478,
+        "citation_ok": 429,
+        "language_ok": 477,
+        "old_law_cited": 0
+      },
+      "terminology": {
+        "total": 28,
+        "citation_ok": 27,
+        "language_ok": 28,
+        "old_law_cited": 0
+      },
+      "hinglish_qa": {
+        "total": 168,
+        "citation_ok": 151,
+        "language_ok": 167,
+        "old_law_cited": 0
+      },
+      "law_mapping": {
+        "total": 24,
+        "citation_ok": 20,
+        "language_ok": 24,
+        "old_law_cited": 3
+      },
+      "hindi_qa": {
+        "total": 115,
+        "citation_ok": 105,
+        "language_ok": 107,
+        "old_law_cited": 0
+      },
+      "procedural": {
+        "total": 231,
+        "citation_ok": 211,
+        "language_ok": 231,
+        "old_law_cited": 0
+      },
+      "safety_abstention": {
+        "total": 24,
+        "citation_ok": 20,
+        "language_ok": 24,
+        "old_law_cited": 0
+      }
+    }
+  },
+  "evaluated_at": "2026-07-15 08:04:21"
+}
