@@ -434,12 +434,17 @@ def load_statute_index(canonical_dir: str | Path) -> StatuteIndex:
 
 
 def format_context(rows: list[dict]) -> str:
-    """Verbatim statute block for the RAG prompt — the ONLY source of truth."""
+    """Verbatim statute/guidance block for the RAG prompt — the ONLY source of
+    truth. Statutes render citably; procedures-KB rows render as named official
+    guidance (they are not statute and must not look citable as sections)."""
     blocks = []
     for r in rows:
-        blocks.append(
-            f"Section {r['section']} of the {r['act_name']} — {r['title']}\n{r['text']}"
-        )
+        if r["act_id"] == "procedures_kb":
+            blocks.append(f"{r['title']} — official guidance\n{r['text']}")
+        else:
+            blocks.append(
+                f"Section {r['section']} of the {r['act_name']} — {r['title']}\n{r['text']}"
+            )
     return "\n\n".join(blocks)
 
 
@@ -516,15 +521,18 @@ def build_rag_training_record(record: dict, index: StatuteIndex, k: int = 8,
 
 
 RAG_ANSWER_PROMPT = """\
-Relevant provisions of current Indian law (the ONLY sections you may cite):
+Relevant provisions of current Indian law and official guidance (the ONLY \
+sources you may rely on):
 
 {context}
 
-Using ONLY the provisions above where they are relevant, answer the citizen's
-question below. Cite as "Section <n> of the <Act Name>" exactly as given above;
-do not cite any section not shown above. If the provisions above do not cover
-the question, say so plainly and give general guidance without inventing
-citations. Answer in the same language as the question.
+Using ONLY the material above where it is relevant, answer the citizen's
+question below. Cite statute as "Section <n> of the <Act Name>" exactly as
+given above; do not cite any section not shown above. Entries marked "official
+guidance" give practical steps (helplines, portals, timelines) you may state
+directly. If the material above does not cover the question, say so plainly and
+give general guidance without inventing citations. Answer in the same language
+as the question.
 
 Question: {question}"""
 
