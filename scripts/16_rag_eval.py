@@ -101,7 +101,7 @@ def main() -> None:
     label = args.label or "_".join(filter(None, [
         "rag" if not args.no_rag else "norag",
         f"k{args.k}" if not args.no_rag else None,
-        Path(adapter).name if adapter else "base"]))
+        f"{Path(adapter).parent.name}-{Path(adapter).name}" if adapter else "base"]))
 
     index = None if args.no_rag else load_statute_index(args.canonical_dir)
     records = load_eval_records()

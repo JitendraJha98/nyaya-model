@@ -18,8 +18,10 @@ Devanagari aliases; a multilingual embedding stage can follow if eval
 demands it.
 """
 
+import copy
 import json
 import math
+import random
 import re
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -304,6 +306,78 @@ def format_context(rows: list[dict]) -> str:
     return "\n\n".join(blocks)
 
 
+# Context word budget: ~2,500 English legal words ≈ 3,400 tokens, leaving
+# room for instructions + question + answer inside max_seq_length 6144.
+CONTEXT_BUDGET_WORDS = 2500
+
+
+def _row_words(row: dict) -> int:
+    return len((row.get("title") or "").split()) + len((row.get("text") or "").split()) + 10
+
+
+def pack_rows(rows: list[dict], budget_words: int = CONTEXT_BUDGET_WORDS,
+              must_keys: set[str] | frozenset[str] = frozenset()) -> list[dict]:
+    """Fit rows into a word budget, preserving order.
+
+    Overflowing rows are skipped (a later shorter row may still fit) — except
+    rows in must_keys (training gold) and a first row that alone exceeds the
+    budget: those are truncated instead of dropped, so an answer's source is
+    never packed away.
+    """
+    packed, used = [], 0
+    for row in rows:
+        words = _row_words(row)
+        key = f"{row['act_id']}:{row['section'].upper()}"
+        if used + words > budget_words:
+            if not packed or key in must_keys:
+                remaining = max(150, budget_words - used)
+                text_words = (row.get("text") or "").split()[:remaining]
+                row = {**row, "text": " ".join(text_words) + " …[provision truncated]"}
+                words = _row_words(row)
+            else:
+                continue
+        packed.append(row)
+        used += words
+    return packed
+
+
+def build_rag_training_record(record: dict, index: StatuteIndex, k: int = 8,
+                              budget_words: int = CONTEXT_BUDGET_WORDS) -> dict:
+    """Rewrap a Nyaya-Instruct example in the inference-time RAG prompt.
+
+    v1's adapter went off-distribution under RAG prompts (it was trained on
+    bare questions and stopped citing). v2 trains on exactly what inference
+    serves: retrieved context + question -> the grounded answer. The example's
+    gold source_sections are force-injected so the answer's citations are
+    always derivable from the context; their position is shuffled per-record
+    (seeded by id) so the model can't learn "the answer is always first".
+    """
+    question = next(m["content"] for m in record["messages"] if m["role"] == "user")
+    gold_keys = [f"{s.split(':')[0].lower()}:{s.split(':')[1].upper()}"
+                 for s in record.get("metadata", {}).get("source_sections", [])]
+    rows = [index.rows[index.by_key[key]] for key in gold_keys if key in index.by_key]
+    seen = {f"{r['act_id']}:{r['section'].upper()}" for r in rows}
+    for row in index.retrieve(question, k=k):
+        key = f"{row['act_id']}:{row['section'].upper()}"
+        if key not in seen and len(rows) < k:
+            seen.add(key)
+            rows.append(row)
+    rows = pack_rows(rows, budget_words, must_keys=set(gold_keys))
+    random.Random(record["id"]).shuffle(rows)
+
+    out = copy.deepcopy(record)
+    for message in out["messages"]:
+        if message["role"] == "user":
+            message["content"] = build_rag_prompt(question, rows)
+            break
+    out["metadata"]["rag"] = {
+        "k": k,
+        "context_keys": [f"{r['act_id']}:{r['section'].upper()}" for r in rows],
+        "gold_injected": bool(gold_keys),
+    }
+    return out
+
+
 RAG_ANSWER_PROMPT = """\
 Relevant provisions of current Indian law (the ONLY sections you may cite):
 
@@ -318,5 +392,7 @@ citations. Answer in the same language as the question.
 Question: {question}"""
 
 
-def build_rag_prompt(question: str, retrieved: list[dict]) -> str:
-    return RAG_ANSWER_PROMPT.format(context=format_context(retrieved), question=question)
+def build_rag_prompt(question: str, retrieved: list[dict],
+                     budget_words: int = CONTEXT_BUDGET_WORDS) -> str:
+    packed = pack_rows(retrieved, budget_words)
+    return RAG_ANSWER_PROMPT.format(context=format_context(packed), question=question)

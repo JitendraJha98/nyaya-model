@@ -1,0 +1,30 @@
+{
+  "k": 8,
+  "splits": {
+    "train": {
+      "in": 6297,
+      "out": 6297,
+      "dropped_uncovered": 0,
+      "prompt_words_p50": 1792,
+      "prompt_words_p95": 2549,
+      "prompt_words_max": 2633
+    },
+    "val": {
+      "in": 331,
+      "out": 331,
+      "dropped_uncovered": 0,
+      "prompt_words_p50": 1900,
+      "prompt_words_p95": 2571,
+      "prompt_words_max": 2620
+    },
+    "test": {
+      "in": 1068,
+      "out": 1068,
+      "dropped_uncovered": 0,
+      "prompt_words_p50": 2111,
+      "prompt_words_p95": 2566,
+      "prompt_words_max": 2655
+    }
+  },
+  "built_at": "2026-07-15 16:00:35"
+}
