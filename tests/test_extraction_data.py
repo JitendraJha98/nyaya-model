@@ -98,6 +98,23 @@ class TestEvalExclusion:
         excl = extraction_gen.eval_excluded_keys(idx, recs)
         assert "bns_2023:151" in excl
 
+    def test_reversed_bare_old_law_reference_excluded(self):
+        # the number-then-act order ("498A IPC") also appears unmarked in eval
+        # forbidden_facts — it must be caught too
+        rows = [{"act_id": "bns_2023",
+                 "act_name": "Bharatiya Nyaya Sanhita, 2023", "section": "85",
+                 "title": "Cruelty by husband or relative",
+                 "text": "Whoever subjects a woman to cruelty shall be punished.",
+                 "chapter": "XI"}]
+        mappings = [{"old_act": "IPC", "old_section": "498A", "new_act": "BNS",
+                     "new_section": "85", "note": None}]
+        idx = StatuteIndex(rows, mappings)
+        recs = [{"legal_domain": "bns", "required_facts": [],
+                 "forbidden_facts": ["498A IPC as current law"],
+                 "question": "Is 498A IPC still the law?"}]
+        excl = extraction_gen.eval_excluded_keys(idx, recs)
+        assert "bns_2023:85" in excl
+
     def test_bare_reference_blocks_the_mapping_record(self):
         rows = [{"act_id": "bns_2023",
                  "act_name": "Bharatiya Nyaya Sanhita, 2023", "section": "151",
