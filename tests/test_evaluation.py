@@ -48,6 +48,37 @@ class TestFactPresent:
     def test_section_symbol_in_response(self):
         assert fact_present("Section 420 IPC", "was punishable under §420 of the Indian Penal Code")
 
+    def test_word_numeral_matches_digit(self):
+        # statutes say "seven years"; eval facts say "7 years" — same fact
+        assert fact_present("within 7 years of marriage",
+                            "if she dies within seven years of marriage")
+
+    def test_digit_fact_matches_word_numeral_response(self):
+        assert fact_present("five or more persons",
+                            "committed by a group of 5 or more persons")
+
+    def test_word_numeral_not_overreach(self):
+        assert not fact_present("within 7 years of marriage",
+                                "within three years of marriage")
+
+
+class TestFactTokensPresent:
+    def test_intervening_words_still_match(self):
+        from nyaya.evaluation import fact_tokens_present
+        assert fact_tokens_present("within 7 years of marriage",
+                                   "she died within seven years of her marriage")
+
+    def test_missing_token_fails(self):
+        from nyaya.evaluation import fact_tokens_present
+        assert not fact_tokens_present("community service",
+                                       "punished with fine or imprisonment")
+
+    def test_section_facts_still_require_citation_context(self):
+        from nyaya.evaluation import fact_tokens_present
+        # a section fact is not satisfied by the bare number in prose
+        assert not fact_tokens_present("Section 103 BNS",
+                                       "about 103 people were present")
+
 
 class TestAbstention:
     def test_consult_advocate_detected(self):

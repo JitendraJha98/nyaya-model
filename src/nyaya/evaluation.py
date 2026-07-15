@@ -50,11 +50,24 @@ _STOPWORDS = frozenset(
 )
 
 
+# Statutes write numbers as words ("seven years"), eval facts as digits
+# ("7 years") — the same fact either way. Single-word numerals only;
+# compounds ("twenty five") are left alone.
+_WORD_NUMERALS = {
+    "one": "1", "two": "2", "three": "3", "four": "4", "five": "5",
+    "six": "6", "seven": "7", "eight": "8", "nine": "9", "ten": "10",
+    "eleven": "11", "twelve": "12", "fourteen": "14", "fifteen": "15",
+    "twenty": "20", "thirty": "30", "sixty": "60", "ninety": "90",
+}
+_WORD_NUMERAL_RE = re.compile(r"\b(" + "|".join(_WORD_NUMERALS) + r")\b")
+
+
 def _normalize(text: str) -> str:
     text = text.lower()
     text = text.replace("§", " section ")
     text = re.sub(r"(?<=\d),(?=\d)", "", text)  # 10,000 -> 10000
     text = _PUNCT.sub(" ", text)
+    text = _WORD_NUMERAL_RE.sub(lambda m: _WORD_NUMERALS[m.group(1)], text)
     return re.sub(r"\s+", " ", text).strip()
 
 
@@ -96,6 +109,19 @@ def fact_present(fact: str, response: str) -> bool:
         return True
 
     return _without_stopwords(fact_norm) in _without_stopwords(resp_norm)
+
+
+def fact_tokens_present(fact: str, response: str) -> bool:
+    """Lenient companion to fact_present: every non-stopword token of the
+    fact appears somewhere in the response (order/adjacency not required).
+    Section facts keep the strict citation-context rule — a bare number in
+    prose is not a citation. Secondary metric only; strict stays headline.
+    """
+    if _SECTION_FACT.search(fact):
+        return fact_present(fact, response)
+    fact_tokens = set(_without_stopwords(_normalize(fact)).split())
+    resp_tokens = set(_without_stopwords(_normalize(response)).split())
+    return bool(fact_tokens) and fact_tokens <= resp_tokens
 
 
 def looks_like_abstention(response: str) -> bool:
