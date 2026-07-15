@@ -1,0 +1,55 @@
+# RAFT v3 generation as an in-cluster Job: teacher answers every existing
+# example under the real RAG prompt (gold + distractor context; 10% deliberate
+# misses), gated for context containment. --samples 2 on 40% of train tasks
+# yields DPO candidates. Driver reaches the teacher via Service DNS; resumable
+# by run_id. Stage the repo (with data/splits) to the PVC first. CPU-only.
+#
+#   kubectl apply -f k8s/raft-datagen-job.yaml
+#   kubectl logs -f job/raft-datagen -n askdata-ng
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: raft-datagen
+  namespace: askdata-ng
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 43200
+  template:
+    metadata:
+      labels:
+        app: raft-datagen
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: raft-datagen
+          image: acrcgipulsescusdev.azurecr.io/nyaya:smoke-v3
+          workingDir: /data/hf-cache/gen/repo
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              pip install --quiet sentence-transformers
+              python scripts/20_generate_raft.py --splits train val test \
+                --samples 2 --sample-fraction 0.4 --concurrency 8 --dense
+          env:
+            - name: TEACHER_BASE_URL
+              value: "http://inference-server:8000/v1"
+            - name: PYTHONIOENCODING
+              value: utf-8
+            - name: HF_HOME
+              value: /data/hf-cache
+          resources:
+            requests:
+              cpu: "2"
+              memory: 6Gi
+            limits:
+              cpu: "4"
+              memory: 10Gi
+          volumeMounts:
+            - name: cache
+              mountPath: /data/hf-cache
+      volumes:
+        - name: cache
+          persistentVolumeClaim:
+            claimName: hf-model-cache

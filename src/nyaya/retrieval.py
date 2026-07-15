@@ -242,6 +242,35 @@ class StatuteIndex:
                 ordered.append(k)
         return ordered
 
+    # ---- optional dense stage -------------------------------------------
+    def add_dense(self, embed_fn, doc_vectors=None) -> None:
+        """Enable hybrid retrieval. embed_fn(list[str]) -> list[vector].
+
+        Doc vectors are computed once (or passed precomputed, e.g. loaded
+        from an .npy built on GPU); queries are embedded per call. Fusion
+        with BM25 is reciprocal-rank (RRF) — no score calibration needed
+        across the two systems.
+        """
+        self._embed_fn = embed_fn
+        if doc_vectors is None:
+            doc_vectors = embed_fn([
+                f"{r['act_name']} — {r.get('title') or ''}. {r.get('text') or ''}"
+                for r in self.rows
+            ])
+        self._doc_vectors = [self._unit(v) for v in doc_vectors]
+
+    @staticmethod
+    def _unit(vec):
+        norm = math.sqrt(sum(x * x for x in vec)) or 1.0
+        return [x / norm for x in vec]
+
+    def _dense_ranking(self, query: str) -> list[int]:
+        q = self._unit(self._embed_fn([query])[0])
+        scores = [(sum(a * b for a, b in zip(q, d)), i)
+                  for i, d in enumerate(self._doc_vectors)]
+        scores.sort(reverse=True)
+        return [i for _score, i in scores]
+
     # ---- stage 2: BM25 ---------------------------------------------------
     def _bm25(self, query: str) -> list[tuple[float, int]]:
         q_tokens = _tokens(expand_query(query))
@@ -262,6 +291,18 @@ class StatuteIndex:
         scores.sort(reverse=True)
         return scores
 
+    def _fused_ranking(self, query: str, rrf_k: int = 60, depth: int = 50) -> list[int]:
+        """BM25 ranking, RRF-fused with the dense ranking when enabled."""
+        bm25_order = [i for _score, i in self._bm25(query)]
+        if getattr(self, "_embed_fn", None) is None:
+            return bm25_order
+        fused = defaultdict(float)
+        for rank, i in enumerate(bm25_order[:depth]):
+            fused[i] += 1.0 / (rrf_k + rank)
+        for rank, i in enumerate(self._dense_ranking(query)[:depth]):
+            fused[i] += 1.0 / (rrf_k + rank)
+        return [i for i, _s in sorted(fused.items(), key=lambda kv: -kv[1])]
+
     def retrieve(self, query: str, k: int = 4) -> list[dict]:
         picked = []
         for key in self.referenced_keys(query):
@@ -269,7 +310,7 @@ class StatuteIndex:
             if len(picked) >= k:
                 return picked
         chosen = {f"{r['act_id']}:{r['section'].upper()}" for r in picked}
-        for _score, i in self._bm25(query):
+        for i in self._fused_ranking(query):
             row = self.rows[i]
             if f"{row['act_id']}:{row['section'].upper()}" in chosen:
                 continue
@@ -341,6 +382,47 @@ def pack_rows(rows: list[dict], budget_words: int = CONTEXT_BUDGET_WORDS,
     return packed
 
 
+def rag_context_rows(record_id: str, question: str, gold_keys: list[str],
+                     index: StatuteIndex, k: int = 8,
+                     budget_words: int = CONTEXT_BUDGET_WORDS,
+                     exclude_gold: bool = False) -> list[dict]:
+    """Packed, per-record-shuffled context rows for a training/generation
+    example. exclude_gold=True simulates a retrieval miss (RAFT negative)."""
+    rows, seen = [], set()
+    if not exclude_gold:
+        rows = [index.rows[index.by_key[key]] for key in gold_keys if key in index.by_key]
+        seen = {f"{r['act_id']}:{r['section'].upper()}" for r in rows}
+    for row in index.retrieve(question, k=k):
+        key = f"{row['act_id']}:{row['section'].upper()}"
+        if exclude_gold and key in gold_keys:
+            continue
+        if key not in seen and len(rows) < k:
+            seen.add(key)
+            rows.append(row)
+    rows = pack_rows(rows, budget_words,
+                     must_keys=set() if exclude_gold else set(gold_keys))
+    random.Random(record_id).shuffle(rows)
+    return rows
+
+
+def normalize_gold_keys(source_sections: list[str]) -> list[str]:
+    return [f"{s.split(':')[0].lower()}:{s.split(':')[1].upper()}"
+            for s in source_sections]
+
+
+def context_statute_db(context_keys: list[str]) -> dict[str, set[str]]:
+    """A statute-DB view restricted to the context — verify_citations against
+    it enforces 'cite only what was shown', not merely 'cite real law'."""
+    from .validators import _ACT_ID_FAMILY
+    db: dict[str, set[str]] = {}
+    for key in context_keys:
+        act_id, section = key.split(":", 1)
+        family = _ACT_ID_FAMILY.get(act_id.rsplit("_", 1)[0])
+        if family:
+            db.setdefault(family, set()).add(section.upper())
+    return db
+
+
 def build_rag_training_record(record: dict, index: StatuteIndex, k: int = 8,
                               budget_words: int = CONTEXT_BUDGET_WORDS) -> dict:
     """Rewrap a Nyaya-Instruct example in the inference-time RAG prompt.
@@ -353,17 +435,10 @@ def build_rag_training_record(record: dict, index: StatuteIndex, k: int = 8,
     (seeded by id) so the model can't learn "the answer is always first".
     """
     question = next(m["content"] for m in record["messages"] if m["role"] == "user")
-    gold_keys = [f"{s.split(':')[0].lower()}:{s.split(':')[1].upper()}"
-                 for s in record.get("metadata", {}).get("source_sections", [])]
-    rows = [index.rows[index.by_key[key]] for key in gold_keys if key in index.by_key]
-    seen = {f"{r['act_id']}:{r['section'].upper()}" for r in rows}
-    for row in index.retrieve(question, k=k):
-        key = f"{row['act_id']}:{row['section'].upper()}"
-        if key not in seen and len(rows) < k:
-            seen.add(key)
-            rows.append(row)
-    rows = pack_rows(rows, budget_words, must_keys=set(gold_keys))
-    random.Random(record["id"]).shuffle(rows)
+    gold_keys = normalize_gold_keys(
+        record.get("metadata", {}).get("source_sections", []))
+    rows = rag_context_rows(record["id"], question, gold_keys, index,
+                            k=k, budget_words=budget_words)
 
     out = copy.deepcopy(record)
     for message in out["messages"]:

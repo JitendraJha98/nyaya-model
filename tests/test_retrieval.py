@@ -165,6 +165,44 @@ def _training_record(rec_id="gen_000001_ab_01", sections=("bns_2023:303",),
     }
 
 
+class TestHybridDenseRetrieval:
+    """Dense stage injected as embed_fn: retrieval.py stays model-agnostic."""
+
+    @staticmethod
+    def _fake_embed(texts):
+        # crude semantic space: axis 0 = "money deception", axis 1 = "police
+        # procedure", axis 2 = everything else — enough to test fusion
+        vecs = []
+        for t in texts:
+            t = t.lower()
+            money = any(w in t for w in ("paisa", "thaga", "cheat", "deceiv", "property"))
+            police = any(w in t for w in ("fir", "police", "cognizable", "information"))
+            vecs.append([1.0 if money else 0.0, 1.0 if police else 0.0,
+                         0.0 if (money or police) else 1.0])
+        return vecs
+
+    def test_dense_bridges_zero_lexical_overlap(self, index):
+        idx = StatuteIndex(ROWS, MAPPINGS)
+        idx.add_dense(self._fake_embed)
+        # no token overlap with s318 text; fake embedder maps "thaga/paisa"
+        # and the section's "deceiving...property" to the same axis
+        hits = idx.retrieve("kisi ne mujhse paisa thaga", k=2)
+        assert any(h["section"] == "318" for h in hits)
+
+    def test_exact_citation_still_first(self, index):
+        idx = StatuteIndex(ROWS, MAPPINGS)
+        idx.add_dense(self._fake_embed)
+        hits = idx.retrieve("paisa thaga — Section 7 RTI ka jawab kab tak?", k=2)
+        assert hits[0]["act_id"] == "rti_2005" and hits[0]["section"] == "7"
+
+    def test_bm25_and_dense_fuse(self, index):
+        idx = StatuteIndex(ROWS, MAPPINGS)
+        idx.add_dense(self._fake_embed)
+        # lexical match on "information" + dense police axis both point at 173
+        hits = idx.retrieve("police station me information dena", k=1)
+        assert hits[0]["section"] == "173"
+
+
 class TestBuildRagTrainingRecord:
     def test_gold_section_always_in_context(self, index):
         # BM25 for this vague query may miss 303 — injection must guarantee it
