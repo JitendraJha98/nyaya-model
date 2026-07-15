@@ -1,0 +1,58 @@
+# Step 10 — 1K-example smoke training run on 1x A100 (configs/smoke.yaml).
+# Goal is NOT model quality: dataset loads, chat template + tokenization
+# correct, loss decreases, no OOM, checkpoint saves, adapter reloads,
+# inference works. Runs from the repo tree staged on the hf-model-cache PVC
+# (same staging as datagen); outputs/smoke lands on the PVC.
+#
+#   kubectl apply -f k8s/smoke-train-job.yaml
+#   kubectl logs -f job/smoke-train -n askdata-ng
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: smoke-train
+  namespace: askdata-ng
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 14400
+  template:
+    metadata:
+      labels:
+        app: smoke-train
+    spec:
+      restartPolicy: Never
+      nodeSelector:
+        accelerator: nvidia
+      containers:
+        - name: smoke-train
+          image: acrcgipulsescusdev.azurecr.io/nyaya:smoke-v3
+          workingDir: /data/hf-cache/gen/repo
+          command: ["python", "scripts/08_smoke_train.py"]
+          env:
+            - name: PYTHONIOENCODING
+              value: utf-8
+            - name: HF_HOME
+              value: /data/hf-cache
+            - name: TOKENIZERS_PARALLELISM
+              value: "false"
+          resources:
+            requests:
+              cpu: "8"
+              memory: 48Gi
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "16"
+              memory: 64Gi
+              nvidia.com/gpu: "1"
+          volumeMounts:
+            - name: cache
+              mountPath: /data/hf-cache
+            - name: shm
+              mountPath: /dev/shm
+      volumes:
+        - name: cache
+          persistentVolumeClaim:
+            claimName: hf-model-cache
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Gi
