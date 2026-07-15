@@ -66,6 +66,15 @@ DOMAIN_ACTS = {
 # generated train split (never tuned on the frozen eval).
 TITLE_BONUS = 0.75
 
+# Procedural-guidance (procedures_kb) rows point to the statute that governs a
+# situation; they are a supplement, not the citation itself. At inference k=8 a
+# question needs the governing sections plus at most a couple of practical
+# pointers (a helpline, a portal, a deadline), so guidance is capped at KB_SLOTS
+# of the retrieved context and statute sections keep the majority. A purely
+# procedural question with no matching statute still fills up with guidance via
+# the backfill in retrieve().
+KB_SLOTS = 2
+
 # Lay/Hindi legal vocabulary -> the statutory phrasing it names. General
 # Indian legal-aid terminology (statute titles, standard usage) — NOT tuned
 # per eval question; calibrated only against the generated train split.
@@ -406,13 +415,29 @@ class StatuteIndex:
             if len(picked) >= k:
                 return picked
         chosen = {f"{r['act_id']}:{r['section'].upper()}" for r in picked}
+        remaining = k - len(picked)
+
+        # Split the BM25 ranking into governing statute and procedural-guidance
+        # pools. Guidance supplements the statute it points to; it must not
+        # displace the citation context, so statutes keep the majority of slots
+        # and guidance is capped at KB_SLOTS. When one pool runs short (a purely
+        # procedural question matches few statutes; a pure citation question
+        # matches little guidance), the leftover slots backfill from the other.
+        statutes, guidance = [], []
         for _score, i in self._bm25(query):
             row = self.rows[i]
             if f"{row['act_id']}:{row['section'].upper()}" in chosen:
                 continue
-            picked.append(row)
-            if len(picked) >= k:
-                break
+            (guidance if row["act_id"] == "procedures_kb" else statutes).append(row)
+
+        take_kb = guidance[: min(KB_SLOTS, remaining)]
+        take_statute = statutes[: remaining - len(take_kb)]
+        merged = take_statute + take_kb
+        if len(merged) < remaining:
+            backfill = statutes[len(take_statute):] + guidance[len(take_kb):]
+            merged += backfill[: remaining - len(merged)]
+
+        picked.extend(merged)
         return picked
 
 
