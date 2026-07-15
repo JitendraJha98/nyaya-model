@@ -34,6 +34,19 @@ MAPPINGS = [
     {"old_act": "CrPC", "old_section": "154", "new_act": "BNSS", "new_section": "173", "note": None},
 ]
 
+AMBIG_ROWS = ROWS + [
+    {"act_id": "ni_act_1881", "act_name": "Negotiable Instruments Act, 1881",
+     "section": "139", "title": "Presumption in favour of holder",
+     "text": "It shall be presumed, unless the contrary is proved, that the holder "
+     "of a cheque received the cheque for the discharge, in whole or in part, of "
+     "any debt or other liability.", "chapter": "XVII"},
+    {"act_id": "bnss_2023", "act_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+     "section": "139", "title": "Power to declare certain publications forfeited",
+     "text": "Where any newspaper or book contains any matter the publication of "
+     "which is punishable, the State Government may declare it forfeited.",
+     "chapter": "XI"},
+]
+
 
 @pytest.fixture(scope="module")
 def index():
@@ -258,3 +271,38 @@ class TestFormatContext:
         assert "Section 318" in ctx
         assert "Bharatiya Nyaya Sanhita" in ctx
         assert "deceiving any person" in ctx
+
+
+class TestDomainAwareResolution:
+    @pytest.fixture(scope="class")
+    def ambig_index(self):
+        return StatuteIndex(AMBIG_ROWS, MAPPINGS)
+
+    def test_bare_ambiguous_section_still_drops_without_hints(self, ambig_index):
+        # two acts contain a section 139 and nothing disambiguates -> no keys
+        assert ambig_index.referenced_keys("Section 139") == []
+
+    def test_domain_hint_resolves_bare_section(self, ambig_index):
+        keys = ambig_index.referenced_keys("Section 139", domain="cheque_bounce")
+        assert keys == ["ni_act_1881:139"]
+
+    def test_content_words_resolve_bare_section(self, ambig_index):
+        keys = ambig_index.referenced_keys("Section 139 presumption of debt")
+        assert keys == ["ni_act_1881:139"]
+
+    def test_named_act_beats_domain_hint(self, ambig_index):
+        # an explicit act name is stronger evidence than the domain
+        keys = ambig_index.referenced_keys("Section 139 of the BNSS",
+                                           domain="cheque_bounce")
+        assert keys == ["bnss_2023:139"]
+
+    def test_unknown_domain_is_harmless(self, ambig_index):
+        assert ambig_index.referenced_keys("Section 139", domain="nonsense") == []
+
+    def test_content_tie_still_drops(self, ambig_index):
+        # words matching neither candidate: content stage must not guess
+        assert ambig_index.referenced_keys("Section 139 zebra flying") == []
+
+    def test_unambiguous_section_unaffected(self, ambig_index):
+        # only one act has a 318 -> resolves exactly as before, no hint needed
+        assert ambig_index.referenced_keys("Section 318") == ["bns_2023:318"]

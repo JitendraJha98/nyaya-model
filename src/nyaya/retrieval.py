@@ -41,6 +41,24 @@ _FAMILY_TO_ACT_ID = {family: act_id for act_id, family in (
 )}
 _OLD_TO_NEW_ACT = {"ipc": "bns", "crpc": "bnss", "iea": "bsa"}
 
+# eval-record legal_domain -> the act(s) a bare "Section <n>" most plausibly
+# names in that domain. A resolution HINT only: it is consulted when no act is
+# named in the text and the section number is ambiguous across acts. The
+# user-facing retrieval path never passes a domain.
+DOMAIN_ACTS = {
+    "cheque_bounce": ("ni_act_1881",),
+    "rti": ("rti_2005",),
+    "cyber_law": ("it_act_2000",),
+    "motor_vehicles": ("mv_act_1988",),
+    "consumer_law": ("cpa_2019",),
+    "labour_law": ("wages_code_2019",),
+    "womens_protection": ("dv_act_2005", "posh_2013", "bns_2023"),
+    "bns": ("bns_2023",),
+    "bnss": ("bnss_2023",),
+    "bsa": ("bsa_2023",),
+    "constitutional_law": ("constitution_1950",),
+}
+
 # Section titles are the statute's own name for a concept ("Cheating",
 # "Dishonour of cheque…"). A query token appearing in the title earns a
 # flat idf bonus on top of body BM25 — a field-match signal that body
@@ -204,9 +222,14 @@ class StatuteIndex:
         self.idf = {w: math.log(1 + (n - c + 0.5) / (c + 0.5)) for w, c in df.items()}
 
     # ---- stage 1: exact references -------------------------------------
-    def referenced_keys(self, query: str) -> list[str]:
+    def referenced_keys(self, query: str, domain: str | None = None) -> list[str]:
         """Resolve explicit statute references in `query` to index keys.
-        Also used to parse gold citations out of eval required_facts."""
+        Also used to parse gold citations out of eval required_facts.
+
+        `domain` (an eval-record legal_domain) and the query's own content
+        words act as tiebreakers for bare section numbers that exist in more
+        than one act; with neither, ambiguous references drop as before.
+        """
         query_lower = query.lower()
         families = []
         for family, variants in ACT_ALIASES.items():
@@ -230,17 +253,43 @@ class StatuteIndex:
                 act_id = _FAMILY_TO_ACT_ID.get(family)
                 if act_id and f"{act_id}:{section}" in self.by_key:
                     keys.append(f"{act_id}:{section}")
-            # when no act was named, only accept an unambiguous section number
+            # no act named: disambiguate by domain hint, then content overlap
             if not families and not article_like:
                 candidates = [k for k in keys if k.endswith(f":{section}")]
+                if len(candidates) > 1 and domain in DOMAIN_ACTS:
+                    narrowed = [k for k in candidates
+                                if k.split(":", 1)[0] in DOMAIN_ACTS[domain]]
+                    if narrowed:
+                        candidates = narrowed
+                if len(candidates) > 1:
+                    candidates = self._pick_by_content(candidates, query)
                 if len(candidates) != 1:
                     keys = [k for k in keys if not k.endswith(f":{section}")]
+                else:
+                    keep = candidates[0]
+                    keys = [k for k in keys
+                            if k == keep or not k.endswith(f":{section}")]
         seen, ordered = set(), []
         for k in keys:
             if k not in seen:
                 seen.add(k)
                 ordered.append(k)
         return ordered
+
+    def _pick_by_content(self, candidates: list[str], query: str) -> list[str]:
+        """Among candidate keys sharing a section number, keep the single row
+        the query's remaining words actually describe — the unique
+        idf-weighted-overlap winner. Returns `candidates` unchanged when
+        content cannot decide (all-zero scores or a tie for first)."""
+        q_tokens = set(_tokens(expand_query(query)))
+        scored = sorted(
+            ((sum(self.idf.get(w, 0.0) for w in q_tokens
+                  if w in self.tf[self.by_key[key]]), key)
+             for key in candidates),
+            reverse=True)
+        if scored[0][0] > 0 and (len(scored) == 1 or scored[0][0] > scored[1][0]):
+            return [scored[0][1]]
+        return candidates
 
     # ---- stage 2: BM25 ---------------------------------------------------
     def _bm25(self, query: str) -> list[tuple[float, int]]:
