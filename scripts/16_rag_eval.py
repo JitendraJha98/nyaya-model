@@ -113,7 +113,7 @@ def main() -> None:
         for rec in records:
             gold = set()
             for fact in rec.get("required_facts", []):
-                gold.update(index.referenced_keys(fact))
+                gold.update(index.referenced_keys(fact, domain=rec.get("legal_domain")))
             gold_by_question[rec["question"]] = gold
 
     print(f"[rag-eval] {label}: {len(records)} frozen questions, "
