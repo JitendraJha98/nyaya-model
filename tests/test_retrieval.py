@@ -306,3 +306,68 @@ class TestDomainAwareResolution:
     def test_unambiguous_section_unaffected(self, ambig_index):
         # only one act has a 318 -> resolves exactly as before, no hint needed
         assert ambig_index.referenced_keys("Section 318") == ["bns_2023:318"]
+
+
+class TestNewSynonymClusters:
+    def _idx(self, *extra_rows):
+        return StatuteIndex(ROWS + list(extra_rows), MAPPINGS)
+
+    def test_electronic_evidence_reaches_bsa(self):
+        idx = self._idx(
+            {"act_id": "bsa_2023", "act_name": "Bharatiya Sakshya Adhiniyam, 2023",
+             "section": "63", "title": "Admissibility of electronic records",
+             "text": "Any information contained in an electronic record shall be "
+             "admissible if accompanied by a certificate identifying the electronic "
+             "record and describing the manner of its production.", "chapter": "V"})
+        hits = idx.retrieve("Can I use a WhatsApp chat as proof in court?", k=2)
+        assert any(h["section"] == "63" for h in hits)
+
+    def test_unpaid_salary_reaches_wages_code(self):
+        idx = self._idx(
+            {"act_id": "wages_code_2019", "act_name": "Code on Wages, 2019",
+             "section": "43", "title": "Responsibility for payment of various dues",
+             "text": "Every employer shall pay all amounts of wages required to be "
+             "paid under this Code to every employee employed by him.", "chapter": "V"})
+        hits = idx.retrieve("My company has not paid my salary for two months", k=2)
+        assert any(h["act_id"] == "wages_code_2019" for h in hits)
+
+    def test_accident_compensation_reaches_mv_act(self):
+        idx = self._idx(
+            {"act_id": "mv_act_1988", "act_name": "Motor Vehicles Act, 1988",
+             "section": "166", "title": "Application for compensation",
+             "text": "An application for compensation arising out of an accident "
+             "may be made to the Claims Tribunal by the person who has sustained "
+             "the injury.", "chapter": "XII"})
+        hits = idx.retrieve("Road accident me injury hui, muavza kaise milega?", k=2)
+        assert any(h["section"] == "166" for h in hits)
+
+    def test_otp_fraud_reaches_it_act(self):
+        idx = self._idx(
+            {"act_id": "it_act_2000", "act_name": "Information Technology Act, 2000",
+             "section": "66D", "title": "Punishment for cheating by personation "
+             "by using computer resource",
+             "text": "Whoever, by means of any communication device or computer "
+             "resource cheats by personation, shall be punished with imprisonment.",
+             "chapter": "XI"})
+        hits = idx.retrieve("Someone did OTP fraud on my phone and took money", k=2)
+        assert any(h["section"] == "66D" for h in hits)
+
+
+class TestFieldIndexing:
+    def test_tags_are_indexed_with_title_weight(self):
+        tagged = {"act_id": "bns_2023", "act_name": "Bharatiya Nyaya Sanhita, 2023",
+                  "section": "999", "title": "Some provision",
+                  "text": "generic words only here.", "chapter": "X",
+                  "tags": ["gharelu hinsa"]}
+        idx = StatuteIndex(ROWS + [tagged], MAPPINGS)
+        hits = idx.retrieve("gharelu hinsa complaint", k=2)
+        assert any(h["section"] == "999" for h in hits)
+
+    def test_punishment_summary_is_indexed(self):
+        row = {"act_id": "bns_2023", "act_name": "Bharatiya Nyaya Sanhita, 2023",
+               "section": "998", "title": "Another provision",
+               "text": "generic words only here.", "chapter": "X",
+               "punishment_summary": "community service for petty theft"}
+        idx = StatuteIndex(ROWS + [row], MAPPINGS)
+        hits = idx.retrieve("community service petty punishment", k=2)
+        assert any(h["section"] == "998" for h in hits)

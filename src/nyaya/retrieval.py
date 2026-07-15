@@ -166,6 +166,86 @@ LEGAL_SYNONYMS = {
     "kanoon": "law act provision",
     "अपराध": "offence punishable",
     "apradh": "offence punishable",
+    # evidence / BSA
+    "whatsapp": "electronic record admissible certificate",
+    "screenshot": "electronic record admissible certificate",
+    "cctv": "electronic record video admissible certificate",
+    "call recording": "electronic record admissible certificate",
+    "electronic evidence": "electronic record certificate admissible",
+    "digital evidence": "electronic record certificate admissible",
+    "proof in court": "evidence admissible electronic record document",
+    "dying declaration": "statement written verbal person who is dead cause of his death",
+    "burden of proof": "burden of proving fact lies on that person",
+    "confession": "confession accused inducement threat coercion",
+    "cross examination": "examination of witness cross-examination",
+    "hostile witness": "witness examination party question",
+    # consumer
+    "defective": "defect deficiency goods service consumer",
+    "warranty": "defect deficiency goods guarantee",
+    "online shopping": "e-commerce unfair trade practice consumer deficiency",
+    "wrong product": "deficiency defect goods unfair trade practice consumer",
+    "overcharged": "unfair trade practice consumer price",
+    "misleading advertisement": "misleading advertisement consumer",
+    "product exchange": "replace goods defect deficiency consumer",
+    # rti
+    "pio": "public information officer request information",
+    "information from government": "right to information public authority request",
+    "rti fee": "request information fee prescribed",
+    "rti appeal": "appeal central information commission state information commission",
+    # labour / wages
+    "salary": "wages payment employer employee",
+    "salary not paid": "wages payment employer employee dues",
+    "unpaid wages": "wages payment employer employee dues",
+    "fired": "removal dismissal employer employee",
+    "overtime": "wages overtime work hours",
+    "minimum wage": "minimum rate of wages",
+    "bonus": "bonus wages employee",
+    # motor vehicles
+    "accident": "accident compensation claims tribunal injury",
+    "insurance claim": "insurance insurer compensation third party",
+    "challan": "penalty fine offence licence",
+    "driving licence": "licence driving motor vehicle",
+    "drunk driving": "driving by a drunken person under the influence of drink",
+    "helmet": "protective headgear",
+    "good samaritan": "good samaritan accident victim emergency medical",
+    # cheque / NI Act
+    "stop payment": "cheque returned unpaid dishonour",
+    "cheque notice": "notice in writing demand payment drawer cheque",
+    # criminal procedure
+    "police refuse fir": "information cognizable offence superintendent of police magistrate",
+    "zero fir": "information cognizable offence irrespective of the area where the offence is committed",
+    "police station": "officer in charge of a police station",
+    # women
+    "stalking": "follows a woman contacts attempts to contact",
+    "domestic violence": "aggrieved person protection order residence shared household",
+    "harassment at work": "sexual harassment workplace internal committee complaint",
+    # cyber
+    "hacking": "computer resource unauthorised access damage",
+    "identity theft": "fraudulently dishonestly electronic signature password unique identification",
+    "phishing": "cheats by personation computer resource communication device",
+    "otp fraud": "cheats by personation computer resource cheating dishonestly password",
+    "online fraud": "cheats by personation computer resource cheating dishonestly induces",
+    "morphed photo": "publishes transmits obscene material electronic form privacy",
+    # Hindi / Hinglish additions
+    "तनख्वाह": "wages payment employer",
+    "tankhwah": "wages payment employer",
+    "वेतन": "wages payment employer",
+    "नौकरी": "employment employer employee removal",
+    "naukri se nikala": "removal dismissal employer employee",
+    "एक्सीडेंट": "accident compensation claims tribunal",
+    "दुर्घटना": "accident compensation claims tribunal",
+    "durghatna": "accident compensation claims tribunal",
+    "बीमा": "insurance insurer compensation",
+    "beema": "insurance insurer compensation",
+    "मुआवज़ा": "compensation",
+    "चेक बाउंस": "cheque returned unpaid dishonour insufficiency of funds",
+    "check bounce": "cheque returned unpaid dishonour insufficiency of funds",
+    "सबूत": "evidence proof admissible document",
+    "saboot": "evidence proof admissible document",
+    "उपभोक्ता": "consumer complaint deficiency",
+    "ठगी": "cheating dishonestly induces deliver property",
+    "thagi": "cheating dishonestly induces deliver property",
+    "ऑनलाइन फ्रॉड": "cheats by personation computer resource cheating",
 }
 
 # Latin-script phrases need word boundaries; Devanagari must not use \b
@@ -208,10 +288,18 @@ class StatuteIndex:
                     f"{new_act_id}:{m['new_section'].upper()}")
 
         self.doc_tokens = [
-            _tokens(f"{r['act_name']} {r.get('title') or ''} {r.get('text') or ''}")
+            _tokens(f"{r['act_name']} {r.get('title') or ''} {r.get('text') or ''} "
+                    f"{r.get('punishment_summary') or ''} "
+                    f"{' '.join(r.get('tags') or [])}")
             for r in rows
         ]
-        self.title_tokens = [set(_tokens(r.get("title") or "")) for r in rows]
+        # tags are curated retrieval keywords — they earn the same field bonus
+        # as title words
+        self.title_tokens = [
+            set(_tokens(r.get("title") or ""))
+            | set(_tokens(" ".join(r.get("tags") or [])))
+            for r in rows
+        ]
         self.doc_len = [len(t) for t in self.doc_tokens]
         self.avg_len = sum(self.doc_len) / max(1, len(self.doc_len))
         self.tf = [Counter(t) for t in self.doc_tokens]
