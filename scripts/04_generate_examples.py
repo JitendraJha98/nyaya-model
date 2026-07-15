@@ -99,6 +99,8 @@ def main() -> None:
 
     config = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
     teacher = config["teacher"]
+    # In-cluster runs reach the teacher via Service DNS — no port-forward.
+    teacher["base_url"] = os.environ.get("TEACHER_BASE_URL", teacher["base_url"])
     version = config["dataset_version"]
     composition = config[f"{args.composition}_composition"]
 
