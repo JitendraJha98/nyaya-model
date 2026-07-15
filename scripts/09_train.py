@@ -16,5 +16,6 @@ sys.path.insert(0, str(ROOT / "src"))
 from nyaya.trainer import train
 
 if __name__ == "__main__":
-    metrics = train(ROOT / "configs" / "train_v1.yaml")
-    print(f"[done] v1 training metrics: {metrics}")
+    config = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "configs" / "train_v1.yaml"
+    metrics = train(config)
+    print(f"[done] {config.stem} training metrics: {metrics}")

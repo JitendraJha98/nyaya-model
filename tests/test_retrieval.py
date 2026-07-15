@@ -4,7 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from nyaya.retrieval import (StatuteIndex, build_rag_prompt, format_context,
+from nyaya.retrieval import (StatuteIndex, build_rag_prompt,
+                             build_rag_training_record, format_context,
                              load_statute_index)
 
 CANONICAL_DIR = Path(__file__).resolve().parents[1] / "data" / "canonical"
@@ -149,6 +150,63 @@ class TestRealStatuteDB:
         assert any(h["act_id"] == "constitution_1950" and h["section"] == "21" for h in hits)
 
 
+def _training_record(rec_id="gen_000001_ab_01", sections=("bns_2023:303",),
+                     question="Meri cycle chori ho gayi, kya karun?"):
+    return {
+        "id": rec_id,
+        "messages": [
+            {"role": "system", "content": "You are a legal assistant."},
+            {"role": "user", "content": question},
+            {"role": "assistant", "content": "Yeh theft hai — Section 303 of the "
+             "Bharatiya Nyaya Sanhita, 2023 ke tahat report karein."},
+        ],
+        "metadata": {"task_type": "grounded_qa", "language": "hinglish",
+                     "source_sections": list(sections)},
+    }
+
+
+class TestBuildRagTrainingRecord:
+    def test_gold_section_always_in_context(self, index):
+        # BM25 for this vague query may miss 303 — injection must guarantee it
+        out = build_rag_training_record(_training_record(), index, k=2)
+        assert "Whoever intends to take dishonestly any movable property" in \
+            out["messages"][1]["content"]
+
+    def test_user_message_is_rag_prompt_answer_untouched(self, index):
+        rec = _training_record()
+        out = build_rag_training_record(rec, index, k=2)
+        assert out["messages"][1]["content"].rstrip().endswith(rec["messages"][1]["content"])
+        assert out["messages"][2] == rec["messages"][2]
+        assert rec["messages"][1]["content"] == "Meri cycle chori ho gayi, kya karun?"
+
+    def test_deterministic(self, index):
+        a = build_rag_training_record(_training_record(), index, k=3)
+        b = build_rag_training_record(_training_record(), index, k=3)
+        assert a == b
+
+    def test_gold_position_varies_across_ids(self, index):
+        # anti positional-bias: gold must not always sit first in the context
+        positions = set()
+        for i in range(12):
+            rec = _training_record(rec_id=f"gen_{i:06d}_xx_01",
+                                   question="Section 7 RTI aur meri cycle chori ho gayi")
+            out = build_rag_training_record(rec, index, k=3)
+            ctx = out["messages"][1]["content"]
+            positions.add(ctx.index("movable property"))
+        assert len(positions) > 1
+
+    def test_no_source_sections_uses_plain_retrieval(self, index):
+        rec = _training_record(sections=())
+        rec["metadata"]["task_type"] = "safety_abstention"
+        out = build_rag_training_record(rec, index, k=2)
+        assert "Relevant provisions" in out["messages"][1]["content"]
+
+    def test_metadata_records_context(self, index):
+        out = build_rag_training_record(_training_record(), index, k=2)
+        assert "bns_2023:303" in out["metadata"]["rag"]["context_keys"]
+        assert out["metadata"]["rag"]["k"] == 2
+
+
 class TestRagPrompt:
     def test_prompt_embeds_context_and_question(self, index):
         hits = index.retrieve("Section 318 BNS", k=2)
@@ -156,6 +214,41 @@ class TestRagPrompt:
         assert "deceiving any person" in prompt
         assert prompt.rstrip().endswith("Kya IPC 420 abhi bhi lagta hai?")
         assert "do not cite any section not shown above" in prompt
+
+
+class TestContextPacking:
+    def _long_row(self, section, words):
+        return {"act_id": "mv_act_1988", "act_name": "Motor Vehicles Act, 1988",
+                "section": section, "title": f"Long provision {section}",
+                "text": " ".join(f"w{i}" for i in range(words)), "chapter": "X"}
+
+    def test_budget_drops_overflow_rows(self, index):
+        from nyaya.retrieval import pack_rows
+        rows = [self._long_row("1", 1500), self._long_row("2", 1500),
+                self._long_row("3", 200)]
+        packed = pack_rows(rows, budget_words=2000)
+        sections = [r["section"] for r in packed]
+        assert sections == ["1", "3"]  # row 2 busts the budget, row 3 still fits
+
+    def test_single_huge_row_truncated_not_dropped(self, index):
+        from nyaya.retrieval import pack_rows
+        packed = pack_rows([self._long_row("1", 5000)], budget_words=2000)
+        assert len(packed) == 1
+        assert len(packed[0]["text"].split()) <= 2100
+
+    def test_must_keep_rows_truncate_instead_of_drop(self, index):
+        from nyaya.retrieval import pack_rows
+        rows = [self._long_row("1", 1500), self._long_row("2", 1500)]
+        packed = pack_rows(rows, budget_words=2000,
+                           must_keys={"mv_act_1988:2"})
+        assert [r["section"] for r in packed] == ["1", "2"]
+
+    def test_training_record_stays_within_budget_with_gold(self, index):
+        rec = _training_record()
+        out = build_rag_training_record(rec, index, k=8, budget_words=200)
+        user = next(m["content"] for m in out["messages"] if m["role"] == "user")
+        assert len(user.split()) < 400  # budget + instructions + question
+        assert "movable property" in user  # gold survived packing
 
 
 class TestFormatContext:
