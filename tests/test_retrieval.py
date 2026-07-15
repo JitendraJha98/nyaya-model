@@ -101,6 +101,63 @@ class TestLexicalRetrieval:
     def test_no_signal_returns_something_not_crash(self, index):
         assert isinstance(index.retrieve("zzz qqq xyzzy", k=3), list)
 
+
+class TestGuidanceSlotReservation:
+    """procedures_kb rows supplement the governing statute; they must not
+    displace statute sections out of the citation context (top-k)."""
+
+    def _mixed_index(self):
+        # statutes match the query but are long and diluted -> low BM25 rank;
+        # KB rows are short and keyword-dense with title+tag bonuses -> high
+        # rank. Under plain BM25 the KB rows would fill the top slots; the
+        # reservation is what keeps the statutes in.
+        filler = " ".join(f"provision clause subsection paragraph {j}"
+                          for j in range(40))
+        statutes = [{"act_id": "bns_2023",
+                     "act_name": "Bharatiya Nyaya Sanhita, 2023",
+                     "section": f"5{i}0", "title": "General offences provision",
+                     "text": f"theft of movable property. {filler}",
+                     "chapter": "XVII"} for i in range(4)]
+        kb = [{"act_id": "procedures_kb",
+               "act_name": "Official Procedural Guidance (India)",
+               "section": f"guide-{i}", "title": "Theft of movable property",
+               "text": "theft of movable property theft property.",
+               "tags": ["theft", "movable", "property"]} for i in range(4)]
+        return StatuteIndex(statutes + kb, MAPPINGS)
+
+    def test_guidance_capped_in_topk(self):
+        from nyaya.retrieval import KB_SLOTS
+        idx = self._mixed_index()
+        hits = idx.retrieve("theft of movable property", k=6)
+        kb = [h for h in hits if h["act_id"] == "procedures_kb"]
+        assert len(kb) <= KB_SLOTS
+
+    def test_statutes_keep_priority_slots(self):
+        idx = self._mixed_index()
+        hits = idx.retrieve("theft of movable property", k=6)
+        statutes = [h for h in hits if h["act_id"] != "procedures_kb"]
+        assert len(statutes) >= 4  # all 4 matching statutes kept ahead of guidance
+
+    def test_procedural_only_query_backfills_with_guidance(self):
+        # a query with NO matching statute must still surface guidance beyond the
+        # cap via backfill — KB is the only relevant pool
+        kb = [{"act_id": "procedures_kb",
+               "act_name": "Official Procedural Guidance (India)",
+               "section": f"helpline-{i}", "title": "Cyber fraud helpline 1930",
+               "text": "Call the cyber crime helpline 1930 to report online "
+               "financial fraud and freeze fraudulent transactions.",
+               "tags": ["1930", "helpline", "fraud"]} for i in range(4)]
+        idx = StatuteIndex(kb, MAPPINGS)
+        hits = idx.retrieve("cyber fraud helpline 1930 fraudulent transactions", k=4)
+        kb_hits = [h for h in hits if h["act_id"] == "procedures_kb"]
+        assert len(kb_hits) >= 3
+
+    def test_no_kb_rows_behaviour_unchanged(self, index):
+        # an index without guidance rows retrieves exactly as before
+        hits = index.retrieve("theft of movable property", k=2)
+        assert all(h["act_id"] != "procedures_kb" for h in hits)
+        assert len(hits) <= 2
+
     def test_title_outweighs_body_frequency(self, index):
         # 303's body says "theft" once in the title-position; a decoy body
         # that repeats the word must not outrank the section titled for it

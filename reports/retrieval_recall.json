@@ -6,26 +6,26 @@
   "unresolved_facts_sample": [],
   "recall": {
     "k=1": {
-      "any_hit": 0.3267,
-      "full_hit": 0.2867
+      "any_hit": 0.42,
+      "full_hit": 0.3733
     },
     "k=3": {
-      "any_hit": 0.4867,
-      "full_hit": 0.44
+      "any_hit": 0.54,
+      "full_hit": 0.4933
     },
     "k=5": {
-      "any_hit": 0.5467,
-      "full_hit": 0.5067
+      "any_hit": 0.62,
+      "full_hit": 0.58
     },
     "k=8": {
-      "any_hit": 0.64,
-      "full_hit": 0.6
+      "any_hit": 0.6533,
+      "full_hit": 0.6067
     }
   },
   "by_language": {
     "english": {
       "n": 139,
-      "full_hit@8": 0.5827
+      "full_hit@8": 0.5899
     },
     "hindi": {
       "n": 5,
@@ -39,11 +39,11 @@
   "by_domain": {
     "bns": {
       "n": 46,
-      "full_hit@8": 0.6739
+      "full_hit@8": 0.6522
     },
     "bnss": {
       "n": 25,
-      "full_hit@8": 0.64
+      "full_hit@8": 0.68
     },
     "bsa": {
       "n": 11,
@@ -55,11 +55,11 @@
     },
     "constitutional_law": {
       "n": 33,
-      "full_hit@8": 0.6667
+      "full_hit@8": 0.6364
     },
     "cyber_law": {
       "n": 12,
-      "full_hit@8": 0.4167
+      "full_hit@8": 0.5
     },
     "labour_law": {
       "n": 1,
@@ -67,7 +67,7 @@
     },
     "motor_vehicles": {
       "n": 4,
-      "full_hit@8": 0.5
+      "full_hit@8": 0.75
     },
     "old_new_law_mapping": {
       "n": 1,
@@ -84,7 +84,7 @@
   },
   "phrase_coverage": {
     "n": 350,
-    "any_fact_in_topk": 0.0571
+    "any_fact_in_topk": 0.0486
   },
-  "measured_at": "2026-07-16 02:47:31"
+  "measured_at": "2026-07-16 02:55:51"
 }
