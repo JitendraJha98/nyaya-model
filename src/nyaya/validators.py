@@ -213,7 +213,8 @@ def is_near_duplicate(a: str, b: str, threshold: float = 0.92) -> bool:
 
 _DEVANAGARI = re.compile(r"[ऀ-ॿ]")
 _GROUNDED_TASK_TYPES = {
-    "grounded_qa", "hindi_qa", "hinglish_qa", "terminology", "procedural", "law_mapping",
+    "grounded_qa", "hindi_qa", "hinglish_qa", "terminology", "procedural",
+    "law_mapping", "extraction_qa",
 }
 _REQUIRED_METADATA = ("language", "task_type", "source_sections", "dataset_version")
 # The 80-word plan floor was calibrated for essay-style grounded QA; mapping
@@ -224,6 +225,7 @@ MIN_WORDS_BY_TASK = {
     "law_mapping": 20,
     "terminology": 50,
     "safety_abstention": 1,
+    "extraction_qa": 15,
 }
 
 
