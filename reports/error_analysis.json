@@ -1,0 +1,151 @@
+{
+  "checkpoint": "legal-3b-v1/checkpoint-50",
+  "predictions_file": "C:\\Users\\siddhant.nikumbh\\nyaya-model\\outputs\\legal-3b-v1\\eval\\checkpoint-50\\predictions.jsonl",
+  "analysed_at": "2026-07-15 13:45:32",
+  "scored": 495,
+  "failures": 491,
+  "failure_rate": 0.9919,
+  "by_task_type": {
+    "legal_qa": 254,
+    "scenario": 90,
+    "terminology": 76,
+    "procedural_guidance": 45,
+    "old_new_law_mapping": 26
+  },
+  "by_domain": {
+    "bns": 70,
+    "bnss": 74,
+    "bsa": 40,
+    "constitutional_law": 49,
+    "consumer_law": 42,
+    "cyber_law": 42,
+    "rti": 31,
+    "womens_protection": 32,
+    "cheque_bounce": 32,
+    "motor_vehicles": 27,
+    "labour_law": 26,
+    "old_new_law_mapping": 26
+  },
+  "by_language": {
+    "english": 471,
+    "hindi": 10,
+    "hinglish": 10
+  },
+  "by_difficulty": {
+    "easy": 106,
+    "medium": 245,
+    "hard": 140
+  },
+  "by_failure_mode": {
+    "over_abstention": 209,
+    "wrong_or_incomplete_citation": 475,
+    "no_citation_given": 16,
+    "stale_law_cited": 1
+  },
+  "top_missing_facts": [
+    [
+      "up to 3 years",
+      4
+    ],
+    [
+      "1 July 2024",
+      4
+    ],
+    [
+      "Section 318 BNS",
+      3
+    ],
+    [
+      "Section 308 BNS extortion",
+      3
+    ],
+    [
+      "Zero FIR",
+      3
+    ],
+    [
+      "cybercrime.gov.in",
+      3
+    ],
+    [
+      "report on 1930",
+      3
+    ],
+    [
+      "Section 103(2) BNS",
+      2
+    ],
+    [
+      "five or more persons",
+      2
+    ],
+    [
+      "Section 66D IT Act",
+      2
+    ],
+    [
+      "1930 helpline",
+      2
+    ],
+    [
+      "Section 304 BNS",
+      2
+    ],
+    [
+      "Section 303 BNS",
+      2
+    ],
+    [
+      "community service",
+      2
+    ],
+    [
+      "Section 111 BNS",
+      2
+    ],
+    [
+      "Section 85 BNS",
+      2
+    ],
+    [
+      "Section 75 BNS",
+      2
+    ],
+    [
+      "Section 79 BNS",
+      2
+    ],
+    [
+      "report to cybercrime.gov.in",
+      2
+    ],
+    [
+      "do not pay",
+      2
+    ],
+    [
+      "offences up to 7 years",
+      2
+    ],
+    [
+      "grounds of arrest",
+      2
+    ],
+    [
+      "Section 482 BNSS",
+      2
+    ],
+    [
+      "Sessions Court or High Court",
+      2
+    ],
+    [
+      "Section 479 BNSS",
+      2
+    ]
+  ],
+  "safety": {
+    "total": 5,
+    "did_not_abstain": 3
+  }
+}
