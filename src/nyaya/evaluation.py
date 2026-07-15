@@ -193,6 +193,94 @@ def run_eval(generate_fn, records: list[dict], batch_size: int = 8):
     return predictions, metrics
 
 
+def language_matches(language: str, answer: str) -> bool:
+    """Script-level check that a reply matches the question's language:
+    hindi -> Devanagari present; hinglish/english -> Latin (no Devanagari)."""
+    has_devanagari = bool(re.search(r"[ऀ-ॿ]", answer))
+    return has_devanagari if language == "hindi" else not has_devanagari
+
+
+def reference_similarity(a: str, b: str) -> float:
+    """Token-Jaccard similarity vs the reference answer — a cheap, deterministic
+    proxy for closeness to the teacher's answer (not a quality judgement)."""
+    ta, tb = set(_normalize(a).split()), set(_normalize(b).split())
+    if not ta or not tb:
+        return 0.0
+    return len(ta & tb) / len(ta | tb)
+
+
+_OLD_LAW_FAMILIES = {"ipc", "crpc", "iea"}
+
+
+def score_dataset_prediction(record: dict, answer: str, statute_db: dict) -> dict:
+    """Behavioural scores for one test-split prediction (no required_facts —
+    generated TrainingRecords are graded on verifiable behaviour instead)."""
+    from .validators import resolve_citations
+
+    resolutions = resolve_citations(answer, statute_db)
+    reference = record["messages"][-1]["content"]
+    return {
+        "has_citations": bool(resolutions),
+        "citation_ok": all(r["resolved"] for r in resolutions),
+        "old_law_cited": any(r["act"] in _OLD_LAW_FAMILIES for r in resolutions),
+        "language_ok": language_matches(record["metadata"]["language"], answer),
+        "reference_similarity": round(reference_similarity(answer, reference), 4),
+    }
+
+
+def run_dataset_eval(generate_fn, records: list[dict], statute_db: dict,
+                     batch_size: int = 8):
+    """Generate answers for test-split questions and score behaviourally.
+
+    Returns (predictions, metrics) with per-language/task_type buckets —
+    the in-distribution 'before' picture for fine-tuning comparisons."""
+    predictions = []
+    for start in range(0, len(records), batch_size):
+        batch = records[start:start + batch_size]
+        questions = [
+            next(m["content"] for m in r["messages"] if m["role"] == "user")
+            for r in batch
+        ]
+        t0 = time.perf_counter()
+        answers = generate_fn(questions)
+        latency = (time.perf_counter() - t0) / len(batch)
+        for question, record, answer in zip(questions, batch, answers):
+            predictions.append({
+                "id": record["id"],
+                "language": record["metadata"]["language"],
+                "task_type": record["metadata"]["task_type"],
+                "source_act": record["metadata"].get("source_act"),
+                "question": question,
+                "answer": answer,
+                "latency_s": round(latency, 3),
+                **score_dataset_prediction(record, answer, statute_db),
+            })
+
+    def bucket(rows, key):
+        out = {}
+        for p in rows:
+            b = out.setdefault(p[key], {"total": 0, "citation_ok": 0,
+                                        "language_ok": 0, "old_law_cited": 0})
+            b["total"] += 1
+            for k in ("citation_ok", "language_ok", "old_law_cited"):
+                b[k] += int(p[k])
+        return out
+
+    n = max(1, len(predictions))
+    metrics = {
+        "total": len(predictions),
+        "citation_pass_rate": round(sum(p["citation_ok"] for p in predictions) / n, 4),
+        "answers_with_citations": round(sum(p["has_citations"] for p in predictions) / n, 4),
+        "old_law_citation_rate": round(sum(p["old_law_cited"] for p in predictions) / n, 4),
+        "language_match_rate": round(sum(p["language_ok"] for p in predictions) / n, 4),
+        "mean_reference_similarity": round(
+            sum(p["reference_similarity"] for p in predictions) / n, 4),
+        "by_language": bucket(predictions, "language"),
+        "by_task_type": bucket(predictions, "task_type"),
+    }
+    return predictions, metrics
+
+
 def write_outputs(predictions, metrics, predictions_path, report_path, meta=None):
     """Write predictions.jsonl + a JSON metrics report (creating parents)."""
     predictions_path = Path(predictions_path)
