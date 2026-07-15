@@ -82,5 +82,9 @@
       "full_hit@8": 0.5
     }
   },
-  "measured_at": "2026-07-15 22:36:17"
+  "phrase_coverage": {
+    "n": 350,
+    "any_fact_in_topk": 0.0229
+  },
+  "measured_at": "2026-07-15 22:43:32"
 }
