@@ -1,0 +1,7 @@
+metric,base,v1_checkpoint50
+answers_with_citations,0.2996,0.9785
+verified_citation_given,0.2191,0.8802
+old_law_citation_rate,0.0974,0.0028
+language_match_rate,0.9054,0.9906
+mean_reference_similarity,0.1405,0.2515
+eval_loss,2.0953,0.9593

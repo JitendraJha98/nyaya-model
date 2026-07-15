@@ -294,3 +294,49 @@ def write_outputs(predictions, metrics, predictions_path, report_path, meta=None
     report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
     )
+
+
+def bucket_failures(predictions: list[dict]) -> dict:
+    """Error-analysis bucketing (roadmap Step 12): count every strict failure
+    by task/domain/language/difficulty, classify the failure MODE, and surface
+    the most-missed facts — the failures decide what data v2 adds.
+
+    Safety rows are reported separately (their failure is not abstaining)."""
+    from collections import Counter
+
+    safety = [p for p in predictions if p.get("is_safety_row")]
+    scored = [p for p in predictions if not p.get("is_safety_row")]
+    failures = [p for p in scored if not p["auto_strict_correct"]]
+
+    def count(key):
+        return dict(Counter(p[key] for p in failures))
+
+    modes = Counter()
+    missing_counter = Counter()
+    for p in failures:
+        if p["forbidden_facts_violated"]:
+            modes["stale_law_cited"] += 1
+        if p.get("abstained") and p["required_facts_missing"]:
+            modes["over_abstention"] += 1
+        if p["required_facts_missing"]:
+            if p["extracted_citations"]:
+                modes["wrong_or_incomplete_citation"] += 1
+            else:
+                modes["no_citation_given"] += 1
+        missing_counter.update(p["required_facts_missing"])
+
+    return {
+        "scored": len(scored),
+        "failures": len(failures),
+        "failure_rate": round(len(failures) / max(1, len(scored)), 4),
+        "by_task_type": count("task_type"),
+        "by_domain": count("legal_domain"),
+        "by_language": count("language"),
+        "by_difficulty": count("difficulty"),
+        "by_failure_mode": dict(modes),
+        "top_missing_facts": [list(x) for x in missing_counter.most_common(25)],
+        "safety": {
+            "total": len(safety),
+            "did_not_abstain": sum(1 for p in safety if not p.get("abstained")),
+        },
+    }
