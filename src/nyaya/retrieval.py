@@ -317,6 +317,9 @@ class StatuteIndex:
             df.update(set(t))
         n = len(rows)
         self.idf = {w: math.log(1 + (n - c + 0.5) / (c + 0.5)) for w, c in df.items()}
+        # optional dense stage (A4); None keeps retrieval pure-BM25 and
+        # dependency-free. Set by load_statute_index(dense_model=...).
+        self.dense = None
 
     # ---- stage 1: exact references -------------------------------------
     def referenced_keys(self, query: str, domain: str | None = None) -> list[str]:
@@ -417,14 +420,22 @@ class StatuteIndex:
         chosen = {f"{r['act_id']}:{r['section'].upper()}" for r in picked}
         remaining = k - len(picked)
 
-        # Split the BM25 ranking into governing statute and procedural-guidance
+        # Ranking order for stage 2. Pure BM25 by default; when the optional
+        # dense stage is enabled its cosine ranking is fused with BM25 via
+        # reciprocal-rank fusion (exact references above always win). The
+        # pool-split and reservation below are identical either way.
+        bm25_order = [i for _score, i in self._bm25(query)]
+        order = (rrf_fuse([bm25_order, self.dense.rank(query)])
+                 if self.dense is not None else bm25_order)
+
+        # Split the ranking into governing statute and procedural-guidance
         # pools. Guidance supplements the statute it points to; it must not
         # displace the citation context, so statutes keep the majority of slots
         # and guidance is capped at KB_SLOTS. When one pool runs short (a purely
         # procedural question matches few statutes; a pure citation question
         # matches little guidance), the leftover slots backfill from the other.
         statutes, guidance = [], []
-        for _score, i in self._bm25(query):
+        for i in order:
             row = self.rows[i]
             if f"{row['act_id']}:{row['section'].upper()}" in chosen:
                 continue
@@ -447,8 +458,30 @@ class StatuteIndex:
         return picked
 
 
-def load_statute_index(canonical_dir: str | Path) -> StatuteIndex:
-    """Build a StatuteIndex from data/canonical/*.jsonl (mappings included)."""
+def rrf_fuse(rankings: list[list[int]], c: int = 60) -> list[int]:
+    """Reciprocal-rank fusion: score(i) = sum over rankings of 1/(c + rank).
+    Merges independent orderings (e.g. BM25 and dense cosine) without needing
+    their scores to be comparable. Ties broken by first appearance."""
+    scores: dict[int, float] = defaultdict(float)
+    first_seen: dict[int, int] = {}
+    seq = 0
+    for ranking in rankings:
+        for rank, idx in enumerate(ranking):
+            scores[idx] += 1.0 / (c + rank + 1)
+            if idx not in first_seen:
+                first_seen[idx] = seq
+                seq += 1
+    return [idx for idx, _s in
+            sorted(scores.items(), key=lambda kv: (-kv[1], first_seen[kv[0]]))]
+
+
+def load_statute_index(canonical_dir: str | Path,
+                       dense_model: str | None = None) -> StatuteIndex:
+    """Build a StatuteIndex from data/canonical/*.jsonl (mappings included).
+
+    dense_model (e.g. "intfloat/multilingual-e5-small") enables the optional
+    hybrid retrieval stage — requires requirements-dense.txt installed. Left
+    None, retrieval stays pure-BM25 and dependency-free."""
     directory = Path(canonical_dir)
     rows, mappings = [], []
     for path in sorted(directory.glob("*.jsonl")):
@@ -461,7 +494,12 @@ def load_statute_index(canonical_dir: str | Path) -> StatuteIndex:
     if not rows:
         raise FileNotFoundError(
             f"no statute JSONL found in {directory} — run scripts/03_build_corpus.py")
-    return StatuteIndex(rows, mappings)
+    index = StatuteIndex(rows, mappings)
+    if dense_model:
+        from .dense import DenseStage
+        index.dense = DenseStage(rows, dense_model,
+                                 cache_dir=directory / ".dense_cache")
+    return index
 
 
 def format_context(rows: list[dict]) -> str:

@@ -1,0 +1,6 @@
+# Optional dense retrieval stage (src/nyaya/dense.py). NOT part of the base
+# install — the retriever is pure-BM25 and dependency-free without this.
+# Install only to enable/measure the hybrid stage:
+#   python -m pip install -r requirements-dense.txt
+#   python scripts/15_retrieval_recall.py --dense
+sentence-transformers>=3.0

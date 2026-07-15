@@ -77,9 +77,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--k", type=int, nargs="+", default=[1, 3, 5, 8])
     parser.add_argument("--canonical-dir", default=str(ROOT / "data" / "canonical"))
+    parser.add_argument("--dense", nargs="?", const="intfloat/multilingual-e5-small",
+                        default=None, metavar="MODEL",
+                        help="enable the hybrid dense stage (requires "
+                             "requirements-dense.txt); writes a separate "
+                             "retrieval_recall_dense.json")
     args = parser.parse_args()
 
-    index = load_statute_index(args.canonical_dir)
+    index = load_statute_index(args.canonical_dir, dense_model=args.dense)
     records = load_eval_records()
     max_k = max(args.k)
 
@@ -95,6 +100,7 @@ def main() -> None:
         scored.append((rec, gold, hit_keys))
 
     report = {
+        "dense_model": args.dense,
         "eval_records": len(records),
         "gold_bearing": len(scored),
         "no_citation_gold": no_gold,
@@ -127,7 +133,10 @@ def main() -> None:
     report["phrase_coverage"] = phrase_coverage(records, index, max_k)
 
     report["measured_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-    out = ROOT / "reports" / "retrieval_recall.json"
+    # the dense run goes to a separate file so the canonical BM25-only report
+    # is never overwritten by an experimental hybrid measurement
+    name = "retrieval_recall_dense.json" if args.dense else "retrieval_recall.json"
+    out = ROOT / "reports" / name
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
     print(f"[out] {out}")
