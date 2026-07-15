@@ -104,8 +104,9 @@ class TestDenseFusion:
 
     def test_rrf_fuse_deterministic_tiebreak(self):
         from nyaya.retrieval import rrf_fuse
-        # equal scores -> stable order by first appearance, not arbitrary
-        assert rrf_fuse([[5, 6], [6, 5]]) == rrf_fuse([[5, 6], [6, 5]])
+        # 5 and 6 get identical fused scores (each rank-1 once, rank-2 once);
+        # the tie must break to first appearance (5 seen first), not arbitrarily
+        assert rrf_fuse([[5, 6], [6, 5]]) == [5, 6]
 
     def test_dense_disabled_by_default(self, index):
         # the base retriever never constructs a dense stage
