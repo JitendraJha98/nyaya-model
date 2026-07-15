@@ -102,6 +102,8 @@ def load_statute_db(
                     continue
                 row = json.loads(line)
                 act_id = row["act_id"]  # e.g. "bns_2023"
+                if act_id == "procedures_kb":
+                    continue  # official guidance is not citable statute
                 family = _ACT_ID_FAMILY.get(act_id.rsplit("_", 1)[0])
                 if family:
                     db.setdefault(family, set()).add(row["section"].upper())
