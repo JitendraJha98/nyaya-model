@@ -1,0 +1,105 @@
+{
+  "eval_records": 500,
+  "gold_bearing": 132,
+  "no_citation_gold": 368,
+  "unresolved_fact_count": 21,
+  "unresolved_facts_sample": [
+    "Section 11 notice to third party",
+    "Section 134A Good Samaritan protection",
+    "Section 138",
+    "Section 139 presumption of debt",
+    "Section 139 rebuttable presumption",
+    "Section 141 vicarious liability",
+    "Section 142(2)",
+    "Section 148 appeal deposit",
+    "Section 17 shared household right",
+    "Section 4(1)(d) reasons to affected persons",
+    "Section 43 compensation",
+    "Section 43A compensation",
+    "Section 63 certificate",
+    "Section 63(4) certificate",
+    "Section 67",
+    "Section 8 exemptions",
+    "electronic record with Section 63 certificate",
+    "prosecuted as murder Section 103",
+    "protection order Section 18",
+    "up to Rs 5,000 under Section 184",
+    "धारा 138"
+  ],
+  "recall": {
+    "k=1": {
+      "any_hit": 0.4394,
+      "full_hit": 0.4015
+    },
+    "k=3": {
+      "any_hit": 0.5909,
+      "full_hit": 0.553
+    },
+    "k=5": {
+      "any_hit": 0.6591,
+      "full_hit": 0.6136
+    },
+    "k=8": {
+      "any_hit": 0.75,
+      "full_hit": 0.7121
+    }
+  },
+  "by_language": {
+    "english": {
+      "n": 123,
+      "full_hit@8": 0.7236
+    },
+    "hindi": {
+      "n": 4,
+      "full_hit@8": 0.75
+    },
+    "hinglish": {
+      "n": 5,
+      "full_hit@8": 0.4
+    }
+  },
+  "by_domain": {
+    "bns": {
+      "n": 45,
+      "full_hit@8": 0.7333
+    },
+    "bnss": {
+      "n": 25,
+      "full_hit@8": 0.8
+    },
+    "bsa": {
+      "n": 8,
+      "full_hit@8": 0.25
+    },
+    "cheque_bounce": {
+      "n": 2,
+      "full_hit@8": 0.5
+    },
+    "constitutional_law": {
+      "n": 33,
+      "full_hit@8": 0.7576
+    },
+    "cyber_law": {
+      "n": 11,
+      "full_hit@8": 0.7273
+    },
+    "labour_law": {
+      "n": 1,
+      "full_hit@8": 0.0
+    },
+    "motor_vehicles": {
+      "n": 2,
+      "full_hit@8": 0.5
+    },
+    "old_new_law_mapping": {
+      "n": 1,
+      "full_hit@8": 1.0
+    },
+    "womens_protection": {
+      "n": 4,
+      "full_hit@8": 0.75
+    }
+  },
+  "dense": true,
+  "measured_at": "2026-07-15 20:18:13"
+}
