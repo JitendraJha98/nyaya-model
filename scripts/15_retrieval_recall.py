@@ -42,7 +42,7 @@ def gold_keys(record: dict, index) -> tuple[set[str], list[str]]:
     nothing — DB coverage gaps or parser misses)."""
     gold, unresolved = set(), []
     for fact in record.get("required_facts", []):
-        keys = index.referenced_keys(fact)
+        keys = index.referenced_keys(fact, domain=record.get("legal_domain"))
         if keys:
             gold.update(keys)
         elif CITATION_PATTERN.search(fact):
