@@ -54,9 +54,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--k", type=int, nargs="+", default=[1, 3, 5, 8])
     parser.add_argument("--canonical-dir", default=str(ROOT / "data" / "canonical"))
+    parser.add_argument("--dense", action="store_true",
+                        help="hybrid retrieval: BM25 + multilingual-e5 (RRF)")
     args = parser.parse_args()
 
     index = load_statute_index(args.canonical_dir)
+    if args.dense:
+        from nyaya.dense import attach_dense_index
+        attach_dense_index(index,
+                           cache_path=ROOT / "data" / "generated" / "e5_doc_vectors.npy")
     records = load_eval_records()
     max_k = max(args.k)
 
@@ -101,8 +107,10 @@ def main() -> None:
             for name, (n, hit) in sorted(agg.items())
         }
 
+    report["dense"] = args.dense
     report["measured_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-    out = ROOT / "reports" / "retrieval_recall.json"
+    out = ROOT / "reports" / ("retrieval_recall_dense.json" if args.dense
+                              else "retrieval_recall.json")
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
     print(f"[out] {out}")

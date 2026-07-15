@@ -43,9 +43,14 @@ def main() -> None:
         task_id = rec["metadata"]["run_id"].rsplit("_s", 1)[0]
         ok_by_task[task_id].append(rec)
 
+    # Only unambiguous failures become DPO negatives. "no_citation" is
+    # excluded: it is often the teacher honestly saying the provisions don't
+    # cover the question — punishing that would train against honest
+    # non-coverage.
+    PAIRABLE = {"citation_outside_context", "miss_task_cited"}
     bad_by_task = defaultdict(list)
     for row in load_jsonl(args.rejected):
-        if row.get("reason") == "trivial" or row.get("split") != "train":
+        if row.get("reason") not in PAIRABLE or row.get("split") != "train":
             continue
         bad_by_task[row["task_id"]].append(row)
 
