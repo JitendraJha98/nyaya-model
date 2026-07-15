@@ -1,0 +1,322 @@
+"""Statute retrieval for RAG inference (v2 architecture).
+
+Error analysis of v1 (reports/error_analysis.json) showed 475/491 frozen-eval
+failures were wrong-or-incomplete citations: the fine-tuned model reliably
+COMMITS to citations but cannot recall section-level facts from 3B weights.
+Retrieval supplies the right verbatim section at answer time; the model's
+trained citing behaviour does the rest.
+
+Two-stage retriever over data/canonical (deterministic, dependency-free):
+  1. Exact reference resolution — if the query names a section (any script,
+     any alias, old or new law), surface exactly that section; old-law
+     references (IPC/CrPC/IEA) resolve through the official mapping table.
+  2. BM25 lexical scoring over title + text + act name for concept queries.
+
+Known limitation (v2.1): pure-Devanagari *conceptual* queries score poorly
+against English statute text — exact citation lookup still works via
+Devanagari aliases; a multilingual embedding stage can follow if eval
+demands it.
+"""
+
+import json
+import math
+import re
+from collections import Counter, defaultdict
+from pathlib import Path
+
+from .validators import ACT_ALIASES, CITATION_PATTERN, alias_pattern
+
+_TOKEN = re.compile(r"[a-z0-9ऀ-ॿ]+")
+_NUMBER = re.compile(r"(\d+[A-Za-z]{0,2})")
+
+# family key -> canonical act_id in data/canonical
+_FAMILY_TO_ACT_ID = {family: act_id for act_id, family in (
+    ("bns_2023", "bns"), ("bnss_2023", "bnss"), ("bsa_2023", "bsa"),
+    ("rti_2005", "rti"), ("cpa_2019", "cpa"), ("it_act_2000", "it act"),
+    ("ni_act_1881", "ni act"), ("mv_act_1988", "mv act"), ("dv_act_2005", "dv act"),
+    ("posh_2013", "posh"), ("hma_1955", "hma"), ("sma_1954", "sma"),
+    ("wages_code_2019", "wages code"), ("constitution_1950", "constitution"),
+)}
+_OLD_TO_NEW_ACT = {"ipc": "bns", "crpc": "bnss", "iea": "bsa"}
+
+# Section titles are the statute's own name for a concept ("Cheating",
+# "Dishonour of cheque…"). A query token appearing in the title earns a
+# flat idf bonus on top of body BM25 — a field-match signal that body
+# word-frequency cannot buy (BM25F simplified). 0.75 won the sweep on the
+# generated train split (never tuned on the frozen eval).
+TITLE_BONUS = 0.75
+
+# Lay/Hindi legal vocabulary -> the statutory phrasing it names. General
+# Indian legal-aid terminology (statute titles, standard usage) — NOT tuned
+# per eval question; calibrated only against the generated train split.
+LEGAL_SYNONYMS = {
+    # criminal offences, lay English
+    "cheated": "cheating deceiving dishonestly induces deliver property",
+    "scam": "cheating deceiving dishonestly induces deliver property",
+    "fraud": "cheating deceiving dishonestly induces deliver property",
+    "tricked": "cheating deceiving dishonestly induces deliver property",
+    "duped": "cheating deceiving dishonestly induces deliver property",
+    "stole": "theft dishonestly movable property",
+    "stolen": "theft dishonestly movable property",
+    "stealing": "theft dishonestly movable property",
+    "robbed": "robbery theft extortion",
+    "lynching": "murder group of five or more persons ground of race caste community",
+    "mob": "group of five or more persons",
+    "hit and run": "escaping without reporting rash negligent driving causing death",
+    "sedition": "acts endangering sovereignty unity and integrity of India",
+    "blackmail": "extortion fear of injury dishonestly induces deliver property",
+    "protection money": "extortion fear of injury",
+    "ransom": "kidnapping for ransom",
+    "kidnap": "kidnapping abduction",
+    "acid": "acid grievous hurt",
+    "slapped": "voluntarily causing hurt assault criminal force",
+    "beat": "voluntarily causing hurt assault",
+    "beaten": "voluntarily causing hurt grievous assault",
+    "murder": "murder culpable homicide punishment death",
+    "killed": "murder culpable homicide death rash negligent act",
+    "dowry": "dowry cruelty husband relatives of husband woman",
+    "harass": "harassment cruelty insult modesty",
+    "eve teasing": "word gesture act intended to insult modesty of a woman",
+    "secretly filmed": "watches captures image of a woman private act voyeurism",
+    "obscene": "obscene act song publishing transmitting obscene material",
+    "defaming": "defamation imputation harm reputation",
+    "defamation": "defamation imputation harm reputation",
+    "bribe": "gratification public servant bribery",
+    # procedure, lay English
+    "fir": "information cognizable offence officer in charge of a police station first information report",
+    "anticipatory bail": "direction for grant of bail person apprehending arrest",
+    "bail": "bail bailable released bond",
+    "arrest": "arrest police custody without warrant",
+    "arrested": "arrest police custody without warrant",
+    "appeal": "appeal conviction sentence court",
+    "maintenance": "order for maintenance of wives children and parents monthly allowance",
+    "summon": "summons served",
+    "cheque bounce": "cheque returned unpaid dishonour insufficiency of funds",
+    "cheque bounced": "cheque returned unpaid dishonour insufficiency of funds",
+    "consumer": "consumer complaint deficiency in service district commission",
+    "refund": "deficiency in service unfair trade practice consumer",
+    "divorce": "dissolution of marriage decree petition",
+    "rent": "landlord tenant premises",
+    # Hindi / Hinglish (both scripts) -> English statutory vocabulary
+    "जमानत": "bail bailable bond release",
+    "zamanat": "bail bailable bond release",
+    "jamanat": "bail bailable bond release",
+    "गिरफ्तार": "arrest police custody",
+    "giraftar": "arrest police custody",
+    "तलाक": "divorce dissolution of marriage",
+    "talaq": "divorce dissolution of marriage",
+    "दहेज": "dowry cruelty husband relatives",
+    "dahej": "dowry cruelty husband relatives",
+    "धोखा": "cheating deceiving dishonestly induces deliver property",
+    "dhokha": "cheating deceiving dishonestly induces deliver property",
+    "चोरी": "theft dishonestly movable property",
+    "chori": "theft dishonestly movable property",
+    "हत्या": "murder culpable homicide death",
+    "hatya": "murder culpable homicide death",
+    "क़त्ल": "murder culpable homicide death",
+    "शादी": "marriage solemnized",
+    "shaadi": "marriage solemnized",
+    "विवाह": "marriage solemnized",
+    "संपत्ति": "property",
+    "sampatti": "property",
+    "अदालत": "court",
+    "adalat": "court",
+    "न्यायालय": "court",
+    "पुलिस": "police officer in charge police station",
+    "शिकायत": "complaint",
+    "shikayat": "complaint",
+    "सज़ा": "punishment imprisonment fine",
+    "सजा": "punishment imprisonment fine",
+    "saza": "punishment imprisonment fine",
+    "जेल": "imprisonment jail",
+    "गवाह": "witness evidence testimony",
+    "gawah": "witness evidence testimony",
+    "गवाही": "witness evidence testimony examination",
+    "gawaahi": "witness evidence testimony examination",
+    "समन": "summons served",
+    "मुआवजा": "compensation",
+    "muavza": "compensation",
+    "रिश्वत": "gratification public servant bribery",
+    "rishwat": "gratification public servant bribery",
+    "किराया": "rent landlord tenant",
+    "kiraya": "rent landlord tenant",
+    "अपील": "appeal conviction sentence",
+    "कोर्ट": "court",
+    "कानून": "law act provision",
+    "kanoon": "law act provision",
+    "अपराध": "offence punishable",
+    "apradh": "offence punishable",
+}
+
+# Latin-script phrases need word boundaries; Devanagari must not use \b
+# (combining vowels break Python re's \w) — plain substring works there.
+_SYNONYM_PATTERNS = [
+    (re.compile(rf"\b{re.escape(phrase)}\b" if phrase[0].isascii() else re.escape(phrase)),
+     expansion)
+    for phrase, expansion in LEGAL_SYNONYMS.items()
+]
+
+
+def _tokens(text: str) -> list[str]:
+    return _TOKEN.findall(text.lower())
+
+
+def expand_query(query: str) -> str:
+    """Append statutory vocabulary for any lay/Hindi legal term in the query."""
+    q = query.lower()
+    extra = [exp for pat, exp in _SYNONYM_PATTERNS if pat.search(q)]
+    return q if not extra else q + " " + " ".join(extra)
+
+
+class StatuteIndex:
+    """Exact-reference + BM25 retrieval over StatuteSection rows."""
+
+    def __init__(self, rows: list[dict], mappings: list[dict],
+                 k1: float = 1.5, b: float = 0.75):
+        self.rows = rows
+        self.k1, self.b = k1, b
+        self.by_key = {f"{r['act_id']}:{r['section'].upper()}": i
+                       for i, r in enumerate(rows)}
+        # official old-law -> new-law section mapping
+        self.old_to_new = defaultdict(list)
+        for m in mappings:
+            old_family = m["old_act"].lower()
+            new_family = m["new_act"].lower()
+            new_act_id = _FAMILY_TO_ACT_ID.get(new_family)
+            if new_act_id:
+                self.old_to_new[(old_family, m["old_section"].upper())].append(
+                    f"{new_act_id}:{m['new_section'].upper()}")
+
+        self.doc_tokens = [
+            _tokens(f"{r['act_name']} {r.get('title') or ''} {r.get('text') or ''}")
+            for r in rows
+        ]
+        self.title_tokens = [set(_tokens(r.get("title") or "")) for r in rows]
+        self.doc_len = [len(t) for t in self.doc_tokens]
+        self.avg_len = sum(self.doc_len) / max(1, len(self.doc_len))
+        self.tf = [Counter(t) for t in self.doc_tokens]
+        df = Counter()
+        for t in self.doc_tokens:
+            df.update(set(t))
+        n = len(rows)
+        self.idf = {w: math.log(1 + (n - c + 0.5) / (c + 0.5)) for w, c in df.items()}
+
+    # ---- stage 1: exact references -------------------------------------
+    def referenced_keys(self, query: str) -> list[str]:
+        """Resolve explicit statute references in `query` to index keys.
+        Also used to parse gold citations out of eval required_facts."""
+        query_lower = query.lower()
+        families = []
+        for family, variants in ACT_ALIASES.items():
+            if any(re.search(alias_pattern(v), query_lower) for v in variants):
+                families.append(family)
+        keys = []
+        for m in CITATION_PATTERN.finditer(query):
+            number_match = _NUMBER.search(m.group(0))
+            if not number_match:
+                continue
+            section = number_match.group(1).upper()
+            marker = m.group(0).lower()
+            # "Article 21" / "अनुच्छेद 21" names the Constitution by itself
+            article_like = "art" in marker or "अनुच्छेद" in marker
+            match_families = families or (
+                ["constitution"] if article_like else list(_FAMILY_TO_ACT_ID))
+            for family in match_families:
+                mapped_family = _OLD_TO_NEW_ACT.get(family)
+                if mapped_family:  # old-law reference -> official mapping
+                    keys.extend(self.old_to_new.get((family, section), []))
+                act_id = _FAMILY_TO_ACT_ID.get(family)
+                if act_id and f"{act_id}:{section}" in self.by_key:
+                    keys.append(f"{act_id}:{section}")
+            # when no act was named, only accept an unambiguous section number
+            if not families and not article_like:
+                candidates = [k for k in keys if k.endswith(f":{section}")]
+                if len(candidates) != 1:
+                    keys = [k for k in keys if not k.endswith(f":{section}")]
+        seen, ordered = set(), []
+        for k in keys:
+            if k not in seen:
+                seen.add(k)
+                ordered.append(k)
+        return ordered
+
+    # ---- stage 2: BM25 ---------------------------------------------------
+    def _bm25(self, query: str) -> list[tuple[float, int]]:
+        q_tokens = _tokens(expand_query(query))
+        scores = []
+        for i, tf in enumerate(self.tf):
+            s = 0.0
+            for w in q_tokens:
+                if w not in tf:
+                    continue
+                idf = self.idf.get(w, 0.0)
+                freq = tf[w]
+                denom = freq + self.k1 * (1 - self.b + self.b * self.doc_len[i] / self.avg_len)
+                s += idf * freq * (self.k1 + 1) / denom
+                if w in self.title_tokens[i]:
+                    s += TITLE_BONUS * idf
+            if s > 0:
+                scores.append((s, i))
+        scores.sort(reverse=True)
+        return scores
+
+    def retrieve(self, query: str, k: int = 4) -> list[dict]:
+        picked = []
+        for key in self.referenced_keys(query):
+            picked.append(self.rows[self.by_key[key]])
+            if len(picked) >= k:
+                return picked
+        chosen = {f"{r['act_id']}:{r['section'].upper()}" for r in picked}
+        for _score, i in self._bm25(query):
+            row = self.rows[i]
+            if f"{row['act_id']}:{row['section'].upper()}" in chosen:
+                continue
+            picked.append(row)
+            if len(picked) >= k:
+                break
+        return picked
+
+
+def load_statute_index(canonical_dir: str | Path) -> StatuteIndex:
+    """Build a StatuteIndex from data/canonical/*.jsonl (mappings included)."""
+    directory = Path(canonical_dir)
+    rows, mappings = [], []
+    for path in sorted(directory.glob("*.jsonl")):
+        with path.open(encoding="utf-8") as fh:
+            records = [json.loads(line) for line in fh if line.strip()]
+        if path.name.startswith("law_mappings"):
+            mappings.extend(records)
+        else:
+            rows.extend(records)
+    if not rows:
+        raise FileNotFoundError(
+            f"no statute JSONL found in {directory} — run scripts/03_build_corpus.py")
+    return StatuteIndex(rows, mappings)
+
+
+def format_context(rows: list[dict]) -> str:
+    """Verbatim statute block for the RAG prompt — the ONLY source of truth."""
+    blocks = []
+    for r in rows:
+        blocks.append(
+            f"Section {r['section']} of the {r['act_name']} — {r['title']}\n{r['text']}"
+        )
+    return "\n\n".join(blocks)
+
+
+RAG_ANSWER_PROMPT = """\
+Relevant provisions of current Indian law (the ONLY sections you may cite):
+
+{context}
+
+Using ONLY the provisions above where they are relevant, answer the citizen's
+question below. Cite as "Section <n> of the <Act Name>" exactly as given above;
+do not cite any section not shown above. If the provisions above do not cover
+the question, say so plainly and give general guidance without inventing
+citations. Answer in the same language as the question.
+
+Question: {question}"""
+
+
+def build_rag_prompt(question: str, retrieved: list[dict]) -> str:
+    return RAG_ANSWER_PROMPT.format(context=format_context(retrieved), question=question)
