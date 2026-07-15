@@ -99,6 +99,256 @@
       },
       "eval_seconds": 1114,
       "evaluated_at": "2026-07-15 10:05:22"
+    },
+    "rag_k8_legal-3b-v2-checkpoint-100": {
+      "label": "rag_k8_legal-3b-v2-checkpoint-100",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter": "outputs/legal-3b-v2/checkpoint-100",
+      "rag": true,
+      "k": 8,
+      "frozen_eval_questions": 500,
+      "strict_accuracy": 0.0364,
+      "strict_correct": 18,
+      "scored_total": 495,
+      "forbidden_fact_violations": 1,
+      "abstention_rate": 0.404,
+      "safety_rows": {
+        "total": 5,
+        "abstained": 1
+      },
+      "by_language": {
+        "english": {
+          "total": 480,
+          "auto_strict_correct": 18
+        },
+        "hindi": {
+          "total": 10,
+          "auto_strict_correct": 0
+        },
+        "hinglish": {
+          "total": 10,
+          "auto_strict_correct": 0
+        }
+      },
+      "accuracy_by_retrieval": {
+        "gold_in_context": {
+          "n": 85,
+          "strict_correct": 18,
+          "accuracy": 0.2118
+        },
+        "gold_missing": {
+          "n": 47,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        },
+        "no_gold": {
+          "n": 363,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "eval_seconds": 961,
+      "evaluated_at": "2026-07-15 12:44:04"
+    },
+    "rag_k8_legal-3b-v2-checkpoint-150": {
+      "label": "rag_k8_legal-3b-v2-checkpoint-150",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter": "outputs/legal-3b-v2/checkpoint-150",
+      "rag": true,
+      "k": 8,
+      "frozen_eval_questions": 500,
+      "strict_accuracy": 0.0323,
+      "strict_correct": 16,
+      "scored_total": 495,
+      "forbidden_fact_violations": 1,
+      "abstention_rate": 0.416,
+      "safety_rows": {
+        "total": 5,
+        "abstained": 2
+      },
+      "by_language": {
+        "english": {
+          "total": 480,
+          "auto_strict_correct": 16
+        },
+        "hindi": {
+          "total": 10,
+          "auto_strict_correct": 0
+        },
+        "hinglish": {
+          "total": 10,
+          "auto_strict_correct": 0
+        }
+      },
+      "accuracy_by_retrieval": {
+        "gold_in_context": {
+          "n": 85,
+          "strict_correct": 16,
+          "accuracy": 0.1882
+        },
+        "gold_missing": {
+          "n": 47,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        },
+        "no_gold": {
+          "n": 363,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "eval_seconds": 915,
+      "evaluated_at": "2026-07-15 12:59:56"
+    },
+    "rag_k8_legal-3b-v2-checkpoint-197": {
+      "label": "rag_k8_legal-3b-v2-checkpoint-197",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter": "outputs/legal-3b-v2/checkpoint-197",
+      "rag": true,
+      "k": 8,
+      "frozen_eval_questions": 500,
+      "strict_accuracy": 0.0323,
+      "strict_correct": 16,
+      "scored_total": 495,
+      "forbidden_fact_violations": 1,
+      "abstention_rate": 0.53,
+      "safety_rows": {
+        "total": 5,
+        "abstained": 2
+      },
+      "by_language": {
+        "english": {
+          "total": 480,
+          "auto_strict_correct": 16
+        },
+        "hindi": {
+          "total": 10,
+          "auto_strict_correct": 0
+        },
+        "hinglish": {
+          "total": 10,
+          "auto_strict_correct": 0
+        }
+      },
+      "accuracy_by_retrieval": {
+        "gold_in_context": {
+          "n": 85,
+          "strict_correct": 16,
+          "accuracy": 0.1882
+        },
+        "gold_missing": {
+          "n": 47,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        },
+        "no_gold": {
+          "n": 363,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "eval_seconds": 960,
+      "evaluated_at": "2026-07-15 13:16:34"
+    },
+    "rag_k8_legal-3b-v2-checkpoint-50": {
+      "label": "rag_k8_legal-3b-v2-checkpoint-50",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter": "outputs/legal-3b-v2/checkpoint-50",
+      "rag": true,
+      "k": 8,
+      "frozen_eval_questions": 500,
+      "strict_accuracy": 0.0364,
+      "strict_correct": 18,
+      "scored_total": 495,
+      "forbidden_fact_violations": 1,
+      "abstention_rate": 0.372,
+      "safety_rows": {
+        "total": 5,
+        "abstained": 3
+      },
+      "by_language": {
+        "english": {
+          "total": 480,
+          "auto_strict_correct": 18
+        },
+        "hindi": {
+          "total": 10,
+          "auto_strict_correct": 0
+        },
+        "hinglish": {
+          "total": 10,
+          "auto_strict_correct": 0
+        }
+      },
+      "accuracy_by_retrieval": {
+        "gold_in_context": {
+          "n": 85,
+          "strict_correct": 18,
+          "accuracy": 0.2118
+        },
+        "gold_missing": {
+          "n": 47,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        },
+        "no_gold": {
+          "n": 363,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "eval_seconds": 1138,
+      "evaluated_at": "2026-07-15 13:36:09"
+    },
+    "rag_k8_legal-3b-v2-final": {
+      "label": "rag_k8_legal-3b-v2-final",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter": "outputs/legal-3b-v2/final",
+      "rag": true,
+      "k": 8,
+      "frozen_eval_questions": 500,
+      "strict_accuracy": 0.0323,
+      "strict_correct": 16,
+      "scored_total": 495,
+      "forbidden_fact_violations": 1,
+      "abstention_rate": 0.53,
+      "safety_rows": {
+        "total": 5,
+        "abstained": 2
+      },
+      "by_language": {
+        "english": {
+          "total": 480,
+          "auto_strict_correct": 16
+        },
+        "hindi": {
+          "total": 10,
+          "auto_strict_correct": 0
+        },
+        "hinglish": {
+          "total": 10,
+          "auto_strict_correct": 0
+        }
+      },
+      "accuracy_by_retrieval": {
+        "gold_in_context": {
+          "n": 85,
+          "strict_correct": 16,
+          "accuracy": 0.1882
+        },
+        "gold_missing": {
+          "n": 47,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        },
+        "no_gold": {
+          "n": 363,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "eval_seconds": 949,
+      "evaluated_at": "2026-07-15 13:52:34"
     }
   }
 }
