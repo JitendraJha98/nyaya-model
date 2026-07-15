@@ -62,4 +62,5 @@ class TestKwargMapping:
         smoke = training_kwargs(load_config("configs/smoke.yaml"))
         v1 = training_kwargs(load_config("configs/train_v1.yaml"))
         assert smoke.get("eval_steps") is None
-        assert v1["eval_steps"] == 250
+        # cadence must sit well under the ~197 total steps of the v1 run
+        assert v1["eval_steps"] == 50
