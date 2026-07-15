@@ -6,30 +6,30 @@
   "unresolved_facts_sample": [],
   "recall": {
     "k=1": {
-      "any_hit": 0.4067,
-      "full_hit": 0.36
+      "any_hit": 0.42,
+      "full_hit": 0.3733
     },
     "k=3": {
-      "any_hit": 0.54,
-      "full_hit": 0.4933
+      "any_hit": 0.5467,
+      "full_hit": 0.5
     },
     "k=5": {
-      "any_hit": 0.5933,
-      "full_hit": 0.5533
+      "any_hit": 0.6267,
+      "full_hit": 0.5867
     },
     "k=8": {
-      "any_hit": 0.6533,
-      "full_hit": 0.6067
+      "any_hit": 0.6867,
+      "full_hit": 0.64
     }
   },
   "by_language": {
     "english": {
       "n": 139,
-      "full_hit@8": 0.5971
+      "full_hit@8": 0.6259
     },
     "hindi": {
       "n": 5,
-      "full_hit@8": 0.6
+      "full_hit@8": 0.8
     },
     "hinglish": {
       "n": 6,
@@ -47,11 +47,11 @@
     },
     "bsa": {
       "n": 11,
-      "full_hit@8": 0.1818
+      "full_hit@8": 0.5455
     },
     "cheque_bounce": {
       "n": 8,
-      "full_hit@8": 0.25
+      "full_hit@8": 0.375
     },
     "constitutional_law": {
       "n": 33,
@@ -82,5 +82,5 @@
       "full_hit@8": 0.5
     }
   },
-  "measured_at": "2026-07-15 22:30:58"
+  "measured_at": "2026-07-15 22:36:17"
 }
