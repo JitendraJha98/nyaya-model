@@ -38,6 +38,11 @@ DATASET_VERSION = "extraction_v1"
 _PUNISH = re.compile(
     r"imprisonment[^.;]{0,120}?may extend to ([a-z\- ]+?) years?", re.I)
 _DAYS = re.compile(r"within ([a-z\-]+) days", re.I)
+# Bare repealed-act references ("IPC 124A", "CrPC 41A") — the citation parser
+# needs a "Section"/"Sec"/"Article" marker before the number, so these forms,
+# common in eval facts, slip past referenced_keys. eval_excluded_keys resolves
+# them through the official old->new mapping so their new sections are excluded.
+_BARE_OLD_REF = re.compile(r"\b(IPC|CrPC|IEA)\s+(\d+[A-Za-z]{0,2})\b", re.I)
 
 WORD2NUM = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
             "seven": 7, "eight": 8, "nine": 9, "ten": 10, "twelve": 12,
@@ -61,13 +66,20 @@ def extract_deadline_days(text: str) -> str | None:
 
 def eval_excluded_keys(index, records) -> set[str]:
     """Every statute key any frozen-eval record can reach — never train
-    extraction on these."""
+    extraction on these. Covers marked citations via referenced_keys AND bare
+    old-law forms ('IPC 124A') that the marker-based parser misses, resolving
+    them through the official old->new mapping. Over-exclusion is the correct
+    failure direction."""
     excluded: set[str] = set()
     for rec in records:
         domain = rec.get("legal_domain")
-        for fact in rec.get("required_facts", []) + rec.get("forbidden_facts", []):
-            excluded.update(index.referenced_keys(fact, domain=domain))
-        excluded.update(index.referenced_keys(rec["question"], domain=domain))
+        texts = (rec.get("required_facts", []) + rec.get("forbidden_facts", [])
+                 + [rec["question"]])
+        for text in texts:
+            excluded.update(index.referenced_keys(text, domain=domain))
+            for m in _BARE_OLD_REF.finditer(text):
+                old_family, section = m.group(1).lower(), m.group(2).upper()
+                excluded.update(index.old_to_new.get((old_family, section), []))
     return excluded
 
 
@@ -128,8 +140,9 @@ def _deadline_records(row, n):
         "extraction_qa", "english", row["act_id"], sec)
 
 
-def _mapping_records(mappings, index, excluded, start_n):
+def _mapping_records(mappings, index, excluded, start_n, cap_per_act):
     act_names = {r["act_id"]: r["act_name"] for r in index.rows}
+    per_act = Counter()
     n = start_n
     for m in mappings:
         new_family = m["new_act"].lower()
@@ -139,6 +152,11 @@ def _mapping_records(mappings, index, excluded, start_n):
         key = f"{new_act_id}:{m['new_section'].upper()}"
         if key not in index.by_key or key in excluded:
             continue
+        # cap mappings per new-act so they supplement rather than swamp the
+        # verbatim-extraction records this generator exists to add
+        if per_act[new_act_id] >= cap_per_act:
+            continue
+        per_act[new_act_id] += 1
         full = act_names[new_act_id]
         n += 1
         yield _mk(
@@ -159,12 +177,19 @@ def generate_records(index, mappings, excluded: set[str],
         key = f"{row['act_id']}:{row['section'].upper()}"
         if key in excluded or row["act_id"] == "procedures_kb":
             continue
-        for rec in list(_punishment_records(row, n)) + list(_deadline_records(row, n)):
+        recs = list(_punishment_records(row, n))
+        # the Constitution's "within X days" clauses are procedural sub-points,
+        # not "the" deadline of an article — extracting them yields verbatim-true
+        # but misleading facts, so skip deadline extraction there
+        if row["act_id"] != "constitution_1950":
+            recs += list(_deadline_records(row, n))
+        for rec in recs:
             if per_act[row["act_id"]] >= cap_per_act:
                 break
             per_act[row["act_id"]] += 1
             out.append(rec)
-    out.extend(_mapping_records(mappings, index, excluded, len(index.rows)))
+    out.extend(_mapping_records(mappings, index, excluded, len(index.rows),
+                                cap_per_act))
     return out
 
 

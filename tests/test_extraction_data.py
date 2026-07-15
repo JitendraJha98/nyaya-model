@@ -76,3 +76,63 @@ class TestGeneration:
         a = extraction_gen.generate_records(index, MAPPINGS, excluded=set())
         b = extraction_gen.generate_records(index, MAPPINGS, excluded=set())
         assert [r["id"] for r in a] == [r["id"] for r in b]
+
+
+class TestEvalExclusion:
+    def test_bare_old_law_reference_excludes_mapped_new_section(self):
+        # eval facts often write the repealed section WITHOUT a "Section" marker
+        # ("IPC 124A", "CrPC 41A"); the citation parser needs the marker, so
+        # eval_excluded_keys must also resolve bare old-law forms through the
+        # official mapping — else a mapping record leaks a section the eval tests.
+        rows = [{"act_id": "bns_2023",
+                 "act_name": "Bharatiya Nyaya Sanhita, 2023", "section": "151",
+                 "title": "Acts endangering sovereignty",
+                 "text": "Whoever endangers sovereignty shall be punished.",
+                 "chapter": "VII"}]
+        mappings = [{"old_act": "IPC", "old_section": "124A", "new_act": "BNS",
+                     "new_section": "151", "note": None}]
+        idx = StatuteIndex(rows, mappings)
+        recs = [{"legal_domain": "bns",
+                 "required_facts": ["IPC 124A sedition deleted"],
+                 "forbidden_facts": [], "question": "What happened to IPC 124A?"}]
+        excl = extraction_gen.eval_excluded_keys(idx, recs)
+        assert "bns_2023:151" in excl
+
+    def test_bare_reference_blocks_the_mapping_record(self):
+        rows = [{"act_id": "bns_2023",
+                 "act_name": "Bharatiya Nyaya Sanhita, 2023", "section": "151",
+                 "title": "Acts endangering sovereignty",
+                 "text": "Whoever endangers sovereignty shall be punished.",
+                 "chapter": "VII"}]
+        mappings = [{"old_act": "IPC", "old_section": "124A", "new_act": "BNS",
+                     "new_section": "151", "note": None}]
+        idx = StatuteIndex(rows, mappings)
+        recs = [{"legal_domain": "bns", "required_facts": ["IPC 124A"],
+                 "forbidden_facts": [], "question": "IPC 124A?"}]
+        excluded = extraction_gen.eval_excluded_keys(idx, recs)
+        out = extraction_gen.generate_records(idx, mappings, excluded=excluded)
+        assert not any(r["metadata"]["task_type"] == "law_mapping" for r in out)
+
+
+class TestMappingCap:
+    def test_mapping_records_capped_per_new_act(self):
+        rows = [{"act_id": "bns_2023",
+                 "act_name": "Bharatiya Nyaya Sanhita, 2023", "section": str(s),
+                 "title": f"Provision {s}", "text": "Whoever offends is punished.",
+                 "chapter": "X"} for s in range(1, 21)]
+        mappings = [{"old_act": "IPC", "old_section": str(100 + s), "new_act": "BNS",
+                     "new_section": str(s), "note": None} for s in range(1, 21)]
+        idx = StatuteIndex(rows, mappings)
+        out = extraction_gen.generate_records(idx, mappings, excluded=set(),
+                                              cap_per_act=5)
+        mapped = [r for r in out if r["metadata"]["task_type"] == "law_mapping"]
+        assert len(mapped) == 5  # capped, not all 20
+
+    def test_constitution_deadline_skipped(self):
+        rows = [{"act_id": "constitution_1950", "act_name": "Constitution of India",
+                 "section": "352", "title": "Proclamation of Emergency",
+                 "text": "The Proclamation shall be laid before each House within "
+                 "thirty days.", "chapter": "XVIII"}]
+        idx = StatuteIndex(rows, [])
+        out = extraction_gen.generate_records(idx, [], excluded=set())
+        assert not any("time limit" in r["messages"][1]["content"] for r in out)
