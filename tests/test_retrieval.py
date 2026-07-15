@@ -158,6 +158,18 @@ class TestGuidanceSlotReservation:
         assert all(h["act_id"] != "procedures_kb" for h in hits)
         assert len(hits) <= 2
 
+    def test_statutes_keep_majority_at_small_k(self):
+        # invariant must hold at every k, including retrieve()'s own default:
+        # guidance never takes more than half, so a matching statute is never
+        # fully displaced even when KB rows outrank it under plain BM25
+        idx = self._mixed_index()
+        for k in (1, 2, 3, 4):
+            hits = idx.retrieve("theft of movable property", k=k)
+            kb = [h for h in hits if h["act_id"] == "procedures_kb"]
+            statutes = [h for h in hits if h["act_id"] != "procedures_kb"]
+            assert len(kb) <= k // 2, f"k={k}: guidance took the majority"
+            assert len(statutes) >= len(kb), f"k={k}: statutes lost the majority"
+
     def test_title_outweighs_body_frequency(self, index):
         # 303's body says "theft" once in the title-position; a decoy body
         # that repeats the word must not outrank the section titled for it
