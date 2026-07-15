@@ -1,0 +1,27 @@
+{
+  "run": "legal-3b-smoke (configs/smoke.yaml, 1000 examples, 1 epoch, LoRA r=32 bf16)",
+  "completed_at": "2026-07-15",
+  "mechanical_checks": {
+    "dataset_loads": true,
+    "chat_template_tokenization": true,
+    "loss_decreases": "1.88 -> 0.86-0.91 over 63 steps (cosine)",
+    "oom": false,
+    "train_runtime_s": 171.0,
+    "checkpoint_saves": true,
+    "adapter_reloads": true,
+    "inference_works": true,
+    "notes": "TRL-on-torch-2.4 DTensor incompat shimmed in trainer.py"
+  },
+  "final_metrics": {
+    "train_loss": 1.0793,
+    "mean_token_accuracy": 0.7908,
+    "entropy": 0.8277,
+    "num_tokens": 367657,
+    "epoch": 1.0
+  },
+  "probe_observations": {
+    "style_transfer": "visible \u2014 Hinglish answered in Hinglish; concise structured answers",
+    "knowledge_not_yet_moved": "English cheating probe still cites IPC (and a wrong section, 340) while borrowing the 7-year detail from BNS 318(4) training data; expected at 1K x 1 epoch \u2014 stale-act attribution is the primary behaviour v1 checkpoint evals must track"
+  },
+  "verdict": "PASS \u2014 pipeline verified; proceed to v1 training (train_v1.yaml, 6,297 examples)"
+}
