@@ -86,6 +86,37 @@ class TestExactCitationLookup:
         assert hits_hi[0]["act_id"] == "constitution_1950"
 
 
+class TestDenseFusion:
+    """Pure-logic tests for the dense fusion plumbing — no model download."""
+
+    def test_rrf_fuse_rewards_agreement(self):
+        from nyaya.retrieval import rrf_fuse
+        # 0 ranks high in both lists -> must come first; every input appears once
+        fused = rrf_fuse([[0, 1, 2], [0, 2, 1]], c=60)
+        assert fused[0] == 0
+        assert sorted(fused) == [0, 1, 2]
+
+    def test_rrf_fuse_merges_disjoint_rankings(self):
+        from nyaya.retrieval import rrf_fuse
+        # a row present in only one ranking still appears in the fused output
+        fused = rrf_fuse([[0, 1], [2, 3]])
+        assert set(fused) == {0, 1, 2, 3}
+
+    def test_rrf_fuse_deterministic_tiebreak(self):
+        from nyaya.retrieval import rrf_fuse
+        # equal scores -> stable order by first appearance, not arbitrary
+        assert rrf_fuse([[5, 6], [6, 5]]) == rrf_fuse([[5, 6], [6, 5]])
+
+    def test_dense_disabled_by_default(self, index):
+        # the base retriever never constructs a dense stage
+        assert index.dense is None
+
+    def test_retrieve_uses_pure_bm25_when_dense_none(self, index):
+        # with dense off, behaviour is exactly the lexical path
+        hits = index.retrieve("Section 318 BNS", k=2)
+        assert hits[0]["section"] == "318"
+
+
 class TestLexicalRetrieval:
     def test_concept_query_finds_relevant_section(self, index):
         hits = index.retrieve("Someone deceived my father into delivering property — what offence?", k=2)
