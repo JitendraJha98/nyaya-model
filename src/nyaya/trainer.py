@@ -97,6 +97,17 @@ def _filter_to_signature(cls, kwargs: dict) -> dict:
 def train(config_path: str | Path) -> dict:
     """Run LoRA SFT per the config; returns trainer metrics."""
     import torch
+
+    # Compat shim: newer TRL probes torch.distributed.tensor.DTensor in its
+    # chunked-CE path; on torch 2.4 (the training image) the module exists but
+    # lacks the attribute, crashing the first forward. A dummy class makes the
+    # isinstance check False and TRL takes the ordinary single-GPU path.
+    import torch.distributed.tensor as _dtensor_mod
+    if not hasattr(_dtensor_mod, "DTensor"):
+        class _NoDTensor:  # never instantiated
+            pass
+        _dtensor_mod.DTensor = _NoDTensor
+
     from peft import LoraConfig
     from transformers import AutoModelForCausalLM, AutoTokenizer
     from trl import SFTConfig, SFTTrainer
