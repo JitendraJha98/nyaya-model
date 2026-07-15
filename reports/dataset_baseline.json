@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "model": "Qwen/Qwen2.5-3B-Instruct",
+    "test_file": "test.jsonl",
+    "examples": 1068,
+    "system_prompt": "You are Nyaya, an Indian legal information model. You provide accurate, plain-language legal guidance for Indian citizens, cite specific sections of current law (BNS/BNSS/BSA and other acts in force), clearly state uncertainty, and recommend consulting a licensed advocate for anything consequential. You provide legal information, not legal advice.",
+    "decoding": "greedy",
+    "max_new_tokens": 384
+  },
+  "metrics": {
+    "total": 1068,
+    "citation_pass_rate": 0.9195,
+    "answers_with_citations": 0.2996,
+    "old_law_citation_rate": 0.0974,
+    "language_match_rate": 0.9054,
+    "mean_reference_similarity": 0.1405,
+    "by_language": {
+      "english": {
+        "total": 785,
+        "citation_ok": 710,
+        "language_ok": 746,
+        "old_law_cited": 97
+      },
+      "hinglish": {
+        "total": 168,
+        "citation_ok": 162,
+        "language_ok": 110,
+        "old_law_cited": 7
+      },
+      "hindi": {
+        "total": 115,
+        "citation_ok": 110,
+        "language_ok": 111,
+        "old_law_cited": 0
+      }
+    },
+    "by_task_type": {
+      "grounded_qa": {
+        "total": 478,
+        "citation_ok": 427,
+        "language_ok": 456,
+        "old_law_cited": 49
+      },
+      "terminology": {
+        "total": 28,
+        "citation_ok": 26,
+        "language_ok": 27,
+        "old_law_cited": 5
+      },
+      "hinglish_qa": {
+        "total": 168,
+        "citation_ok": 162,
+        "language_ok": 110,
+        "old_law_cited": 7
+      },
+      "law_mapping": {
+        "total": 24,
+        "citation_ok": 21,
+        "language_ok": 24,
+        "old_law_cited": 23
+      },
+      "hindi_qa": {
+        "total": 115,
+        "citation_ok": 110,
+        "language_ok": 111,
+        "old_law_cited": 0
+      },
+      "procedural": {
+        "total": 231,
+        "citation_ok": 214,
+        "language_ok": 215,
+        "old_law_cited": 15
+      },
+      "safety_abstention": {
+        "total": 24,
+        "citation_ok": 22,
+        "language_ok": 24,
+        "old_law_cited": 5
+      }
+    },
+    "eval_loss": 2.0953,
+    "perplexity": 8.13,
+    "assistant_tokens": 199607
+  }
+}
