@@ -430,9 +430,15 @@ class StatuteIndex:
                 continue
             (guidance if row["act_id"] == "procedures_kb" else statutes).append(row)
 
-        take_kb = guidance[: min(KB_SLOTS, remaining)]
+        # Guidance takes at most KB_SLOTS slots and never more than half of what
+        # remains, so statute sections keep the majority at every k (at k=8 this
+        # is the intended 6+2). When a pool runs short the leftover slots
+        # backfill from the other, so a pure-citation query fills with statutes
+        # and a pure-procedural query (no matching statute) fills with guidance.
+        kb_quota = min(KB_SLOTS, remaining // 2)
+        take_kb = guidance[:kb_quota]
         take_statute = statutes[: remaining - len(take_kb)]
-        merged = take_statute + take_kb
+        merged = take_statute + take_kb  # statutes first: guidance is an appendix
         if len(merged) < remaining:
             backfill = statutes[len(take_statute):] + guidance[len(take_kb):]
             merged += backfill[: remaining - len(merged)]
