@@ -1,0 +1,60 @@
+{
+  "rescored_at": "2026-07-15 15:42:04",
+  "runs": {
+    "rag_k8_checkpoint-50": {
+      "scored_total": 495,
+      "strict_correct": 14,
+      "strict_accuracy": 0.0283,
+      "lenient_correct": 17,
+      "lenient_accuracy": 0.0343,
+      "by_retrieval": {
+        "gold_in_context": {
+          "n": 85,
+          "strict": 0.1647,
+          "lenient": 0.1765
+        },
+        "gold_missing": {
+          "n": 47,
+          "strict": 0.0,
+          "lenient": 0.0
+        },
+        "no_gold": {
+          "n": 363,
+          "strict": 0.0,
+          "lenient": 0.0055
+        }
+      }
+    },
+    "rag_k8_base": {
+      "scored_total": 495,
+      "strict_correct": 19,
+      "strict_accuracy": 0.0384,
+      "lenient_correct": 29,
+      "lenient_accuracy": 0.0586,
+      "by_retrieval": {
+        "gold_in_context": {
+          "n": 85,
+          "strict": 0.2235,
+          "lenient": 0.2706
+        },
+        "gold_missing": {
+          "n": 47,
+          "strict": 0.0,
+          "lenient": 0.0
+        },
+        "no_gold": {
+          "n": 363,
+          "strict": 0.0,
+          "lenient": 0.0165
+        }
+      }
+    },
+    "checkpoint-50": {
+      "scored_total": 495,
+      "strict_correct": 4,
+      "strict_accuracy": 0.0081,
+      "lenient_correct": 4,
+      "lenient_accuracy": 0.0081
+    }
+  }
+}
