@@ -38,11 +38,14 @@ DATASET_VERSION = "extraction_v1"
 _PUNISH = re.compile(
     r"imprisonment[^.;]{0,120}?may extend to ([a-z\- ]+?) years?", re.I)
 _DAYS = re.compile(r"within ([a-z\-]+) days", re.I)
-# Bare repealed-act references ("IPC 124A", "CrPC 41A") — the citation parser
-# needs a "Section"/"Sec"/"Article" marker before the number, so these forms,
-# common in eval facts, slip past referenced_keys. eval_excluded_keys resolves
-# them through the official old->new mapping so their new sections are excluded.
-_BARE_OLD_REF = re.compile(r"\b(IPC|CrPC|IEA)\s+(\d+[A-Za-z]{0,2})\b", re.I)
+# Bare repealed-act references ("IPC 124A", "CrPC 41A", and the reversed "498A
+# IPC") — the citation parser needs a "Section"/"Sec"/"Article" marker before
+# the number, so these forms, common in eval facts, slip past referenced_keys.
+# eval_excluded_keys resolves them through the official old->new mapping so
+# their new sections are excluded. Both orders are matched.
+_BARE_OLD_REF = re.compile(
+    r"\b(?:(IPC|CrPC|IEA)\s+(\d+[A-Za-z]{0,2})"
+    r"|(\d+[A-Za-z]{0,2})\s+(IPC|CrPC|IEA))\b", re.I)
 
 WORD2NUM = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
             "seven": 7, "eight": 8, "nine": 9, "ten": 10, "twelve": 12,
@@ -78,7 +81,8 @@ def eval_excluded_keys(index, records) -> set[str]:
         for text in texts:
             excluded.update(index.referenced_keys(text, domain=domain))
             for m in _BARE_OLD_REF.finditer(text):
-                old_family, section = m.group(1).lower(), m.group(2).upper()
+                old_family = (m.group(1) or m.group(4)).lower()
+                section = (m.group(2) or m.group(3)).upper()
                 excluded.update(index.old_to_new.get((old_family, section), []))
     return excluded
 
