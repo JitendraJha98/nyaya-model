@@ -50,6 +50,29 @@ def gold_keys(record: dict, index) -> tuple[set[str], list[str]]:
     return gold, unresolved
 
 
+def phrase_coverage(records, index, k: int) -> dict:
+    """For records with NO resolvable citation gold (the phrase-only set):
+    fraction whose top-k retrieved text contains at least one required_fact
+    verbatim (case-insensitive). The KB-coverage metric — statute recall@k
+    cannot see these records at all."""
+    covered = total = 0
+    for rec in records:
+        facts = [f for f in rec.get("required_facts", []) if f.strip()]
+        if not facts:
+            continue
+        gold, _ = gold_keys(rec, index)
+        if gold:
+            continue
+        total += 1
+        blob = " ".join(
+            f"{h.get('title') or ''} {h.get('text') or ''}"
+            for h in index.retrieve(rec["question"], k=k)).lower()
+        if any(f.lower() in blob for f in facts):
+            covered += 1
+    return {"n": total,
+            "any_fact_in_topk": round(covered / total, 4) if total else 0.0}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--k", type=int, nargs="+", default=[1, 3, 5, 8])
@@ -100,6 +123,8 @@ def main() -> None:
             name: {"n": n, f"full_hit@{max_k}": round(hit / n, 4)}
             for name, (n, hit) in sorted(agg.items())
         }
+
+    report["phrase_coverage"] = phrase_coverage(records, index, max_k)
 
     report["measured_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
     out = ROOT / "reports" / "retrieval_recall.json"
