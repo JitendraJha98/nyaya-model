@@ -89,6 +89,8 @@ def main() -> None:
                         help='LoRA adapter dir, or "none" for the base model')
     parser.add_argument("--no-rag", action="store_true",
                         help="skip retrieval (plain adapter, sanity anchor)")
+    parser.add_argument("--dense", action="store_true",
+                        help="hybrid retrieval: BM25 + multilingual-e5 (RRF)")
     parser.add_argument("--k", type=int, default=8)
     parser.add_argument("--limit", type=int)
     parser.add_argument("--batch-size", type=int, default=8)
@@ -100,10 +102,15 @@ def main() -> None:
     adapter = None if args.adapter.lower() == "none" else args.adapter
     label = args.label or "_".join(filter(None, [
         "rag" if not args.no_rag else "norag",
+        "dense" if args.dense else None,
         f"k{args.k}" if not args.no_rag else None,
         f"{Path(adapter).parent.name}-{Path(adapter).name}" if adapter else "base"]))
 
     index = None if args.no_rag else load_statute_index(args.canonical_dir)
+    if index is not None and args.dense:
+        from nyaya.dense import attach_dense_index
+        attach_dense_index(index,
+                           cache_path=ROOT / "data" / "generated" / "e5_doc_vectors.npy")
     records = load_eval_records()
     if args.limit:
         records = records[: args.limit]

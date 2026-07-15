@@ -23,6 +23,7 @@ import random
 import re
 
 from .prompts import GROUNDED_QA_PROMPT, NYAYA_SYSTEM_PROMPT
+from .retrieval import build_rag_prompt, normalize_gold_keys, rag_context_rows
 
 LANGUAGE_DIRECTIVES = {
     "english": "",
@@ -201,6 +202,84 @@ def build_generation_plan(
 
 
 _JSON_BLOCK = re.compile(r"```(?:json)?\s*([\s\S]*?)```")
+
+
+RAFT_TEACHER_PROMPT = """\
+You are an expert Indian legal-aid assistant writing a model answer for \
+training data. Answer the citizen's question below EXACTLY as the assistant \
+should: cite only provisions shown in the context (format: 'Section <n> of \
+the <Act Name>'), state the concrete specifics the provision gives \
+(durations, amounts, deadlines), give practical next steps, and stay \
+compact (120-300 words). If the provisions shown do not cover the \
+question, say so plainly, give safe general guidance, and cite nothing. \
+Do not mention that this is training data or that a context was provided.\
+{language_directive}
+
+{rag_prompt}"""
+
+
+def build_raft_plan(records: list[dict], index, k: int = 8,
+                    miss_fraction: float = 0.1, seed: int = 7) -> list[dict]:
+    """RAFT tasks: one teacher call per existing example, answered under the
+    real RAG prompt. A deterministic miss_fraction of gold-bearing records
+    get contexts WITHOUT their gold sections — the teacher demonstrates
+    honest non-coverage instead of inventing citations."""
+    plan = []
+    for record in records:
+        meta = record.get("metadata", {})
+        gold = normalize_gold_keys(meta.get("source_sections", []))
+        question = next(m["content"] for m in record["messages"] if m["role"] == "user")
+        rng = random.Random(f"{seed}:{record['id']}")
+        is_miss = bool(gold) and rng.random() < miss_fraction
+        rows = rag_context_rows(record["id"], question, gold, index, k=k,
+                                exclude_gold=is_miss)
+        user_prompt = build_rag_prompt(question, rows)
+        digest = hashlib.sha1(user_prompt.encode("utf-8")).hexdigest()[:8]
+        plan.append({
+            "task_id": f"raft_{record['id']}_{digest}",
+            "orig_id": record["id"],
+            "prompt": RAFT_TEACHER_PROMPT.format(
+                language_directive=LANGUAGE_DIRECTIVES.get(meta.get("language", "english"), ""),
+                rag_prompt=user_prompt),
+            "user_prompt": user_prompt,
+            "question": question,
+            "language": meta.get("language", "english"),
+            "task_type": meta.get("task_type", "grounded_qa"),
+            "source_act": meta.get("source_act"),
+            "source_sections": [] if is_miss else gold,
+            "context_keys": [f"{r['act_id']}:{r['section'].upper()}" for r in rows],
+            "is_miss": is_miss,
+        })
+    return plan
+
+
+def parse_raft_response(raw: str, task: dict, dataset_version: str) -> list[dict]:
+    """Teacher's plain-text answer -> one TrainingRecord (or [] if trivial).
+    The context-containment citation gate runs in the driver, not here."""
+    answer = raw.strip()
+    answer = re.sub(r"^(answer|उत्तर)\s*[:：]\s*", "", answer, flags=re.IGNORECASE)
+    if len(answer.split()) < 20:
+        return []
+    return [{
+        "id": f"{task['task_id']}_01",
+        "messages": [
+            {"role": "system", "content": NYAYA_SYSTEM_PROMPT},
+            {"role": "user", "content": task["user_prompt"]},
+            {"role": "assistant", "content": answer},
+        ],
+        "metadata": {
+            "language": task["language"],
+            "legal_domain": task.get("source_act") or "general",
+            "task_type": task["task_type"],
+            "source_act": task.get("source_act"),
+            "source_sections": task["source_sections"],
+            "rag": {"context_keys": task["context_keys"], "is_miss": task["is_miss"],
+                    "question": task["question"]},
+            "generator": task.get("generator", "unknown"),
+            "verified": False,
+            "dataset_version": dataset_version,
+        },
+    }]
 
 
 def parse_teacher_response(raw: str, task: dict, dataset_version: str) -> list[dict]:

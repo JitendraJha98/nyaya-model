@@ -22,7 +22,7 @@ def test_hf_datasets_entries_are_well_formed():
 
 
 def test_training_configs_have_required_keys():
-    for name in ("smoke.yaml", "train_v1.yaml", "train_v2.yaml"):
+    for name in ("smoke.yaml", "train_v1.yaml", "train_v2.yaml", "train_v3.yaml"):
         config = _load(name)
         assert config["model_id"] == "Qwen/Qwen2.5-3B-Instruct"
         assert config["method"] == "lora"
@@ -32,10 +32,17 @@ def test_training_configs_have_required_keys():
 
 def test_no_quantization_anywhere():
     # Project decision (2026-07-13): full-precision bf16 LoRA, no QLoRA/4-bit.
-    for name in ("smoke.yaml", "train_v1.yaml", "train_v2.yaml"):
+    for name in ("smoke.yaml", "train_v1.yaml", "train_v2.yaml", "train_v3.yaml"):
         config = _load(name)
         assert "quantization" not in config, f"{name} still has a quantization block"
         assert "8bit" not in config["training"].get("optim", "")
+
+
+def test_v3_trains_on_raft_splits():
+    v2, v3 = _load("train_v2.yaml"), _load("train_v3.yaml")
+    assert v3["lora"] == v2["lora"]
+    assert "splits_rag_v3" in v3["data"]["train_file"]
+    assert v3["training"]["max_seq_length"] == v2["training"]["max_seq_length"]
 
 
 def test_v2_trains_on_rag_splits_with_v1_lora():

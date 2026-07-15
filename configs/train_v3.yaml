@@ -1,0 +1,39 @@
+# Nyaya-3B-v3 — RAFT: teacher answers regenerated UNDER the inference RAG
+# prompt (data/splits_rag_v3, scripts/20+21), including deliberate
+# retrieval-miss demonstrations. 2 epochs (v2's val loss was still falling
+# at 1) + NEFTune noise for SFT robustness.
+#
+# Method: full-precision bf16 LoRA — NO quantization (project decision 2026-07-13).
+
+run_name: legal-3b-v3
+model_id: Qwen/Qwen2.5-3B-Instruct
+output_dir: outputs/legal-3b-v3
+
+data:
+  train_file: data/splits_rag_v3/train.jsonl
+  val_file: data/splits_rag_v3/val.jsonl
+
+method: lora
+
+lora:
+  r: 32
+  alpha: 64
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+training:
+  max_seq_length: 6144
+  num_train_epochs: 2
+  learning_rate: 1.0e-4
+  warmup_ratio: 0.03
+  lr_scheduler_type: cosine
+  gradient_checkpointing: true
+  bf16: true
+  optim: adamw_torch_fused
+  neftune_noise_alpha: 5
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 8
+  logging_steps: 10
+  # ~6.3K examples x 2 epochs / effective batch 32 = ~394 steps
+  eval_steps: 50
+  save_steps: 100
