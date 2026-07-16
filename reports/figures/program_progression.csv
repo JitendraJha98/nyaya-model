@@ -1,0 +1,7 @@
+config,strict_accuracy,lenient_accuracy,gold_in_context_n,gold_in_context_strict,gold_in_context_lenient
+checkpoint-50,0.0081,0.0081,,,
+rag_k8_checkpoint-50,0.0283,0.0343,85,0.1647,0.1765
+rag_k8_legal-3b-v2-checkpoint-100,0.0364,0.0505,85,0.2118,0.2824
+rag_dense_k8_base,0.0343,0.0586,94,0.1809,0.2553
+rag_dense_k8_legal-3b-v3-checkpoint-300,0.0384,0.0545,94,0.2021,0.266
+rag_dense_k8_v3-dpo,0.0343,0.0485,94,0.1809,0.234
