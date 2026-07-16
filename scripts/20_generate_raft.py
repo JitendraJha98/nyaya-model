@@ -44,7 +44,7 @@ from nyaya.validators import extract_citations, verify_citations
 CONFIG = ROOT / "configs" / "generation.yaml"
 OUT_DIR = ROOT / "data" / "generated"
 RETRIES = 3
-VERSION = "nyaya_instruct_v3"
+DEFAULT_VERSION = "nyaya_instruct_v4"
 
 
 def call_teacher(prompt: str, teacher: dict, session: requests.Session,
@@ -104,7 +104,11 @@ def main() -> None:
     parser.add_argument("--dense", action="store_true",
                         help="hybrid retrieval for distractor contexts "
                              "(match inference-time retrieval)")
+    parser.add_argument("--version", default=DEFAULT_VERSION,
+                        help="dataset version: names output files and scopes "
+                             "resume-by-run_id")
     args = parser.parse_args()
+    version = args.version
 
     config = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
     teacher = config["teacher"]
@@ -137,8 +141,8 @@ def main() -> None:
             expanded.append(t)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    out_file = OUT_DIR / f"{VERSION}_raw.jsonl"
-    rejects_file = OUT_DIR / f"{VERSION}_rejected.jsonl"
+    out_file = OUT_DIR / f"{version}_raw.jsonl"
+    rejects_file = OUT_DIR / f"{version}_rejected.jsonl"
     done = set()
     if out_file.exists():
         done |= {r["metadata"]["run_id"] for r in load_jsonl(out_file)}
@@ -169,7 +173,7 @@ def main() -> None:
                 stats["failed"] += 1
                 print(f"  [{i}/{len(pending)}] FAILED: {e}")
                 continue
-            recs = parse_raft_response(raw, task, VERSION)
+            recs = parse_raft_response(raw, task, version)
             if not recs:
                 stats["trivial"] += 1
                 rej.write(json.dumps({"run_id": task["run_id"], "reason": "trivial",

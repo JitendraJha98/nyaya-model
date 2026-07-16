@@ -1,8 +1,9 @@
-# RAFT v3 generation as an in-cluster Job: teacher answers every existing
-# example under the real RAG prompt (gold + distractor context; 10% deliberate
-# misses), gated for context containment. --samples 2 on 40% of train tasks
-# yields DPO candidates. Driver reaches the teacher via Service DNS; resumable
-# by run_id. Stage the repo (with data/splits) to the PVC first. CPU-only.
+# RAFT v4 generation as an in-cluster Job: teacher answers every existing
+# example under the real RAG prompt built by the MERGED retriever (additive
+# guidance appendix, dense fusion; 10% deliberate misses), gated for context
+# containment. --samples 2 on ALL tasks maximizes the DPO pair harvest
+# (v3's 124 pairs were the bottleneck). Resumable by run_id. Stage the repo
+# (with data/splits) to the PVC first. CPU-only.
 #
 #   kubectl apply -f k8s/raft-datagen-job.yaml
 #   kubectl logs -f job/raft-datagen -n askdata-ng
@@ -31,7 +32,8 @@ spec:
               set -e
               pip install --quiet sentence-transformers
               python scripts/20_generate_raft.py --splits train val test \
-                --samples 2 --sample-fraction 0.4 --concurrency 8 --dense
+                --samples 2 --sample-fraction 1.0 --concurrency 8 --dense \
+                --version nyaya_instruct_v4
           env:
             - name: TEACHER_BASE_URL
               value: "http://inference-server:8000/v1"
