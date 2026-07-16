@@ -19,18 +19,18 @@
       "full_hit": 0.58
     },
     "k=8": {
-      "any_hit": 0.6667,
-      "full_hit": 0.62
+      "any_hit": 0.7067,
+      "full_hit": 0.6533
     }
   },
   "by_language": {
     "english": {
       "n": 139,
-      "full_hit@8": 0.6331
+      "full_hit@8": 0.6619
     },
     "hindi": {
       "n": 5,
-      "full_hit@8": 0.6
+      "full_hit@8": 0.8
     },
     "hinglish": {
       "n": 6,
@@ -44,11 +44,11 @@
     },
     "bnss": {
       "n": 25,
-      "full_hit@8": 0.52
+      "full_hit@8": 0.64
     },
     "bsa": {
       "n": 11,
-      "full_hit@8": 0.2727
+      "full_hit@8": 0.3636
     },
     "cheque_bounce": {
       "n": 8,
@@ -56,7 +56,7 @@
     },
     "constitutional_law": {
       "n": 33,
-      "full_hit@8": 0.7273
+      "full_hit@8": 0.7576
     },
     "cyber_law": {
       "n": 12,
@@ -87,5 +87,5 @@
     "n": 350,
     "any_fact_in_topk": 0.06
   },
-  "measured_at": "2026-07-16 21:49:51"
+  "measured_at": "2026-07-17 00:35:30"
 }

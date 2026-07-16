@@ -428,28 +428,30 @@ class StatuteIndex:
         return scores
 
     def retrieve(self, query: str, k: int = 4) -> list[dict]:
+        """Up to k statute rows (exact references first, then fused ranking),
+        plus up to KB_SLOTS procedural-guidance rows appended AFTER them.
+
+        Guidance is ADDITIVE, never competing: reserving in-k slots measurably
+        cost ~3pts statute recall@8 (KB rows crack the top-8 on ~100% of
+        queries — short, keyword-dense, tag-boosted). Statutes keep every k
+        slot; the appendix is capped; downstream word-budget packing trims the
+        appendix first because it comes last. A purely procedural query with
+        no matching statute still fills k from the KB.
+        """
         picked = []
         for key in self.referenced_keys(query):
             picked.append(self.rows[self.by_key[key]])
             if len(picked) >= k:
-                return picked
+                break
         chosen = {f"{r['act_id']}:{r['section'].upper()}" for r in picked}
-        remaining = k - len(picked)
 
-        # Ranking order for stage 2. Pure BM25 by default; when the optional
-        # dense stage is enabled its cosine ranking is fused with BM25 via
-        # reciprocal-rank fusion (exact references above always win). The
-        # pool-split and reservation below are identical either way.
+        # Ranking for stage 2. Pure BM25 by default; when the optional dense
+        # stage is enabled its cosine ranking is fused with BM25 via
+        # reciprocal-rank fusion (exact references above always win).
         bm25_order = [i for _score, i in self._bm25(query)]
         order = (rrf_fuse([bm25_order, self.dense.rank(query)])
                  if self.dense is not None else bm25_order)
 
-        # Split the ranking into governing statute and procedural-guidance
-        # pools. Guidance supplements the statute it points to; it must not
-        # displace the citation context, so statutes keep the majority of slots
-        # and guidance is capped at KB_SLOTS. When one pool runs short (a purely
-        # procedural question matches few statutes; a pure citation question
-        # matches little guidance), the leftover slots backfill from the other.
         statutes, guidance = [], []
         for i in order:
             row = self.rows[i]
@@ -457,21 +459,12 @@ class StatuteIndex:
                 continue
             (guidance if row["act_id"] == "procedures_kb" else statutes).append(row)
 
-        # Guidance takes at most KB_SLOTS slots and never more than half of what
-        # remains, so statute sections keep the majority at every k (at k=8 this
-        # is the intended 6+2). When a pool runs short the leftover slots
-        # backfill from the other, so a pure-citation query fills with statutes
-        # and a pure-procedural query (no matching statute) fills with guidance.
-        kb_quota = min(KB_SLOTS, remaining // 2)
-        take_kb = guidance[:kb_quota]
-        take_statute = statutes[: remaining - len(take_kb)]
-        merged = take_statute + take_kb  # statutes first: guidance is an appendix
-        if len(merged) < remaining:
-            backfill = statutes[len(take_statute):] + guidance[len(take_kb):]
-            merged += backfill[: remaining - len(merged)]
-
-        picked.extend(merged)
-        return picked
+        statute_take = statutes[: max(0, k - len(picked))]
+        if picked or statute_take:
+            guidance_take = guidance[:KB_SLOTS]
+        else:
+            guidance_take = guidance[:k]  # no statute matched at all
+        return picked + statute_take + guidance_take
 
 
 class _EmbedFnStage:
@@ -600,13 +593,24 @@ def rag_context_rows(record_id: str, question: str, gold_keys: list[str],
     if not exclude_gold:
         rows = [index.rows[index.by_key[key]] for key in gold_keys if key in index.by_key]
         seen = {f"{r['act_id']}:{r['section'].upper()}" for r in rows}
+    # mirror retrieve()'s composition: gold + statutes count toward k,
+    # guidance rides in its own capped appendix
+    statute_count = len(rows)
+    guidance_count = 0
     for row in index.retrieve(question, k=k):
         key = f"{row['act_id']}:{row['section'].upper()}"
-        if exclude_gold and key in gold_keys:
+        if (exclude_gold and key in gold_keys) or key in seen:
             continue
-        if key not in seen and len(rows) < k:
-            seen.add(key)
-            rows.append(row)
+        if row["act_id"] == "procedures_kb":
+            if guidance_count >= KB_SLOTS:
+                continue
+            guidance_count += 1
+        else:
+            if statute_count >= k:
+                continue
+            statute_count += 1
+        seen.add(key)
+        rows.append(row)
     rows = pack_rows(rows, budget_words,
                      must_keys=set() if exclude_gold else set(gold_keys))
     random.Random(record_id).shuffle(rows)
