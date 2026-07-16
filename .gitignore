@@ -35,3 +35,6 @@ data/dpo/**
 Thumbs.db
 .DS_Store
 data/canonical/.dense_cache/
+
+# Local HF release bundle (large binaries; MANIFEST.md documents contents)
+release/
