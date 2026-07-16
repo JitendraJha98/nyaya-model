@@ -157,22 +157,33 @@ class TestGuidanceSlotReservation:
                "tags": ["theft", "movable", "property"]} for i in range(4)]
         return StatuteIndex(statutes + kb, MAPPINGS)
 
-    def test_guidance_capped_in_topk(self):
+    def test_guidance_is_additive_not_competing(self):
+        # Phase-0 finding: reserved in-k slots cost ~3pts statute recall (KB
+        # rows crack top-8 on 100% of queries). New contract: statutes fill
+        # ALL k slots; guidance rides as a capped appendix AFTER them.
+        from nyaya.retrieval import KB_SLOTS
+        idx = self._mixed_index()
+        hits = idx.retrieve("theft of movable property", k=4)
+        statutes = [h for h in hits if h["act_id"] != "procedures_kb"]
+        kb = [h for h in hits if h["act_id"] == "procedures_kb"]
+        assert len(statutes) == 4          # every k slot is a statute
+        assert 1 <= len(kb) <= KB_SLOTS    # appendix present but capped
+        assert all(h["act_id"] == "procedures_kb" for h in hits[4:])  # appended last
+
+    def test_guidance_capped_when_statutes_run_short(self):
+        # 4 statutes, k=6: statute pool exhausts below k — guidance still
+        # never exceeds its cap (context quality over quantity)
         from nyaya.retrieval import KB_SLOTS
         idx = self._mixed_index()
         hits = idx.retrieve("theft of movable property", k=6)
         kb = [h for h in hits if h["act_id"] == "procedures_kb"]
+        statutes = [h for h in hits if h["act_id"] != "procedures_kb"]
+        assert len(statutes) == 4
         assert len(kb) <= KB_SLOTS
 
-    def test_statutes_keep_priority_slots(self):
-        idx = self._mixed_index()
-        hits = idx.retrieve("theft of movable property", k=6)
-        statutes = [h for h in hits if h["act_id"] != "procedures_kb"]
-        assert len(statutes) >= 4  # all 4 matching statutes kept ahead of guidance
-
-    def test_procedural_only_query_backfills_with_guidance(self):
-        # a query with NO matching statute must still surface guidance beyond the
-        # cap via backfill — KB is the only relevant pool
+    def test_procedural_only_query_fills_with_guidance(self):
+        # a query with NO matching statute fills k from the KB — the cap
+        # applies to guidance-as-supplement, not guidance-as-only-content
         kb = [{"act_id": "procedures_kb",
                "act_name": "Official Procedural Guidance (India)",
                "section": f"helpline-{i}", "title": "Cyber fraud helpline 1930",
@@ -190,17 +201,13 @@ class TestGuidanceSlotReservation:
         assert all(h["act_id"] != "procedures_kb" for h in hits)
         assert len(hits) <= 2
 
-    def test_statutes_keep_majority_at_small_k(self):
-        # invariant must hold at every k, including retrieve()'s own default:
-        # guidance never takes more than half, so a matching statute is never
-        # fully displaced even when KB rows outrank it under plain BM25
+    def test_exact_citation_query_still_gets_guidance_appendix(self):
+        # exact-reference queries fill k from stage 1; the appendix still rides
         idx = self._mixed_index()
-        for k in (1, 2, 3, 4):
-            hits = idx.retrieve("theft of movable property", k=k)
-            kb = [h for h in hits if h["act_id"] == "procedures_kb"]
-            statutes = [h for h in hits if h["act_id"] != "procedures_kb"]
-            assert len(kb) <= k // 2, f"k={k}: guidance took the majority"
-            assert len(statutes) >= len(kb), f"k={k}: statutes lost the majority"
+        hits = idx.retrieve("Section 510 of the BNS", k=1)
+        assert hits[0]["section"] == "510"
+        kb = [h for h in hits if h["act_id"] == "procedures_kb"]
+        assert len(kb) <= 2
 
     def test_title_outweighs_body_frequency(self, index):
         # 303's body says "theft" once in the title-position; a decoy body
