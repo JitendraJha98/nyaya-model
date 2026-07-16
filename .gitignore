@@ -31,3 +31,4 @@ data/splits/**
 # OS
 Thumbs.db
 .DS_Store
+data/canonical/.dense_cache/

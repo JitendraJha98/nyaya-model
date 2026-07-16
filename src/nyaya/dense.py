@@ -1,18 +1,65 @@
-"""Dense embedding stage for hybrid retrieval (optional dependency).
+"""Optional dense retrieval stage (lazily imported — the base package stays
+dependency-free; install requirements-dense.txt to enable).
 
-sentence-transformers is imported lazily so the core retrieval module and the
-test suite never require it. E5-family models need the "query: "/"passage: "
-prefixes — that contract lives here, not in callers.
+Two entry points, both setting StatuteIndex.dense so retrieve() fuses the
+cosine ranking with BM25 via RRF:
+
+- DenseStage(rows, model_name): built by load_statute_index(dense_model=...);
+  content-fingerprinted on-disk embedding cache. Default e5-small (~470 MB,
+  CPU-friendly, handles the Devanagari queries pure BM25 struggles with).
+- attach_dense_index(index, cache_path): the GPU-job path — model reused for
+  batch query embedding, doc vectors cached to a named .npy (staged on the
+  cluster PVC). Default e5-base, the model behind the committed frozen-eval
+  recall numbers (reports/retrieval_recall_dense.json).
+
+e5 models REQUIRE the "query: " / "passage: " prefixes; cosine scores are
+meaningless without them. That contract lives here, not in callers.
 """
 
+import hashlib
 from pathlib import Path
 
-DEFAULT_MODEL = "intfloat/multilingual-e5-base"
+DEFAULT_ATTACH_MODEL = "intfloat/multilingual-e5-base"
+DEFAULT_STAGE_MODEL = "intfloat/multilingual-e5-small"
+
+
+class DenseStage:
+    """Cosine ranking of statute rows for a query, fused with BM25 by the
+    caller (retrieval.rrf_fuse). Row embeddings are computed once and cached
+    to disk keyed by (model, corpus) so repeated runs skip re-encoding."""
+
+    def __init__(self, rows: list[dict],
+                 model_name: str = DEFAULT_STAGE_MODEL,
+                 cache_dir: str | Path | None = None):
+        import numpy as np
+        from sentence_transformers import SentenceTransformer
+        self.model = SentenceTransformer(model_name)
+        passages = [
+            f"passage: {r.get('title') or ''}. {r.get('text') or ''}" for r in rows
+        ]
+        fingerprint = hashlib.sha256(
+            ("\x00".join([model_name, *passages])).encode("utf-8")).hexdigest()[:16]
+        cache_file = (Path(cache_dir) / f"{fingerprint}.npy") if cache_dir else None
+        if cache_file and cache_file.exists():
+            self.embeddings = np.load(cache_file)
+        else:
+            self.embeddings = self.model.encode(
+                passages, normalize_embeddings=True, show_progress_bar=True)
+            if cache_file:
+                cache_file.parent.mkdir(parents=True, exist_ok=True)
+                np.save(cache_file, self.embeddings)
+
+    def rank(self, query: str) -> list[int]:
+        """Row indices ordered by cosine similarity to the query, best first."""
+        q = self.model.encode([f"query: {query}"], normalize_embeddings=True)[0]
+        sims = self.embeddings @ q
+        return [int(i) for i in sims.argsort()[::-1]]
 
 
 def attach_dense_index(index, cache_path: str | Path | None = None,
-                       model_name: str = DEFAULT_MODEL, device: str | None = None):
-    """Enable hybrid retrieval on a StatuteIndex.
+                       model_name: str = DEFAULT_ATTACH_MODEL,
+                       device: str | None = None):
+    """Enable hybrid retrieval on a StatuteIndex via index.add_dense.
 
     Doc vectors load from cache_path (.npy) when present, otherwise they are
     computed and cached there. Returns the SentenceTransformer so callers can

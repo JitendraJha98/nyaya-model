@@ -42,7 +42,7 @@ def gold_keys(record: dict, index) -> tuple[set[str], list[str]]:
     nothing — DB coverage gaps or parser misses)."""
     gold, unresolved = set(), []
     for fact in record.get("required_facts", []):
-        keys = index.referenced_keys(fact)
+        keys = index.referenced_keys(fact, domain=record.get("legal_domain"))
         if keys:
             gold.update(keys)
         elif CITATION_PATTERN.search(fact):
@@ -50,19 +50,51 @@ def gold_keys(record: dict, index) -> tuple[set[str], list[str]]:
     return gold, unresolved
 
 
+def phrase_coverage(records, index, k: int) -> dict:
+    """For records with NO resolvable citation gold (the phrase-only set):
+    fraction whose top-k retrieved text contains at least one required_fact
+    verbatim (case-insensitive). The KB-coverage metric — statute recall@k
+    cannot see these records at all."""
+    covered = total = 0
+    for rec in records:
+        facts = [f for f in rec.get("required_facts", []) if f.strip()]
+        if not facts:
+            continue
+        gold, _ = gold_keys(rec, index)
+        if gold:
+            continue
+        total += 1
+        blob = " ".join(
+            f"{h.get('title') or ''} {h.get('text') or ''}"
+            for h in index.retrieve(rec["question"], k=k)).lower()
+        if any(f.lower() in blob for f in facts):
+            covered += 1
+    return {"n": total,
+            "any_fact_in_topk": round(covered / total, 4) if total else 0.0}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--k", type=int, nargs="+", default=[1, 3, 5, 8])
     parser.add_argument("--canonical-dir", default=str(ROOT / "data" / "canonical"))
-    parser.add_argument("--dense", action="store_true",
-                        help="hybrid retrieval: BM25 + multilingual-e5 (RRF)")
+    parser.add_argument("--dense", nargs="?",
+                        const="intfloat/multilingual-e5-base",
+                        default=None, metavar="MODEL",
+                        help="enable the hybrid dense stage (requires "
+                             "requirements-dense.txt); writes a separate "
+                             "retrieval_recall_dense.json. Bare --dense uses "
+                             "e5-base — the model behind the committed "
+                             "recall numbers — via the shared .npy cache")
     args = parser.parse_args()
 
     index = load_statute_index(args.canonical_dir)
     if args.dense:
-        from nyaya.dense import attach_dense_index
-        attach_dense_index(index,
-                           cache_path=ROOT / "data" / "generated" / "e5_doc_vectors.npy")
+        from nyaya.dense import DEFAULT_ATTACH_MODEL, attach_dense_index
+        attach_dense_index(
+            index, model_name=args.dense,
+            # the named .npy cache only matches the e5-base doc vectors
+            cache_path=(ROOT / "data" / "generated" / "e5_doc_vectors.npy"
+                        if args.dense == DEFAULT_ATTACH_MODEL else None))
     records = load_eval_records()
     max_k = max(args.k)
 
@@ -78,6 +110,7 @@ def main() -> None:
         scored.append((rec, gold, hit_keys))
 
     report = {
+        "dense_model": args.dense,
         "eval_records": len(records),
         "gold_bearing": len(scored),
         "no_citation_gold": no_gold,
@@ -107,10 +140,13 @@ def main() -> None:
             for name, (n, hit) in sorted(agg.items())
         }
 
-    report["dense"] = args.dense
+    report["phrase_coverage"] = phrase_coverage(records, index, max_k)
+
     report["measured_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
-    out = ROOT / "reports" / ("retrieval_recall_dense.json" if args.dense
-                              else "retrieval_recall.json")
+    # the dense run goes to a separate file so the canonical BM25-only report
+    # is never overwritten by an experimental hybrid measurement
+    name = "retrieval_recall_dense.json" if args.dense else "retrieval_recall.json"
+    out = ROOT / "reports" / name
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
     print(f"[out] {out}")

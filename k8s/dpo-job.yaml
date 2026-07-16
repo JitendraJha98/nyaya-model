@@ -31,8 +31,11 @@ spec:
             - |
               set -e
               pip install --quiet sentence-transformers
-              python scripts/23_dpo_train.py --sft-adapter outputs/legal-3b-v3/checkpoint-300
-              python scripts/16_rag_eval.py --model outputs/legal-3b-v3-dpo/final \
+              # merged model (~6GB) goes to the roomy inference PVC — the
+              # 20Gi hf-model-cache is nearly full
+              python scripts/23_dpo_train.py --sft-adapter outputs/legal-3b-v3/checkpoint-300 \
+                --output-dir /data/inference-cache/legal-3b-v3-dpo
+              python scripts/16_rag_eval.py --model /data/inference-cache/legal-3b-v3-dpo/final \
                 --adapter none --dense --label rag_dense_k8_v3-dpo
           env:
             - name: PYTHONIOENCODING
@@ -53,12 +56,17 @@ spec:
           volumeMounts:
             - name: cache
               mountPath: /data/hf-cache
+            - name: inference-cache
+              mountPath: /data/inference-cache
             - name: shm
               mountPath: /dev/shm
       volumes:
         - name: cache
           persistentVolumeClaim:
             claimName: hf-model-cache
+        - name: inference-cache
+          persistentVolumeClaim:
+            claimName: inference-model-cache
         - name: shm
           emptyDir:
             medium: Memory
