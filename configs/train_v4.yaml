@@ -1,0 +1,38 @@
+# Nyaya-3B-v4 — RAFT regenerated under the MERGED retriever (additive
+# guidance appendix, dense fusion, domain-aware resolution) + rule-based
+# extraction-QA records (verbatim-fact copying). Same recipe as v3 otherwise,
+# so the comparison isolates the data/retriever change.
+#
+# Method: full-precision bf16 LoRA — NO quantization (project decision 2026-07-13).
+
+run_name: legal-3b-v4
+model_id: Qwen/Qwen2.5-3B-Instruct
+output_dir: outputs/legal-3b-v4
+
+data:
+  train_file: data/splits_rag_v4/train.jsonl
+  val_file: data/splits_rag_v4/val.jsonl
+
+method: lora
+
+lora:
+  r: 32
+  alpha: 64
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+training:
+  max_seq_length: 6144
+  num_train_epochs: 2
+  learning_rate: 1.0e-4
+  warmup_ratio: 0.03
+  lr_scheduler_type: cosine
+  gradient_checkpointing: true
+  bf16: true
+  optim: adamw_torch_fused
+  neftune_noise_alpha: 5
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 8
+  logging_steps: 10
+  eval_steps: 50
+  save_steps: 100

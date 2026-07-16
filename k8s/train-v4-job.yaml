@@ -1,0 +1,65 @@
+# Nyaya-3B-v4 training on 1x A100 (configs/train_v4.yaml), then RAG-eval of
+# every checkpoint on the frozen eval under the merged retriever (dense).
+# Stage the repo AND data/splits_rag_v4 to the PVC first.
+#
+#   kubectl apply -f k8s/train-v4-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: train-v4
+  namespace: askdata-ng
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 43200
+  template:
+    metadata:
+      labels:
+        app: train-v4
+    spec:
+      restartPolicy: Never
+      nodeSelector:
+        accelerator: nvidia
+      containers:
+        - name: train-v4
+          image: acrcgipulsescusdev.azurecr.io/nyaya:smoke-v3
+          workingDir: /data/hf-cache/gen/repo
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              pip install --quiet sentence-transformers
+              python scripts/09_train.py configs/train_v4.yaml
+              for ckpt in outputs/legal-3b-v4/checkpoint-* outputs/legal-3b-v4/final; do
+                [ -d "$ckpt" ] || continue
+                python scripts/16_rag_eval.py --adapter "$ckpt" --dense
+              done
+          env:
+            - name: PYTHONIOENCODING
+              value: utf-8
+            - name: HF_HOME
+              value: /data/hf-cache
+            - name: TOKENIZERS_PARALLELISM
+              value: "false"
+          resources:
+            requests:
+              cpu: "8"
+              memory: 48Gi
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "16"
+              memory: 64Gi
+              nvidia.com/gpu: "1"
+          volumeMounts:
+            - name: cache
+              mountPath: /data/hf-cache
+            - name: shm
+              mountPath: /dev/shm
+      volumes:
+        - name: cache
+          persistentVolumeClaim:
+            claimName: hf-model-cache
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Gi
