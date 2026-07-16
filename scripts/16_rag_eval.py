@@ -39,15 +39,15 @@ from nyaya.retrieval import build_rag_prompt, load_statute_index
 MODEL_ID = "Qwen/Qwen2.5-3B-Instruct"
 
 
-def load_model(adapter_dir: str | None):
+def load_model(adapter_dir: str | None, model_id: str = MODEL_ID):
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, padding_side="left")
+    tokenizer = AutoTokenizer.from_pretrained(model_id, padding_side="left")
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(
-        MODEL_ID, dtype=torch.bfloat16, device_map="auto")
+        model_id, dtype=torch.bfloat16, device_map="auto")
     if adapter_dir:
         from peft import PeftModel
         model = PeftModel.from_pretrained(model, adapter_dir)
@@ -91,6 +91,9 @@ def main() -> None:
                         help="skip retrieval (plain adapter, sanity anchor)")
     parser.add_argument("--dense", action="store_true",
                         help="hybrid retrieval: BM25 + multilingual-e5 (RRF)")
+    parser.add_argument("--model", default=MODEL_ID,
+                        help="base model id or a merged-model dir "
+                             "(e.g. the DPO output)")
     parser.add_argument("--k", type=int, default=8)
     parser.add_argument("--limit", type=int)
     parser.add_argument("--batch-size", type=int, default=8)
@@ -104,7 +107,9 @@ def main() -> None:
         "rag" if not args.no_rag else "norag",
         "dense" if args.dense else None,
         f"k{args.k}" if not args.no_rag else None,
-        f"{Path(adapter).parent.name}-{Path(adapter).name}" if adapter else "base"]))
+        f"{Path(adapter).parent.name}-{Path(adapter).name}" if adapter
+        else (f"{Path(args.model).parent.name}-merged" if args.model != MODEL_ID
+              else "base")]))
 
     index = None if args.no_rag else load_statute_index(args.canonical_dir)
     if index is not None and args.dense:
@@ -125,7 +130,7 @@ def main() -> None:
 
     print(f"[rag-eval] {label}: {len(records)} frozen questions, "
           f"adapter={adapter or 'base'}, k={'off' if args.no_rag else args.k}")
-    tokenizer, model = load_model(adapter)
+    tokenizer, model = load_model(adapter, model_id=args.model)
     retrieval_log: dict = {}
     generate = build_rag_generate_fn(tokenizer, model, index, args.k, retrieval_log)
     t0 = time.time()
