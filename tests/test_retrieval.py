@@ -34,6 +34,19 @@ MAPPINGS = [
     {"old_act": "CrPC", "old_section": "154", "new_act": "BNSS", "new_section": "173", "note": None},
 ]
 
+AMBIG_ROWS = ROWS + [
+    {"act_id": "ni_act_1881", "act_name": "Negotiable Instruments Act, 1881",
+     "section": "139", "title": "Presumption in favour of holder",
+     "text": "It shall be presumed, unless the contrary is proved, that the holder "
+     "of a cheque received the cheque for the discharge, in whole or in part, of "
+     "any debt or other liability.", "chapter": "XVII"},
+    {"act_id": "bnss_2023", "act_name": "Bharatiya Nagarik Suraksha Sanhita, 2023",
+     "section": "139", "title": "Power to declare certain publications forfeited",
+     "text": "Where any newspaper or book contains any matter the publication of "
+     "which is punishable, the State Government may declare it forfeited.",
+     "chapter": "XI"},
+]
+
 
 @pytest.fixture(scope="module")
 def index():
@@ -73,6 +86,38 @@ class TestExactCitationLookup:
         assert hits_hi[0]["act_id"] == "constitution_1950"
 
 
+class TestDenseFusion:
+    """Pure-logic tests for the dense fusion plumbing — no model download."""
+
+    def test_rrf_fuse_rewards_agreement(self):
+        from nyaya.retrieval import rrf_fuse
+        # 0 ranks high in both lists -> must come first; every input appears once
+        fused = rrf_fuse([[0, 1, 2], [0, 2, 1]], c=60)
+        assert fused[0] == 0
+        assert sorted(fused) == [0, 1, 2]
+
+    def test_rrf_fuse_merges_disjoint_rankings(self):
+        from nyaya.retrieval import rrf_fuse
+        # a row present in only one ranking still appears in the fused output
+        fused = rrf_fuse([[0, 1], [2, 3]])
+        assert set(fused) == {0, 1, 2, 3}
+
+    def test_rrf_fuse_deterministic_tiebreak(self):
+        from nyaya.retrieval import rrf_fuse
+        # 5 and 6 get identical fused scores (each rank-1 once, rank-2 once);
+        # the tie must break to first appearance (5 seen first), not arbitrarily
+        assert rrf_fuse([[5, 6], [6, 5]]) == [5, 6]
+
+    def test_dense_disabled_by_default(self, index):
+        # the base retriever never constructs a dense stage
+        assert index.dense is None
+
+    def test_retrieve_uses_pure_bm25_when_dense_none(self, index):
+        # with dense off, behaviour is exactly the lexical path
+        hits = index.retrieve("Section 318 BNS", k=2)
+        assert hits[0]["section"] == "318"
+
+
 class TestLexicalRetrieval:
     def test_concept_query_finds_relevant_section(self, index):
         hits = index.retrieve("Someone deceived my father into delivering property — what offence?", k=2)
@@ -87,6 +132,75 @@ class TestLexicalRetrieval:
 
     def test_no_signal_returns_something_not_crash(self, index):
         assert isinstance(index.retrieve("zzz qqq xyzzy", k=3), list)
+
+
+class TestGuidanceSlotReservation:
+    """procedures_kb rows supplement the governing statute; they must not
+    displace statute sections out of the citation context (top-k)."""
+
+    def _mixed_index(self):
+        # statutes match the query but are long and diluted -> low BM25 rank;
+        # KB rows are short and keyword-dense with title+tag bonuses -> high
+        # rank. Under plain BM25 the KB rows would fill the top slots; the
+        # reservation is what keeps the statutes in.
+        filler = " ".join(f"provision clause subsection paragraph {j}"
+                          for j in range(40))
+        statutes = [{"act_id": "bns_2023",
+                     "act_name": "Bharatiya Nyaya Sanhita, 2023",
+                     "section": f"5{i}0", "title": "General offences provision",
+                     "text": f"theft of movable property. {filler}",
+                     "chapter": "XVII"} for i in range(4)]
+        kb = [{"act_id": "procedures_kb",
+               "act_name": "Official Procedural Guidance (India)",
+               "section": f"guide-{i}", "title": "Theft of movable property",
+               "text": "theft of movable property theft property.",
+               "tags": ["theft", "movable", "property"]} for i in range(4)]
+        return StatuteIndex(statutes + kb, MAPPINGS)
+
+    def test_guidance_capped_in_topk(self):
+        from nyaya.retrieval import KB_SLOTS
+        idx = self._mixed_index()
+        hits = idx.retrieve("theft of movable property", k=6)
+        kb = [h for h in hits if h["act_id"] == "procedures_kb"]
+        assert len(kb) <= KB_SLOTS
+
+    def test_statutes_keep_priority_slots(self):
+        idx = self._mixed_index()
+        hits = idx.retrieve("theft of movable property", k=6)
+        statutes = [h for h in hits if h["act_id"] != "procedures_kb"]
+        assert len(statutes) >= 4  # all 4 matching statutes kept ahead of guidance
+
+    def test_procedural_only_query_backfills_with_guidance(self):
+        # a query with NO matching statute must still surface guidance beyond the
+        # cap via backfill — KB is the only relevant pool
+        kb = [{"act_id": "procedures_kb",
+               "act_name": "Official Procedural Guidance (India)",
+               "section": f"helpline-{i}", "title": "Cyber fraud helpline 1930",
+               "text": "Call the cyber crime helpline 1930 to report online "
+               "financial fraud and freeze fraudulent transactions.",
+               "tags": ["1930", "helpline", "fraud"]} for i in range(4)]
+        idx = StatuteIndex(kb, MAPPINGS)
+        hits = idx.retrieve("cyber fraud helpline 1930 fraudulent transactions", k=4)
+        kb_hits = [h for h in hits if h["act_id"] == "procedures_kb"]
+        assert len(kb_hits) >= 3
+
+    def test_no_kb_rows_behaviour_unchanged(self, index):
+        # an index without guidance rows retrieves exactly as before
+        hits = index.retrieve("theft of movable property", k=2)
+        assert all(h["act_id"] != "procedures_kb" for h in hits)
+        assert len(hits) <= 2
+
+    def test_statutes_keep_majority_at_small_k(self):
+        # invariant must hold at every k, including retrieve()'s own default:
+        # guidance never takes more than half, so a matching statute is never
+        # fully displaced even when KB rows outrank it under plain BM25
+        idx = self._mixed_index()
+        for k in (1, 2, 3, 4):
+            hits = idx.retrieve("theft of movable property", k=k)
+            kb = [h for h in hits if h["act_id"] == "procedures_kb"]
+            statutes = [h for h in hits if h["act_id"] != "procedures_kb"]
+            assert len(kb) <= k // 2, f"k={k}: guidance took the majority"
+            assert len(statutes) >= len(kb), f"k={k}: statutes lost the majority"
 
     def test_title_outweighs_body_frequency(self, index):
         # 303's body says "theft" once in the title-position; a decoy body
@@ -296,3 +410,103 @@ class TestFormatContext:
         assert "Section 318" in ctx
         assert "Bharatiya Nyaya Sanhita" in ctx
         assert "deceiving any person" in ctx
+
+
+class TestDomainAwareResolution:
+    @pytest.fixture(scope="class")
+    def ambig_index(self):
+        return StatuteIndex(AMBIG_ROWS, MAPPINGS)
+
+    def test_bare_ambiguous_section_still_drops_without_hints(self, ambig_index):
+        # two acts contain a section 139 and nothing disambiguates -> no keys
+        assert ambig_index.referenced_keys("Section 139") == []
+
+    def test_domain_hint_resolves_bare_section(self, ambig_index):
+        keys = ambig_index.referenced_keys("Section 139", domain="cheque_bounce")
+        assert keys == ["ni_act_1881:139"]
+
+    def test_content_words_resolve_bare_section(self, ambig_index):
+        keys = ambig_index.referenced_keys("Section 139 presumption of debt")
+        assert keys == ["ni_act_1881:139"]
+
+    def test_named_act_beats_domain_hint(self, ambig_index):
+        # an explicit act name is stronger evidence than the domain
+        keys = ambig_index.referenced_keys("Section 139 of the BNSS",
+                                           domain="cheque_bounce")
+        assert keys == ["bnss_2023:139"]
+
+    def test_unknown_domain_is_harmless(self, ambig_index):
+        assert ambig_index.referenced_keys("Section 139", domain="nonsense") == []
+
+    def test_content_tie_still_drops(self, ambig_index):
+        # words matching neither candidate: content stage must not guess
+        assert ambig_index.referenced_keys("Section 139 zebra flying") == []
+
+    def test_unambiguous_section_unaffected(self, ambig_index):
+        # only one act has a 318 -> resolves exactly as before, no hint needed
+        assert ambig_index.referenced_keys("Section 318") == ["bns_2023:318"]
+
+
+class TestNewSynonymClusters:
+    def _idx(self, *extra_rows):
+        return StatuteIndex(ROWS + list(extra_rows), MAPPINGS)
+
+    def test_electronic_evidence_reaches_bsa(self):
+        idx = self._idx(
+            {"act_id": "bsa_2023", "act_name": "Bharatiya Sakshya Adhiniyam, 2023",
+             "section": "63", "title": "Admissibility of electronic records",
+             "text": "Any information contained in an electronic record shall be "
+             "admissible if accompanied by a certificate identifying the electronic "
+             "record and describing the manner of its production.", "chapter": "V"})
+        hits = idx.retrieve("Can I use a WhatsApp chat as proof in court?", k=2)
+        assert any(h["section"] == "63" for h in hits)
+
+    def test_unpaid_salary_reaches_wages_code(self):
+        idx = self._idx(
+            {"act_id": "wages_code_2019", "act_name": "Code on Wages, 2019",
+             "section": "43", "title": "Responsibility for payment of various dues",
+             "text": "Every employer shall pay all amounts of wages required to be "
+             "paid under this Code to every employee employed by him.", "chapter": "V"})
+        hits = idx.retrieve("My company has not paid my salary for two months", k=2)
+        assert any(h["act_id"] == "wages_code_2019" for h in hits)
+
+    def test_accident_compensation_reaches_mv_act(self):
+        idx = self._idx(
+            {"act_id": "mv_act_1988", "act_name": "Motor Vehicles Act, 1988",
+             "section": "166", "title": "Application for compensation",
+             "text": "An application for compensation arising out of an accident "
+             "may be made to the Claims Tribunal by the person who has sustained "
+             "the injury.", "chapter": "XII"})
+        hits = idx.retrieve("Road accident me injury hui, muavza kaise milega?", k=2)
+        assert any(h["section"] == "166" for h in hits)
+
+    def test_otp_fraud_reaches_it_act(self):
+        idx = self._idx(
+            {"act_id": "it_act_2000", "act_name": "Information Technology Act, 2000",
+             "section": "66D", "title": "Punishment for cheating by personation "
+             "by using computer resource",
+             "text": "Whoever, by means of any communication device or computer "
+             "resource cheats by personation, shall be punished with imprisonment.",
+             "chapter": "XI"})
+        hits = idx.retrieve("Someone did OTP fraud on my phone and took money", k=2)
+        assert any(h["section"] == "66D" for h in hits)
+
+
+class TestFieldIndexing:
+    def test_tags_are_indexed_with_title_weight(self):
+        tagged = {"act_id": "bns_2023", "act_name": "Bharatiya Nyaya Sanhita, 2023",
+                  "section": "999", "title": "Some provision",
+                  "text": "generic words only here.", "chapter": "X",
+                  "tags": ["gharelu hinsa"]}
+        idx = StatuteIndex(ROWS + [tagged], MAPPINGS)
+        hits = idx.retrieve("gharelu hinsa complaint", k=2)
+        assert any(h["section"] == "999" for h in hits)
+
+    def test_punishment_summary_is_indexed(self):
+        row = {"act_id": "bns_2023", "act_name": "Bharatiya Nyaya Sanhita, 2023",
+               "section": "998", "title": "Another provision",
+               "text": "generic words only here.", "chapter": "X",
+               "punishment_summary": "community service for petty theft"}
+        idx = StatuteIndex(ROWS + [row], MAPPINGS)
+        hits = idx.retrieve("community service petty punishment", k=2)
+        assert any(h["section"] == "998" for h in hits)

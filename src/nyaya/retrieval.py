@@ -41,12 +41,39 @@ _FAMILY_TO_ACT_ID = {family: act_id for act_id, family in (
 )}
 _OLD_TO_NEW_ACT = {"ipc": "bns", "crpc": "bnss", "iea": "bsa"}
 
+# eval-record legal_domain -> the act(s) a bare "Section <n>" most plausibly
+# names in that domain. A resolution HINT only: it is consulted when no act is
+# named in the text and the section number is ambiguous across acts. The
+# user-facing retrieval path never passes a domain.
+DOMAIN_ACTS = {
+    "cheque_bounce": ("ni_act_1881",),
+    "rti": ("rti_2005",),
+    "cyber_law": ("it_act_2000",),
+    "motor_vehicles": ("mv_act_1988",),
+    "consumer_law": ("cpa_2019",),
+    "labour_law": ("wages_code_2019",),
+    "womens_protection": ("dv_act_2005", "posh_2013", "bns_2023"),
+    "bns": ("bns_2023",),
+    "bnss": ("bnss_2023",),
+    "bsa": ("bsa_2023",),
+    "constitutional_law": ("constitution_1950",),
+}
+
 # Section titles are the statute's own name for a concept ("Cheating",
 # "Dishonour of cheque…"). A query token appearing in the title earns a
 # flat idf bonus on top of body BM25 — a field-match signal that body
 # word-frequency cannot buy (BM25F simplified). 0.75 won the sweep on the
 # generated train split (never tuned on the frozen eval).
 TITLE_BONUS = 0.75
+
+# Procedural-guidance (procedures_kb) rows point to the statute that governs a
+# situation; they are a supplement, not the citation itself. At inference k=8 a
+# question needs the governing sections plus at most a couple of practical
+# pointers (a helpline, a portal, a deadline), so guidance is capped at KB_SLOTS
+# of the retrieved context and statute sections keep the majority. A purely
+# procedural question with no matching statute still fills up with guidance via
+# the backfill in retrieve().
+KB_SLOTS = 2
 
 # Lay/Hindi legal vocabulary -> the statutory phrasing it names. General
 # Indian legal-aid terminology (statute titles, standard usage) — NOT tuned
@@ -148,6 +175,86 @@ LEGAL_SYNONYMS = {
     "kanoon": "law act provision",
     "अपराध": "offence punishable",
     "apradh": "offence punishable",
+    # evidence / BSA
+    "whatsapp": "electronic record admissible certificate",
+    "screenshot": "electronic record admissible certificate",
+    "cctv": "electronic record video admissible certificate",
+    "call recording": "electronic record admissible certificate",
+    "electronic evidence": "electronic record certificate admissible",
+    "digital evidence": "electronic record certificate admissible",
+    "proof in court": "evidence admissible electronic record document",
+    "dying declaration": "statement written verbal person who is dead cause of his death",
+    "burden of proof": "burden of proving fact lies on that person",
+    "confession": "confession accused inducement threat coercion",
+    "cross examination": "examination of witness cross-examination",
+    "hostile witness": "witness examination party question",
+    # consumer
+    "defective": "defect deficiency goods service consumer",
+    "warranty": "defect deficiency goods guarantee",
+    "online shopping": "e-commerce unfair trade practice consumer deficiency",
+    "wrong product": "deficiency defect goods unfair trade practice consumer",
+    "overcharged": "unfair trade practice consumer price",
+    "misleading advertisement": "misleading advertisement consumer",
+    "product exchange": "replace goods defect deficiency consumer",
+    # rti
+    "pio": "public information officer request information",
+    "information from government": "right to information public authority request",
+    "rti fee": "request information fee prescribed",
+    "rti appeal": "appeal central information commission state information commission",
+    # labour / wages
+    "salary": "wages payment employer employee",
+    "salary not paid": "wages payment employer employee dues",
+    "unpaid wages": "wages payment employer employee dues",
+    "fired": "removal dismissal employer employee",
+    "overtime": "wages overtime work hours",
+    "minimum wage": "minimum rate of wages",
+    "bonus": "bonus wages employee",
+    # motor vehicles
+    "accident": "accident compensation claims tribunal injury",
+    "insurance claim": "insurance insurer compensation third party",
+    "challan": "penalty fine offence licence",
+    "driving licence": "licence driving motor vehicle",
+    "drunk driving": "driving by a drunken person under the influence of drink",
+    "helmet": "protective headgear",
+    "good samaritan": "good samaritan accident victim emergency medical",
+    # cheque / NI Act
+    "stop payment": "cheque returned unpaid dishonour",
+    "cheque notice": "notice in writing demand payment drawer cheque",
+    # criminal procedure
+    "police refuse fir": "information cognizable offence superintendent of police magistrate",
+    "zero fir": "information cognizable offence irrespective of the area where the offence is committed",
+    "police station": "officer in charge of a police station",
+    # women
+    "stalking": "follows a woman contacts attempts to contact",
+    "domestic violence": "aggrieved person protection order residence shared household",
+    "harassment at work": "sexual harassment workplace internal committee complaint",
+    # cyber
+    "hacking": "computer resource unauthorised access damage",
+    "identity theft": "fraudulently dishonestly electronic signature password unique identification",
+    "phishing": "cheats by personation computer resource communication device",
+    "otp fraud": "cheats by personation computer resource cheating dishonestly password",
+    "online fraud": "cheats by personation computer resource cheating dishonestly induces",
+    "morphed photo": "publishes transmits obscene material electronic form privacy",
+    # Hindi / Hinglish additions
+    "तनख्वाह": "wages payment employer",
+    "tankhwah": "wages payment employer",
+    "वेतन": "wages payment employer",
+    "नौकरी": "employment employer employee removal",
+    "naukri se nikala": "removal dismissal employer employee",
+    "एक्सीडेंट": "accident compensation claims tribunal",
+    "दुर्घटना": "accident compensation claims tribunal",
+    "durghatna": "accident compensation claims tribunal",
+    "बीमा": "insurance insurer compensation",
+    "beema": "insurance insurer compensation",
+    "मुआवज़ा": "compensation",
+    "चेक बाउंस": "cheque returned unpaid dishonour insufficiency of funds",
+    "check bounce": "cheque returned unpaid dishonour insufficiency of funds",
+    "सबूत": "evidence proof admissible document",
+    "saboot": "evidence proof admissible document",
+    "उपभोक्ता": "consumer complaint deficiency",
+    "ठगी": "cheating dishonestly induces deliver property",
+    "thagi": "cheating dishonestly induces deliver property",
+    "ऑनलाइन फ्रॉड": "cheats by personation computer resource cheating",
 }
 
 # Latin-script phrases need word boundaries; Devanagari must not use \b
@@ -190,10 +297,18 @@ class StatuteIndex:
                     f"{new_act_id}:{m['new_section'].upper()}")
 
         self.doc_tokens = [
-            _tokens(f"{r['act_name']} {r.get('title') or ''} {r.get('text') or ''}")
+            _tokens(f"{r['act_name']} {r.get('title') or ''} {r.get('text') or ''} "
+                    f"{r.get('punishment_summary') or ''} "
+                    f"{' '.join(r.get('tags') or [])}")
             for r in rows
         ]
-        self.title_tokens = [set(_tokens(r.get("title") or "")) for r in rows]
+        # tags are curated retrieval keywords — they earn the same field bonus
+        # as title words
+        self.title_tokens = [
+            set(_tokens(r.get("title") or ""))
+            | set(_tokens(" ".join(r.get("tags") or [])))
+            for r in rows
+        ]
         self.doc_len = [len(t) for t in self.doc_tokens]
         self.avg_len = sum(self.doc_len) / max(1, len(self.doc_len))
         self.tf = [Counter(t) for t in self.doc_tokens]
@@ -202,11 +317,19 @@ class StatuteIndex:
             df.update(set(t))
         n = len(rows)
         self.idf = {w: math.log(1 + (n - c + 0.5) / (c + 0.5)) for w, c in df.items()}
+        # optional dense stage (A4); None keeps retrieval pure-BM25 and
+        # dependency-free. Set by load_statute_index(dense_model=...).
+        self.dense = None
 
     # ---- stage 1: exact references -------------------------------------
-    def referenced_keys(self, query: str) -> list[str]:
+    def referenced_keys(self, query: str, domain: str | None = None) -> list[str]:
         """Resolve explicit statute references in `query` to index keys.
-        Also used to parse gold citations out of eval required_facts."""
+        Also used to parse gold citations out of eval required_facts.
+
+        `domain` (an eval-record legal_domain) and the query's own content
+        words act as tiebreakers for bare section numbers that exist in more
+        than one act; with neither, ambiguous references drop as before.
+        """
         query_lower = query.lower()
         families = []
         for family, variants in ACT_ALIASES.items():
@@ -230,11 +353,22 @@ class StatuteIndex:
                 act_id = _FAMILY_TO_ACT_ID.get(family)
                 if act_id and f"{act_id}:{section}" in self.by_key:
                     keys.append(f"{act_id}:{section}")
-            # when no act was named, only accept an unambiguous section number
+            # no act named: disambiguate by domain hint, then content overlap
             if not families and not article_like:
                 candidates = [k for k in keys if k.endswith(f":{section}")]
+                if len(candidates) > 1 and domain in DOMAIN_ACTS:
+                    narrowed = [k for k in candidates
+                                if k.split(":", 1)[0] in DOMAIN_ACTS[domain]]
+                    if narrowed:
+                        candidates = narrowed
+                if len(candidates) > 1:
+                    candidates = self._pick_by_content(candidates, query)
                 if len(candidates) != 1:
                     keys = [k for k in keys if not k.endswith(f":{section}")]
+                else:
+                    keep = candidates[0]
+                    keys = [k for k in keys
+                            if k == keep or not k.endswith(f":{section}")]
         seen, ordered = set(), []
         for k in keys:
             if k not in seen:
@@ -242,34 +376,36 @@ class StatuteIndex:
                 ordered.append(k)
         return ordered
 
+    def _pick_by_content(self, candidates: list[str], query: str) -> list[str]:
+        """Among candidate keys sharing a section number, keep the single row
+        the query's remaining words actually describe — the unique
+        idf-weighted-overlap winner. Returns `candidates` unchanged when
+        content cannot decide (all-zero scores or a tie for first)."""
+        q_tokens = set(_tokens(expand_query(query)))
+        scored = sorted(
+            ((sum(self.idf.get(w, 0.0) for w in q_tokens
+                  if w in self.tf[self.by_key[key]]), key)
+             for key in candidates),
+            reverse=True)
+        if scored[0][0] > 0 and (len(scored) == 1 or scored[0][0] > scored[1][0]):
+            return [scored[0][1]]
+        return candidates
+
     # ---- optional dense stage -------------------------------------------
     def add_dense(self, embed_fn, doc_vectors=None) -> None:
-        """Enable hybrid retrieval. embed_fn(list[str]) -> list[vector].
-
-        Doc vectors are computed once (or passed precomputed, e.g. loaded
-        from an .npy built on GPU); queries are embedded per call. Fusion
-        with BM25 is reciprocal-rank (RRF) — no score calibration needed
-        across the two systems.
+        """Enable hybrid retrieval from an embedding FUNCTION
+        (list[str] -> list[vector]) — the injection point unit tests and the
+        GPU jobs use (nyaya/dense.attach_dense_index wires a real model plus
+        an .npy doc-vector cache through here). Equivalent to enabling the
+        stage via load_statute_index(dense_model=...), which builds a
+        DenseStage from a model name instead; both set self.dense.
         """
-        self._embed_fn = embed_fn
         if doc_vectors is None:
             doc_vectors = embed_fn([
                 f"{r['act_name']} — {r.get('title') or ''}. {r.get('text') or ''}"
                 for r in self.rows
             ])
-        self._doc_vectors = [self._unit(v) for v in doc_vectors]
-
-    @staticmethod
-    def _unit(vec):
-        norm = math.sqrt(sum(x * x for x in vec)) or 1.0
-        return [x / norm for x in vec]
-
-    def _dense_ranking(self, query: str) -> list[int]:
-        q = self._unit(self._embed_fn([query])[0])
-        scores = [(sum(a * b for a, b in zip(q, d)), i)
-                  for i, d in enumerate(self._doc_vectors)]
-        scores.sort(reverse=True)
-        return [i for _score, i in scores]
+        self.dense = _EmbedFnStage(embed_fn, doc_vectors)
 
     # ---- stage 2: BM25 ---------------------------------------------------
     def _bm25(self, query: str) -> list[tuple[float, int]]:
@@ -291,18 +427,6 @@ class StatuteIndex:
         scores.sort(reverse=True)
         return scores
 
-    def _fused_ranking(self, query: str, rrf_k: int = 60, depth: int = 50) -> list[int]:
-        """BM25 ranking, RRF-fused with the dense ranking when enabled."""
-        bm25_order = [i for _score, i in self._bm25(query)]
-        if getattr(self, "_embed_fn", None) is None:
-            return bm25_order
-        fused = defaultdict(float)
-        for rank, i in enumerate(bm25_order[:depth]):
-            fused[i] += 1.0 / (rrf_k + rank)
-        for rank, i in enumerate(self._dense_ranking(query)[:depth]):
-            fused[i] += 1.0 / (rrf_k + rank)
-        return [i for i, _s in sorted(fused.items(), key=lambda kv: -kv[1])]
-
     def retrieve(self, query: str, k: int = 4) -> list[dict]:
         picked = []
         for key in self.referenced_keys(query):
@@ -310,18 +434,92 @@ class StatuteIndex:
             if len(picked) >= k:
                 return picked
         chosen = {f"{r['act_id']}:{r['section'].upper()}" for r in picked}
-        for i in self._fused_ranking(query):
+        remaining = k - len(picked)
+
+        # Ranking order for stage 2. Pure BM25 by default; when the optional
+        # dense stage is enabled its cosine ranking is fused with BM25 via
+        # reciprocal-rank fusion (exact references above always win). The
+        # pool-split and reservation below are identical either way.
+        bm25_order = [i for _score, i in self._bm25(query)]
+        order = (rrf_fuse([bm25_order, self.dense.rank(query)])
+                 if self.dense is not None else bm25_order)
+
+        # Split the ranking into governing statute and procedural-guidance
+        # pools. Guidance supplements the statute it points to; it must not
+        # displace the citation context, so statutes keep the majority of slots
+        # and guidance is capped at KB_SLOTS. When one pool runs short (a purely
+        # procedural question matches few statutes; a pure citation question
+        # matches little guidance), the leftover slots backfill from the other.
+        statutes, guidance = [], []
+        for i in order:
             row = self.rows[i]
             if f"{row['act_id']}:{row['section'].upper()}" in chosen:
                 continue
-            picked.append(row)
-            if len(picked) >= k:
-                break
+            (guidance if row["act_id"] == "procedures_kb" else statutes).append(row)
+
+        # Guidance takes at most KB_SLOTS slots and never more than half of what
+        # remains, so statute sections keep the majority at every k (at k=8 this
+        # is the intended 6+2). When a pool runs short the leftover slots
+        # backfill from the other, so a pure-citation query fills with statutes
+        # and a pure-procedural query (no matching statute) fills with guidance.
+        kb_quota = min(KB_SLOTS, remaining // 2)
+        take_kb = guidance[:kb_quota]
+        take_statute = statutes[: remaining - len(take_kb)]
+        merged = take_statute + take_kb  # statutes first: guidance is an appendix
+        if len(merged) < remaining:
+            backfill = statutes[len(take_statute):] + guidance[len(take_kb):]
+            merged += backfill[: remaining - len(merged)]
+
+        picked.extend(merged)
         return picked
 
 
-def load_statute_index(canonical_dir: str | Path) -> StatuteIndex:
-    """Build a StatuteIndex from data/canonical/*.jsonl (mappings included)."""
+class _EmbedFnStage:
+    """Dense stage backed by an injected embed function — duck-typed to
+    DenseStage (rank()). Pure Python on purpose: unit tests drive it with
+    fake embedders and no numpy/model dependency."""
+
+    def __init__(self, embed_fn, doc_vectors):
+        self._embed_fn = embed_fn
+        self._doc_vectors = [self._unit(v) for v in doc_vectors]
+
+    @staticmethod
+    def _unit(vec):
+        norm = math.sqrt(sum(x * x for x in vec)) or 1.0
+        return [x / norm for x in vec]
+
+    def rank(self, query: str) -> list[int]:
+        q = self._unit(self._embed_fn([query])[0])
+        scores = [(sum(a * b for a, b in zip(q, d)), i)
+                  for i, d in enumerate(self._doc_vectors)]
+        scores.sort(reverse=True)
+        return [i for _score, i in scores]
+
+
+def rrf_fuse(rankings: list[list[int]], c: int = 60) -> list[int]:
+    """Reciprocal-rank fusion: score(i) = sum over rankings of 1/(c + rank).
+    Merges independent orderings (e.g. BM25 and dense cosine) without needing
+    their scores to be comparable. Ties broken by first appearance."""
+    scores: dict[int, float] = defaultdict(float)
+    first_seen: dict[int, int] = {}
+    seq = 0
+    for ranking in rankings:
+        for rank, idx in enumerate(ranking):
+            scores[idx] += 1.0 / (c + rank + 1)
+            if idx not in first_seen:
+                first_seen[idx] = seq
+                seq += 1
+    return [idx for idx, _s in
+            sorted(scores.items(), key=lambda kv: (-kv[1], first_seen[kv[0]]))]
+
+
+def load_statute_index(canonical_dir: str | Path,
+                       dense_model: str | None = None) -> StatuteIndex:
+    """Build a StatuteIndex from data/canonical/*.jsonl (mappings included).
+
+    dense_model (e.g. "intfloat/multilingual-e5-small") enables the optional
+    hybrid retrieval stage — requires requirements-dense.txt installed. Left
+    None, retrieval stays pure-BM25 and dependency-free."""
     directory = Path(canonical_dir)
     rows, mappings = [], []
     for path in sorted(directory.glob("*.jsonl")):
@@ -334,16 +532,26 @@ def load_statute_index(canonical_dir: str | Path) -> StatuteIndex:
     if not rows:
         raise FileNotFoundError(
             f"no statute JSONL found in {directory} — run scripts/03_build_corpus.py")
-    return StatuteIndex(rows, mappings)
+    index = StatuteIndex(rows, mappings)
+    if dense_model:
+        from .dense import DenseStage
+        index.dense = DenseStage(rows, dense_model,
+                                 cache_dir=directory / ".dense_cache")
+    return index
 
 
 def format_context(rows: list[dict]) -> str:
-    """Verbatim statute block for the RAG prompt — the ONLY source of truth."""
+    """Verbatim statute/guidance block for the RAG prompt — the ONLY source of
+    truth. Statutes render citably; procedures-KB rows render as named official
+    guidance (they are not statute and must not look citable as sections)."""
     blocks = []
     for r in rows:
-        blocks.append(
-            f"Section {r['section']} of the {r['act_name']} — {r['title']}\n{r['text']}"
-        )
+        if r["act_id"] == "procedures_kb":
+            blocks.append(f"{r['title']} — official guidance\n{r['text']}")
+        else:
+            blocks.append(
+                f"Section {r['section']} of the {r['act_name']} — {r['title']}\n{r['text']}"
+            )
     return "\n\n".join(blocks)
 
 
@@ -454,15 +662,18 @@ def build_rag_training_record(record: dict, index: StatuteIndex, k: int = 8,
 
 
 RAG_ANSWER_PROMPT = """\
-Relevant provisions of current Indian law (the ONLY sections you may cite):
+Relevant provisions of current Indian law and official guidance (the ONLY \
+sources you may rely on):
 
 {context}
 
-Using ONLY the provisions above where they are relevant, answer the citizen's
-question below. Cite as "Section <n> of the <Act Name>" exactly as given above;
-do not cite any section not shown above. If the provisions above do not cover
-the question, say so plainly and give general guidance without inventing
-citations. Answer in the same language as the question.
+Using ONLY the material above where it is relevant, answer the citizen's
+question below. Cite statute as "Section <n> of the <Act Name>" exactly as
+given above; do not cite any section not shown above. Entries marked "official
+guidance" give practical steps (helplines, portals, timelines) you may state
+directly. If the material above does not cover the question, say so plainly and
+give general guidance without inventing citations. Answer in the same language
+as the question.
 
 Question: {question}"""
 
