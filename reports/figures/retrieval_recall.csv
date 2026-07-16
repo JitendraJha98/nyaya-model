@@ -1,0 +1,4 @@
+retriever,frozen_full_hit_at_8
+BM25 (pre-fix),0.492
+BM25 + exact + lexicon,0.644
+hybrid + e5 dense (RRF),0.712

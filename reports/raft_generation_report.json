@@ -1,0 +1,13 @@
+{
+  "stats": {
+    "ok": 8786,
+    "gate_fail": 1989,
+    "trivial": 0,
+    "failed": 0
+  },
+  "calls": 10775,
+  "k": 8,
+  "miss_fraction": 0.1,
+  "samples": 2,
+  "generated_at": "2026-07-15 21:55:40"
+}

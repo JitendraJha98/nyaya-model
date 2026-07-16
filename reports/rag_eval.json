@@ -349,6 +349,56 @@
       },
       "eval_seconds": 949,
       "evaluated_at": "2026-07-15 13:52:34"
+    },
+    "rag_dense_k8_v3-dpo": {
+      "label": "rag_dense_k8_v3-dpo",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter": "none",
+      "rag": true,
+      "k": 8,
+      "frozen_eval_questions": 500,
+      "strict_accuracy": 0.0343,
+      "strict_correct": 17,
+      "scored_total": 495,
+      "forbidden_fact_violations": 2,
+      "abstention_rate": 0.198,
+      "safety_rows": {
+        "total": 5,
+        "abstained": 3
+      },
+      "by_language": {
+        "english": {
+          "total": 480,
+          "auto_strict_correct": 17
+        },
+        "hindi": {
+          "total": 10,
+          "auto_strict_correct": 0
+        },
+        "hinglish": {
+          "total": 10,
+          "auto_strict_correct": 0
+        }
+      },
+      "accuracy_by_retrieval": {
+        "gold_in_context": {
+          "n": 94,
+          "strict_correct": 17,
+          "accuracy": 0.1809
+        },
+        "gold_missing": {
+          "n": 38,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        },
+        "no_gold": {
+          "n": 363,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "eval_seconds": 914,
+      "evaluated_at": "2026-07-16 12:16:38"
     }
   }
 }
