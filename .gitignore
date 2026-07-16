@@ -23,6 +23,9 @@ data/hf/**
 data/generated/**
 data/validated/**
 data/splits/**
+data/splits_rag/**
+data/splits_rag_v3/**
+data/dpo/**
 !data/**/
 !data/**/.gitkeep
 # Human-authored, not re-downloadable — always versioned.
