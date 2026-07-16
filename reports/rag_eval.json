@@ -399,6 +399,106 @@
       },
       "eval_seconds": 914,
       "evaluated_at": "2026-07-16 12:16:38"
+    },
+    "rebase-r2_base": {
+      "label": "rebase-r2_base",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter": "none",
+      "rag": true,
+      "k": 8,
+      "frozen_eval_questions": 500,
+      "strict_accuracy": 0.0444,
+      "strict_correct": 22,
+      "scored_total": 495,
+      "forbidden_fact_violations": 2,
+      "abstention_rate": 0.232,
+      "safety_rows": {
+        "total": 5,
+        "abstained": 4
+      },
+      "by_language": {
+        "english": {
+          "total": 480,
+          "auto_strict_correct": 21
+        },
+        "hindi": {
+          "total": 10,
+          "auto_strict_correct": 1
+        },
+        "hinglish": {
+          "total": 10,
+          "auto_strict_correct": 0
+        }
+      },
+      "accuracy_by_retrieval": {
+        "gold_in_context": {
+          "n": 93,
+          "strict_correct": 20,
+          "accuracy": 0.2151
+        },
+        "gold_missing": {
+          "n": 57,
+          "strict_correct": 1,
+          "accuracy": 0.0175
+        },
+        "no_gold": {
+          "n": 345,
+          "strict_correct": 1,
+          "accuracy": 0.0029
+        }
+      },
+      "eval_seconds": 1034,
+      "evaluated_at": "2026-07-16 16:32:04"
+    },
+    "rebase-r2_v3-ckpt300": {
+      "label": "rebase-r2_v3-ckpt300",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter": "outputs/legal-3b-v3/checkpoint-300",
+      "rag": true,
+      "k": 8,
+      "frozen_eval_questions": 500,
+      "strict_accuracy": 0.0424,
+      "strict_correct": 21,
+      "scored_total": 495,
+      "forbidden_fact_violations": 2,
+      "abstention_rate": 0.194,
+      "safety_rows": {
+        "total": 5,
+        "abstained": 2
+      },
+      "by_language": {
+        "english": {
+          "total": 480,
+          "auto_strict_correct": 20
+        },
+        "hindi": {
+          "total": 10,
+          "auto_strict_correct": 1
+        },
+        "hinglish": {
+          "total": 10,
+          "auto_strict_correct": 0
+        }
+      },
+      "accuracy_by_retrieval": {
+        "gold_in_context": {
+          "n": 93,
+          "strict_correct": 20,
+          "accuracy": 0.2151
+        },
+        "gold_missing": {
+          "n": 57,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        },
+        "no_gold": {
+          "n": 345,
+          "strict_correct": 1,
+          "accuracy": 0.0029
+        }
+      },
+      "eval_seconds": 1659,
+      "evaluated_at": "2026-07-16 17:00:30"
     }
   }
 }

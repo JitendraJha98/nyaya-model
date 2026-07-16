@@ -1,105 +1,91 @@
 {
+  "dense_model": "intfloat/multilingual-e5-base",
   "eval_records": 500,
-  "gold_bearing": 132,
-  "no_citation_gold": 368,
-  "unresolved_fact_count": 21,
-  "unresolved_facts_sample": [
-    "Section 11 notice to third party",
-    "Section 134A Good Samaritan protection",
-    "Section 138",
-    "Section 139 presumption of debt",
-    "Section 139 rebuttable presumption",
-    "Section 141 vicarious liability",
-    "Section 142(2)",
-    "Section 148 appeal deposit",
-    "Section 17 shared household right",
-    "Section 4(1)(d) reasons to affected persons",
-    "Section 43 compensation",
-    "Section 43A compensation",
-    "Section 63 certificate",
-    "Section 63(4) certificate",
-    "Section 67",
-    "Section 8 exemptions",
-    "electronic record with Section 63 certificate",
-    "prosecuted as murder Section 103",
-    "protection order Section 18",
-    "up to Rs 5,000 under Section 184",
-    "धारा 138"
-  ],
+  "gold_bearing": 150,
+  "no_citation_gold": 350,
+  "unresolved_fact_count": 0,
+  "unresolved_facts_sample": [],
   "recall": {
     "k=1": {
-      "any_hit": 0.4394,
-      "full_hit": 0.4015
+      "any_hit": 0.4333,
+      "full_hit": 0.3867
     },
     "k=3": {
-      "any_hit": 0.5909,
-      "full_hit": 0.553
+      "any_hit": 0.5867,
+      "full_hit": 0.54
     },
     "k=5": {
-      "any_hit": 0.6591,
-      "full_hit": 0.6136
+      "any_hit": 0.6267,
+      "full_hit": 0.58
     },
     "k=8": {
-      "any_hit": 0.75,
-      "full_hit": 0.7121
+      "any_hit": 0.6667,
+      "full_hit": 0.62
     }
   },
   "by_language": {
     "english": {
-      "n": 123,
-      "full_hit@8": 0.7236
+      "n": 139,
+      "full_hit@8": 0.6331
     },
     "hindi": {
-      "n": 4,
-      "full_hit@8": 0.75
+      "n": 5,
+      "full_hit@8": 0.6
     },
     "hinglish": {
-      "n": 5,
-      "full_hit@8": 0.4
+      "n": 6,
+      "full_hit@8": 0.3333
     }
   },
   "by_domain": {
     "bns": {
-      "n": 45,
-      "full_hit@8": 0.7333
+      "n": 46,
+      "full_hit@8": 0.7174
     },
     "bnss": {
       "n": 25,
-      "full_hit@8": 0.8
+      "full_hit@8": 0.52
     },
     "bsa": {
-      "n": 8,
-      "full_hit@8": 0.25
+      "n": 11,
+      "full_hit@8": 0.2727
     },
     "cheque_bounce": {
-      "n": 2,
+      "n": 8,
       "full_hit@8": 0.5
     },
     "constitutional_law": {
       "n": 33,
-      "full_hit@8": 0.7576
+      "full_hit@8": 0.7273
     },
     "cyber_law": {
-      "n": 11,
-      "full_hit@8": 0.7273
+      "n": 12,
+      "full_hit@8": 0.5833
     },
     "labour_law": {
       "n": 1,
       "full_hit@8": 0.0
     },
     "motor_vehicles": {
-      "n": 2,
-      "full_hit@8": 0.5
+      "n": 4,
+      "full_hit@8": 0.75
     },
     "old_new_law_mapping": {
       "n": 1,
       "full_hit@8": 1.0
     },
+    "rti": {
+      "n": 3,
+      "full_hit@8": 0.6667
+    },
     "womens_protection": {
-      "n": 4,
-      "full_hit@8": 0.75
+      "n": 6,
+      "full_hit@8": 0.5
     }
   },
-  "dense": true,
-  "measured_at": "2026-07-15 20:18:13"
+  "phrase_coverage": {
+    "n": 350,
+    "any_fact_in_topk": 0.06
+  },
+  "measured_at": "2026-07-16 21:49:51"
 }
