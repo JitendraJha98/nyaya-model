@@ -65,16 +65,30 @@ def prepare_extraction(path: Path, index, eval_records, statute_db,
     records = load_jsonl(path)
     kept, rejected = [], 0
     seen_answers: list[str] = []
+    seen_fact_keys: set[tuple] = set()
     for rec in records:
         ok, _reasons = validate_example(rec, statute_db, eval_records)
         if not ok:
             rejected += 1
             continue
-        answer = rec["messages"][-1]["content"]
-        if any(is_near_duplicate(answer, prev) for prev in seen_answers[-200:]):
-            rejected += 1
-            continue
-        seen_answers.append(answer)
+        # Template records are similar in FORM by design while carrying
+        # distinct facts — text-similarity dedup is the wrong gate for them.
+        # scripts/19 guarantees one record per (section, template); dedup on
+        # that key instead.
+        if rec["metadata"].get("generator", "").startswith("rule_"):
+            key = (rec["metadata"]["task_type"],
+                   tuple(rec["metadata"]["source_sections"]),
+                   rec["messages"][1]["content"][:60])
+            if key in seen_fact_keys:
+                rejected += 1
+                continue
+            seen_fact_keys.add(key)
+        else:
+            answer = rec["messages"][-1]["content"]
+            if any(is_near_duplicate(answer, prev) for prev in seen_answers[-200:]):
+                rejected += 1
+                continue
+            seen_answers.append(answer)
         kept.append(rec)
     splits = grouped_split(kept, val_fraction=0.05, test_fraction=0.1,
                            seed=42, holdout_acts=HOLDOUT_ACTS)
