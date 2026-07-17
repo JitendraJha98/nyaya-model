@@ -1,99 +1,75 @@
 {
-  "rescored_at": "2026-07-16 22:36:17",
+  "rescored_at": "2026-07-17 17:55:16",
   "runs": {
-    "rag_dense_k8_base": {
-      "scored_total": 495,
-      "strict_correct": 17,
-      "strict_accuracy": 0.0343,
-      "lenient_correct": 29,
-      "lenient_accuracy": 0.0586,
-      "by_retrieval": {
-        "gold_in_context": {
-          "n": 94,
-          "strict": 0.1809,
-          "lenient": 0.2553
-        },
-        "gold_missing": {
-          "n": 38,
-          "strict": 0.0,
-          "lenient": 0.0
-        },
-        "no_gold": {
-          "n": 363,
-          "strict": 0.0,
-          "lenient": 0.0138
-        }
-      }
-    },
-    "rag_dense_k8_legal-3b-v3-checkpoint-300": {
+    "rebase-r3_base": {
       "scored_total": 495,
       "strict_correct": 19,
       "strict_accuracy": 0.0384,
-      "lenient_correct": 27,
-      "lenient_accuracy": 0.0545,
+      "lenient_correct": 33,
+      "lenient_accuracy": 0.0667,
       "by_retrieval": {
         "gold_in_context": {
-          "n": 94,
-          "strict": 0.2021,
-          "lenient": 0.266
+          "n": 98,
+          "strict": 0.1735,
+          "lenient": 0.2449
         },
         "gold_missing": {
-          "n": 38,
-          "strict": 0.0,
-          "lenient": 0.0
-        },
-        "no_gold": {
-          "n": 363,
-          "strict": 0.0,
-          "lenient": 0.0055
-        }
-      }
-    },
-    "rebase-r2_base": {
-      "scored_total": 495,
-      "strict_correct": 22,
-      "strict_accuracy": 0.0444,
-      "lenient_correct": 41,
-      "lenient_accuracy": 0.0828,
-      "by_retrieval": {
-        "gold_in_context": {
-          "n": 93,
-          "strict": 0.2151,
-          "lenient": 0.3011
-        },
-        "gold_missing": {
-          "n": 57,
-          "strict": 0.0175,
-          "lenient": 0.0526
+          "n": 52,
+          "strict": 0.0192,
+          "lenient": 0.0192
         },
         "no_gold": {
           "n": 345,
           "strict": 0.0029,
-          "lenient": 0.029
+          "lenient": 0.0232
         }
       }
     },
-    "rebase-r2_v3-ckpt300": {
+    "rebase-r3_v3-ckpt300": {
       "scored_total": 495,
       "strict_correct": 21,
       "strict_accuracy": 0.0424,
-      "lenient_correct": 34,
-      "lenient_accuracy": 0.0687,
+      "lenient_correct": 32,
+      "lenient_accuracy": 0.0646,
       "by_retrieval": {
         "gold_in_context": {
-          "n": 93,
-          "strict": 0.2151,
-          "lenient": 0.2903
+          "n": 98,
+          "strict": 0.1939,
+          "lenient": 0.2245
         },
         "gold_missing": {
-          "n": 57,
+          "n": 52,
+          "strict": 0.0192,
+          "lenient": 0.0192
+        },
+        "no_gold": {
+          "n": 345,
+          "strict": 0.0029,
+          "lenient": 0.0261
+        }
+      }
+    },
+    "rag_dense_k8_legal-3b-v4-checkpoint-354": {
+      "scored_total": 495,
+      "strict_correct": 19,
+      "strict_accuracy": 0.0384,
+      "lenient_correct": 30,
+      "lenient_accuracy": 0.0606,
+      "by_retrieval": {
+        "gold_in_context": {
+          "n": 98,
+          "strict": 0.1837,
+          "lenient": 0.2551
+        },
+        "gold_missing": {
+          "n": 52,
           "strict": 0.0,
           "lenient": 0.0
         },
         "no_gold": {
           "n": 345,
           "strict": 0.0029,
-          "lenient": 0.0203
+          "lenient": 0.0145
         }
       }
     }

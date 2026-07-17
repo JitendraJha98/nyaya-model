@@ -499,6 +499,356 @@
       },
       "eval_seconds": 1659,
       "evaluated_at": "2026-07-16 17:00:30"
+    },
+    "rag_dense_k8_legal-3b-v4-checkpoint-100": {
+      "label": "rag_dense_k8_legal-3b-v4-checkpoint-100",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter": "outputs/legal-3b-v4/checkpoint-100",
+      "rag": true,
+      "k": 8,
+      "frozen_eval_questions": 500,
+      "strict_accuracy": 0.0384,
+      "strict_correct": 19,
+      "scored_total": 495,
+      "forbidden_fact_violations": 2,
+      "abstention_rate": 0.09,
+      "safety_rows": {
+        "total": 5,
+        "abstained": 4
+      },
+      "by_language": {
+        "english": {
+          "total": 480,
+          "auto_strict_correct": 19
+        },
+        "hindi": {
+          "total": 10,
+          "auto_strict_correct": 0
+        },
+        "hinglish": {
+          "total": 10,
+          "auto_strict_correct": 0
+        }
+      },
+      "accuracy_by_retrieval": {
+        "gold_in_context": {
+          "n": 98,
+          "strict_correct": 18,
+          "accuracy": 0.1837
+        },
+        "gold_missing": {
+          "n": 52,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        },
+        "no_gold": {
+          "n": 345,
+          "strict_correct": 1,
+          "accuracy": 0.0029
+        }
+      },
+      "eval_seconds": 1786,
+      "evaluated_at": "2026-07-17 09:29:46"
+    },
+    "rag_dense_k8_legal-3b-v4-checkpoint-200": {
+      "label": "rag_dense_k8_legal-3b-v4-checkpoint-200",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter": "outputs/legal-3b-v4/checkpoint-200",
+      "rag": true,
+      "k": 8,
+      "frozen_eval_questions": 500,
+      "strict_accuracy": 0.0364,
+      "strict_correct": 18,
+      "scored_total": 495,
+      "forbidden_fact_violations": 2,
+      "abstention_rate": 0.074,
+      "safety_rows": {
+        "total": 5,
+        "abstained": 2
+      },
+      "by_language": {
+        "english": {
+          "total": 480,
+          "auto_strict_correct": 17
+        },
+        "hindi": {
+          "total": 10,
+          "auto_strict_correct": 1
+        },
+        "hinglish": {
+          "total": 10,
+          "auto_strict_correct": 0
+        }
+      },
+      "accuracy_by_retrieval": {
+        "gold_in_context": {
+          "n": 98,
+          "strict_correct": 17,
+          "accuracy": 0.1735
+        },
+        "gold_missing": {
+          "n": 52,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        },
+        "no_gold": {
+          "n": 345,
+          "strict_correct": 1,
+          "accuracy": 0.0029
+        }
+      },
+      "eval_seconds": 1714,
+      "evaluated_at": "2026-07-17 09:59:06"
+    },
+    "rag_dense_k8_legal-3b-v4-checkpoint-300": {
+      "label": "rag_dense_k8_legal-3b-v4-checkpoint-300",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter": "outputs/legal-3b-v4/checkpoint-300",
+      "rag": true,
+      "k": 8,
+      "frozen_eval_questions": 500,
+      "strict_accuracy": 0.0343,
+      "strict_correct": 17,
+      "scored_total": 495,
+      "forbidden_fact_violations": 2,
+      "abstention_rate": 0.084,
+      "safety_rows": {
+        "total": 5,
+        "abstained": 3
+      },
+      "by_language": {
+        "english": {
+          "total": 480,
+          "auto_strict_correct": 17
+        },
+        "hindi": {
+          "total": 10,
+          "auto_strict_correct": 0
+        },
+        "hinglish": {
+          "total": 10,
+          "auto_strict_correct": 0
+        }
+      },
+      "accuracy_by_retrieval": {
+        "gold_in_context": {
+          "n": 98,
+          "strict_correct": 16,
+          "accuracy": 0.1633
+        },
+        "gold_missing": {
+          "n": 52,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        },
+        "no_gold": {
+          "n": 345,
+          "strict_correct": 1,
+          "accuracy": 0.0029
+        }
+      },
+      "eval_seconds": 1716,
+      "evaluated_at": "2026-07-17 10:28:26"
+    },
+    "rag_dense_k8_legal-3b-v4-checkpoint-354": {
+      "label": "rag_dense_k8_legal-3b-v4-checkpoint-354",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter": "outputs/legal-3b-v4/checkpoint-354",
+      "rag": true,
+      "k": 8,
+      "frozen_eval_questions": 500,
+      "strict_accuracy": 0.0384,
+      "strict_correct": 19,
+      "scored_total": 495,
+      "forbidden_fact_violations": 2,
+      "abstention_rate": 0.084,
+      "safety_rows": {
+        "total": 5,
+        "abstained": 3
+      },
+      "by_language": {
+        "english": {
+          "total": 480,
+          "auto_strict_correct": 17
+        },
+        "hindi": {
+          "total": 10,
+          "auto_strict_correct": 2
+        },
+        "hinglish": {
+          "total": 10,
+          "auto_strict_correct": 0
+        }
+      },
+      "accuracy_by_retrieval": {
+        "gold_in_context": {
+          "n": 98,
+          "strict_correct": 18,
+          "accuracy": 0.1837
+        },
+        "gold_missing": {
+          "n": 52,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        },
+        "no_gold": {
+          "n": 345,
+          "strict_correct": 1,
+          "accuracy": 0.0029
+        }
+      },
+      "eval_seconds": 1709,
+      "evaluated_at": "2026-07-17 10:57:39"
+    },
+    "rag_dense_k8_legal-3b-v4-final": {
+      "label": "rag_dense_k8_legal-3b-v4-final",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter": "outputs/legal-3b-v4/final",
+      "rag": true,
+      "k": 8,
+      "frozen_eval_questions": 500,
+      "strict_accuracy": 0.0384,
+      "strict_correct": 19,
+      "scored_total": 495,
+      "forbidden_fact_violations": 2,
+      "abstention_rate": 0.084,
+      "safety_rows": {
+        "total": 5,
+        "abstained": 3
+      },
+      "by_language": {
+        "english": {
+          "total": 480,
+          "auto_strict_correct": 17
+        },
+        "hindi": {
+          "total": 10,
+          "auto_strict_correct": 2
+        },
+        "hinglish": {
+          "total": 10,
+          "auto_strict_correct": 0
+        }
+      },
+      "accuracy_by_retrieval": {
+        "gold_in_context": {
+          "n": 98,
+          "strict_correct": 18,
+          "accuracy": 0.1837
+        },
+        "gold_missing": {
+          "n": 52,
+          "strict_correct": 0,
+          "accuracy": 0.0
+        },
+        "no_gold": {
+          "n": 345,
+          "strict_correct": 1,
+          "accuracy": 0.0029
+        }
+      },
+      "eval_seconds": 1706,
+      "evaluated_at": "2026-07-17 11:26:51"
+    },
+    "rebase-r3_base": {
+      "label": "rebase-r3_base",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter": "none",
+      "rag": true,
+      "k": 8,
+      "frozen_eval_questions": 500,
+      "strict_accuracy": 0.0384,
+      "strict_correct": 19,
+      "scored_total": 495,
+      "forbidden_fact_violations": 2,
+      "abstention_rate": 0.248,
+      "safety_rows": {
+        "total": 5,
+        "abstained": 3
+      },
+      "by_language": {
+        "english": {
+          "total": 480,
+          "auto_strict_correct": 18
+        },
+        "hindi": {
+          "total": 10,
+          "auto_strict_correct": 1
+        },
+        "hinglish": {
+          "total": 10,
+          "auto_strict_correct": 0
+        }
+      },
+      "accuracy_by_retrieval": {
+        "gold_in_context": {
+          "n": 98,
+          "strict_correct": 17,
+          "accuracy": 0.1735
+        },
+        "gold_missing": {
+          "n": 52,
+          "strict_correct": 1,
+          "accuracy": 0.0192
+        },
+        "no_gold": {
+          "n": 345,
+          "strict_correct": 1,
+          "accuracy": 0.0029
+        }
+      },
+      "eval_seconds": 1062,
+      "evaluated_at": "2026-07-17 11:50:40"
+    },
+    "rebase-r3_v3-ckpt300": {
+      "label": "rebase-r3_v3-ckpt300",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter": "outputs/legal-3b-v3/checkpoint-300",
+      "rag": true,
+      "k": 8,
+      "frozen_eval_questions": 500,
+      "strict_accuracy": 0.0424,
+      "strict_correct": 21,
+      "scored_total": 495,
+      "forbidden_fact_violations": 2,
+      "abstention_rate": 0.198,
+      "safety_rows": {
+        "total": 5,
+        "abstained": 3
+      },
+      "by_language": {
+        "english": {
+          "total": 480,
+          "auto_strict_correct": 21
+        },
+        "hindi": {
+          "total": 10,
+          "auto_strict_correct": 0
+        },
+        "hinglish": {
+          "total": 10,
+          "auto_strict_correct": 0
+        }
+      },
+      "accuracy_by_retrieval": {
+        "gold_in_context": {
+          "n": 98,
+          "strict_correct": 19,
+          "accuracy": 0.1939
+        },
+        "gold_missing": {
+          "n": 52,
+          "strict_correct": 1,
+          "accuracy": 0.0192
+        },
+        "no_gold": {
+          "n": 345,
+          "strict_correct": 1,
+          "accuracy": 0.0029
+        }
+      },
+      "eval_seconds": 1678,
+      "evaluated_at": "2026-07-17 12:19:25"
     }
   }
 }

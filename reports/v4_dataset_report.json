@@ -1,0 +1,32 @@
+{
+  "raft_leakage_dropped": 0,
+  "extraction": {
+    "in": 694,
+    "rejected": 0,
+    "kept": 694,
+    "per_split": {
+      "train": 566,
+      "val": 34,
+      "test": 94
+    }
+  },
+  "splits": {
+    "train": {
+      "total": 5649,
+      "raft": 5083,
+      "extraction": 566
+    },
+    "val": {
+      "total": 305,
+      "raft": 271,
+      "extraction": 34
+    },
+    "test": {
+      "total": 945,
+      "raft": 851,
+      "extraction": 94
+    }
+  },
+  "miss_examples": 162,
+  "built_at": "2026-07-17 05:04:44"
+}
