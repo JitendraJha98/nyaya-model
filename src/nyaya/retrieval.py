@@ -320,6 +320,9 @@ class StatuteIndex:
         # optional dense stage (A4); None keeps retrieval pure-BM25 and
         # dependency-free. Set by load_statute_index(dense_model=...).
         self.dense = None
+        # optional cross-encoder second stage; None keeps first-stage order.
+        # Set via set_reranker() — see nyaya.rerank.
+        self.reranker = None
 
     # ---- stage 1: exact references -------------------------------------
     def referenced_keys(self, query: str, domain: str | None = None) -> list[str]:
@@ -459,12 +462,34 @@ class StatuteIndex:
                 continue
             (guidance if row["act_id"] == "procedures_kb" else statutes).append(row)
 
-        statute_take = statutes[: max(0, k - len(picked))]
-        if picked or statute_take:
-            guidance_take = guidance[:KB_SLOTS]
+        slots = max(0, k - len(picked))
+        if self.reranker is not None:
+            # Rerank statutes and guidance SEPARATELY so the KB appendix stays
+            # additive and cannot win statute slots (see the docstring above).
+            # `picked` is excluded: exact citation lookups are resolved facts,
+            # not ranking guesses, and no model score may displace them.
+            statute_take = self.reranker.rerank(query, statutes, slots)
+            guidance_pool = self.reranker.rerank(query, guidance, KB_SLOTS)
         else:
-            guidance_take = guidance[:k]  # no statute matched at all
+            statute_take = statutes[:slots]
+            guidance_pool = guidance[:KB_SLOTS]
+
+        if picked or statute_take:
+            guidance_take = guidance_pool
+        else:
+            # No statute matched at all — fill k from the KB instead.
+            guidance_take = (self.reranker.rerank(query, guidance, k)
+                             if self.reranker is not None else guidance[:k])
         return picked + statute_take + guidance_take
+
+    def set_reranker(self, reranker) -> None:
+        """Attach a cross-encoder second stage (see nyaya.rerank).
+
+        Optional and off by default: it costs a model forward pass per
+        candidate, which is worth it for eval and serving but not for bulk
+        dataset generation over tens of thousands of queries.
+        """
+        self.reranker = reranker
 
 
 class _EmbedFnStage:
