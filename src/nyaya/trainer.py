@@ -20,6 +20,40 @@ import yaml
 REQUIRED_KEYS = ("run_name", "model_id", "output_dir", "data", "method", "lora", "training")
 
 
+def _cuda_available() -> bool:
+    try:
+        import torch
+    except ImportError:
+        return False
+    return torch.cuda.is_available()
+
+
+def _native_bf16() -> bool:
+    """True only where the GPU has real bf16 tensor cores (Ampere, sm_80+).
+
+    NOT torch.cuda.is_bf16_supported(): it defaults to including_emulation=True
+    and answers True on a Turing T4, where bf16 runs in software several times
+    slower. Import is local so this module stays importable without a GPU
+    stack, which the rest of the file is careful to preserve.
+    """
+    try:
+        import torch
+    except ImportError:
+        return False
+    if not torch.cuda.is_available():
+        return False
+    return torch.cuda.get_device_capability()[0] >= 8
+
+
+def pick_dtype():
+    """bf16 on Ampere+, fp16 on older GPUs, fp32 on CPU."""
+    import torch
+
+    if not torch.cuda.is_available():
+        return torch.float32
+    return torch.bfloat16 if _native_bf16() else torch.float16
+
+
 def load_config(path: str | Path) -> dict:
     config = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
     missing = [k for k in REQUIRED_KEYS if k not in config]
@@ -62,7 +96,12 @@ def training_kwargs(config: dict) -> dict:
         "warmup_ratio": t["warmup_ratio"],
         "lr_scheduler_type": t["lr_scheduler_type"],
         "gradient_checkpointing": t["gradient_checkpointing"],
-        "bf16": t["bf16"],
+        # Config says bf16, but only Ampere+ has bf16 tensor cores. On a
+        # Turing T4 the flag silently selects software emulation, which is
+        # several times slower -- that cost 4.5h of GPU on an eval run before
+        # it was spotted. Honour the config only where the hardware can.
+        "bf16": t["bf16"] and _native_bf16(),
+        "fp16": t["bf16"] and _cuda_available() and not _native_bf16(),
         "optim": t["optim"],
         "per_device_train_batch_size": t["per_device_train_batch_size"],
         "gradient_accumulation_steps": t["gradient_accumulation_steps"],
@@ -118,8 +157,10 @@ def train(config_path: str | Path) -> dict:
     data = config["data"]
 
     tokenizer = AutoTokenizer.from_pretrained(config["model_id"])
+    dtype = pick_dtype()
+    print(f"[train] loading {config['model_id']} as {dtype}")
     model = AutoModelForCausalLM.from_pretrained(
-        config["model_id"], dtype=torch.bfloat16, device_map="auto"
+        config["model_id"], dtype=dtype, device_map="auto"
     )
     model.config.use_cache = False  # required with gradient checkpointing
 
