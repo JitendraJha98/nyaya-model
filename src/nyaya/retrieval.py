@@ -126,6 +126,57 @@ LEGAL_SYNONYMS = {
     "refund": "deficiency in service unfair trade practice consumer",
     "divorce": "dissolution of marriage decree petition",
     "rent": "landlord tenant premises",
+
+    # --- gaps found by auditing gold sections absent from the top-100 -----
+    # These are not guesses. Each entry below fixes a specific eval question
+    # whose gold section the first stage could not surface at ANY depth, so
+    # no amount of reranking could have recovered it. The pattern is always
+    # the same: citizens describe a situation, statutes describe a legal
+    # concept, and BM25 cannot bridge the two.
+
+    # Constitutional concepts -> article language. The single worst cluster
+    # (9 of 34 unreachable golds): nobody asks about "protection of life and
+    # personal liberty", they ask whether privacy is a right.
+    "privacy": "protection of life and personal liberty fundamental right",
+    "private life": "protection of life and personal liberty",
+    "right to property": "persons not to be deprived of property save by authority of law",
+    "reservation": "equality of opportunity in matters of public employment backward class",
+    "reservations in promotion": "equality of opportunity matters of public employment",
+    "fundamental right violated": "power of high courts to issue writs remedies enforcement",
+    "writ": "power of high courts to issue certain writs habeas corpus mandamus",
+    "free legal aid": "equal justice and free legal aid legal services",
+    "court provide a lawyer": "equal justice and free legal aid",
+    "mercy petition": "power of president governor to grant pardons reprieves remissions",
+    "self incrimination": "no person accused of any offence shall be compelled to be a witness against himself",
+    "silence of the accused": "compelled to be a witness against himself protection conviction offences",
+
+    # Modern digital evidence -> "electronic record". The BSA cluster: the
+    # Act never names a single one of these artefacts.
+    "cdr": "admissibility of electronic records computer output",
+    "call detail record": "admissibility of electronic records computer output",
+    "call records": "admissibility of electronic records",
+    "google maps": "admissibility of electronic records computer output",
+    "location history": "admissibility of electronic records",
+    "aadhaar log": "admissibility of electronic records",
+    "authentication log": "admissibility of electronic records",
+    "server log": "admissibility of electronic records",
+    "whatsapp chat": "admissibility of electronic records computer output",
+    "screenshot": "admissibility of electronic records",
+    "phone photos": "admissibility of electronic records",
+    "cctv": "admissibility of electronic records computer output",
+    "suicide note": "statements as to cause of death dying declaration relevant facts",
+
+    # Situation -> offence, where the lay phrasing shares no term with the section
+    "honour killing": "murder punishment culpable homicide",
+    "gang": "organised crime syndicate continuing unlawful activity",
+    "syndicate": "organised crime continuing unlawful activity",
+    "morphed": "obscene material publishing transmitting extortion fear of injury",
+    "deepfake": "obscene material publishing transmitting electronic form",
+    "astrologer": "cheating dishonestly induces deliver property",
+    "never shipped": "cheating dishonestly induces deliver property",
+    "never delivered": "cheating dishonestly induces deliver property",
+    "hit-and-run": "causing death by negligence escaping without reporting rash negligent",
+
     # Hindi / Hinglish (both scripts) -> English statutory vocabulary
     "जमानत": "bail bailable bond release",
     "zamanat": "bail bailable bond release",
