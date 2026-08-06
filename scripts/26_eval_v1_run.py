@@ -209,6 +209,14 @@ def main() -> None:
             })
         done = min(start + args.batch_size, len(records))
         print(f"\r[eval-v1]   {done}/{len(records)}", end="", flush=True)
+        # \r-overwritten progress never reaches line-based logs (Kaggle shows
+        # nothing between [load] and the final metrics — an hour of silence
+        # that reads as a hang). Emit a real line with an ETA periodically.
+        if done % 48 == 0 or done == len(records):
+            elapsed = time.time() - t0
+            eta = elapsed / done * (len(records) - done)
+            print(f"\n[eval-v1] progress {done}/{len(records)} "
+                  f"elapsed {elapsed:.0f}s eta ~{eta:.0f}s", flush=True)
 
     elapsed = round(time.time() - t0, 1)
     metrics = score_predictions(predictions)
