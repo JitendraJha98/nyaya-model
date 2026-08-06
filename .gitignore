@@ -25,6 +25,9 @@ data/validated/**
 data/splits/**
 data/splits_rag/**
 data/splits_rag_v3/**
+# regenerable: scripts/29 + scripts/19 -> scripts/30, deterministic
+data/splits_v5/**
+data/generated/grounding_v1.jsonl
 data/dpo/**
 !data/**/
 !data/**/.gitkeep

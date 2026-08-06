@@ -1,0 +1,49 @@
+# Nyaya-3B-v5 — grounded-citation training (Milestone 2).
+#
+# Trains the skill Eval-v1 showed is actually missing: with the gold statute
+# already in context, base Qwen2.5-3B still missed 71 required facts, 41% of
+# them by citing the wrong section and 21% by dropping the exact number. v3
+# trained on section-named questions, which RAG already handles — hence its
+# statistical tie with base. v5 trains selection-among-distractors + verbatim
+# copying, under the serving distribution.
+#
+# Method: full-precision bf16 LoRA — NO quantization (project decision 2026-07-13).
+
+run_name: legal-3b-v5
+model_id: Qwen/Qwen2.5-3B-Instruct
+output_dir: outputs/legal-3b-v5
+
+data:
+  train_file: data/splits_v5/train.jsonl
+  val_file: data/splits_v5/val.jsonl
+
+method: lora
+
+lora:
+  # Same rank as v3/v4 so the comparison isolates the DATA change. If v5 beats
+  # base where v3 did not, that is attributable to what it was trained on.
+  r: 32
+  alpha: 64
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+training:
+  # RAG prompts with ~9 statute passages are long; 6144 held for v3/v4 and the
+  # grounding records are built with the same k, so keep it.
+  max_seq_length: 6144
+  num_train_epochs: 2
+  learning_rate: 1.0e-4
+  warmup_ratio: 0.03
+  lr_scheduler_type: cosine
+  gradient_checkpointing: true
+  bf16: true
+  optim: adamw_torch_fused
+  neftune_noise_alpha: 5
+  # T4s have 16GB, not the A100 80GB this pipeline was built on. Batch 1 with
+  # accumulation 16 keeps the effective batch at 16 without OOM.
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 16
+  logging_steps: 10
+  # ~2.8K examples x 2 epochs / effective batch 16 = ~352 steps
+  eval_steps: 50
+  save_steps: 100
