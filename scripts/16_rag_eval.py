@@ -40,17 +40,26 @@ MODEL_ID = "Qwen/Qwen2.5-3B-Instruct"
 
 
 def pick_dtype():
-    """bf16 where the GPU supports it, fp16 otherwise.
+    """Native bf16 only on Ampere+ (sm_80); fp16 on older GPUs.
 
-    Training ran on A100s (Ampere, native bf16), but evals now run wherever a
-    free GPU is available. Kaggle/Colab T4s are Turing (compute 7.5) and have
-    NO native bf16 — forcing it there is silently slow or errors outright.
+    Training ran on A100s (native bf16), but evals now run on whatever free GPU
+    is available, and Turing T4s (sm_75) have no bf16 tensor cores.
+
+    Do NOT use torch.cuda.is_bf16_supported() here. It defaults to
+    including_emulation=True and so returns True on a T4, where bf16 is
+    emulated in software. That is not an error -- it just runs several times
+    slower, silently. A Kaggle eval took >4.5h before this was spotted in a
+    "[load] ... as torch.bfloat16" line that should have been impossible on
+    the T4 it was running on.
+
+    Compute capability is unambiguous, so check that instead.
     """
     import torch
 
     if not torch.cuda.is_available():
         return torch.float32
-    return torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+    major, _ = torch.cuda.get_device_capability()
+    return torch.bfloat16 if major >= 8 else torch.float16
 
 
 def load_model(adapter_dir: str | None, model_id: str = MODEL_ID):
