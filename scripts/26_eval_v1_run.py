@@ -60,6 +60,32 @@ def _rag_helpers():
     return module
 
 
+def generate_with_oom_retry(generate, questions: list[str]) -> list[str]:
+    """Generate, halving the batch on CUDA OOM instead of losing the run.
+
+    Retrieval-augmented prompts vary hugely in length -- k=8 statute passages
+    can be a few hundred tokens or a few thousand -- so a batch size that is
+    fine for 200 questions can OOM on the 201st. On a 14.5 GiB T4 that killed
+    a 40-minute run outright. Back off to smaller batches instead, and if even
+    a single prompt will not fit, record it as an empty answer (scored as a
+    miss, which is honest) rather than aborting everything.
+    """
+    import torch
+
+    try:
+        return generate(questions)
+    except torch.OutOfMemoryError:
+        torch.cuda.empty_cache()
+        if len(questions) == 1:
+            print(f"\n[eval-v1] ! OOM on a single prompt ({len(questions[0])} chars); "
+                  f"recording an empty answer", flush=True)
+            return [""]
+        mid = len(questions) // 2
+        print(f"\n[eval-v1] ! OOM at batch {len(questions)} -> splitting", flush=True)
+        return (generate_with_oom_retry(generate, questions[:mid])
+                + generate_with_oom_retry(generate, questions[mid:]))
+
+
 def load_records(split: str, limit: int | None = None) -> list[dict]:
     path = EVAL_FILES[split]
     if not path.exists():
@@ -168,7 +194,7 @@ def main() -> None:
     for start in range(0, len(records), args.batch_size):
         batch = records[start:start + args.batch_size]
         t1 = time.perf_counter()
-        responses = generate([r["question"] for r in batch])
+        responses = generate_with_oom_retry(generate, [r["question"] for r in batch])
         latency = (time.perf_counter() - t1) / len(batch)
         for record, response in zip(batch, responses):
             predictions.append({
