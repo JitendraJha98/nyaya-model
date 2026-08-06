@@ -36,5 +36,12 @@ Thumbs.db
 .DS_Store
 data/canonical/.dense_cache/
 
+# The Eval-v1 private half must never reach the public GitHub repo. See the
+# honesty note in scripts/25_build_eval_v1.py: this is damage limitation, NOT
+# a restored held-out set -- v0 is already public, so its questions are out.
+data/eval/nyaya_eval_v1_private.jsonl
+# The combined file carries the private rows too — only the public half is versioned.
+data/eval/nyaya_eval_v1.jsonl
+
 # Local HF release bundle (large binaries; MANIFEST.md documents contents)
 release/
