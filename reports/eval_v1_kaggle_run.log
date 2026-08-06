@@ -1,0 +1,196 @@
+/usr/local/lib/python3.12/dist-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.
+  validate(nb)
+0.00s - Debugger warning: It seems that frozen modules are being used, which may
+0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+0.00s - to python to disable frozen modules.
+0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+0.00s - Debugger warning: It seems that frozen modules are being used, which may
+0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+0.00s - to python to disable frozen modules.
+0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/11.6 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [91m━━[0m[91m╸[0m[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.7/11.6 MB[0m [31m22.5 MB/s[0m eta [36m0:00:01[0m[2K   [91m━━━━━━━━━━━━━━━[0m[90m╺[0m[90m━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m4.4/11.6 MB[0m [31m63.9 MB/s[0m eta [36m0:00:01[0m[2K   [91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[91m╸[0m[90m━━━━━[0m [32m10.1/11.6 MB[0m [31m96.8 MB/s[0m eta [36m0:00:01[0m[2K   [91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[91m╸[0m [32m11.6/11.6 MB[0m [31m150.7 MB/s[0m eta [36m0:00:01[0m[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m11.6/11.6 MB[0m [31m79.1 MB/s[0m eta [36m0:00:00[0m
+[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/389.2 kB[0m [31m?[0m eta [36m-:--:--[0m[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m389.2/389.2 kB[0m [31m24.4 MB/s[0m eta [36m0:00:00[0m
+[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/775.8 kB[0m [31m?[0m eta [36m-:--:--[0m[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m775.8/775.8 kB[0m [31m39.2 MB/s[0m eta [36m0:00:00[0m
+[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/611.3 kB[0m [31m?[0m eta [36m-:--:--[0m[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m611.3/611.3 kB[0m [31m34.0 MB/s[0m eta [36m0:00:00[0m
+[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/780.8 kB[0m [31m?[0m eta [36m-:--:--[0m[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m780.8/780.8 kB[0m [31m37.3 MB/s[0m eta [36m0:00:00[0m
+[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/119.2 kB[0m [31m?[0m eta [36m-:--:--[0m[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m119.2/119.2 kB[0m [31m8.7 MB/s[0m eta [36m0:00:00[0m
+[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/4.5 MB[0m [31m?[0m eta [36m-:--:--[0m[2K   [91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[91m╸[0m [32m4.5/4.5 MB[0m [31m187.3 MB/s[0m eta [36m0:00:01[0m[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m4.5/4.5 MB[0m [31m85.8 MB/s[0m eta [36m0:00:00[0m
+[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/516.0 kB[0m [31m?[0m eta [36m-:--:--[0m[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m516.0/516.0 kB[0m [31m29.6 MB/s[0m eta [36m0:00:00[0m
+[?25h[31mERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+google-adk 1.29.0 requires google-cloud-bigquery-storage>=2.0.0, which is not installed.[0m[31m
+Cloning into '/kaggle/working/nyaya-model'...
+[0mNo HF_TOKEN secret found — gated datasets (BhashaBench) will skip: Connection error trying to communicate with service.
+Cloning into '/kaggle/working/nyaya-model'...
+
+Cloning into '/kaggle/working/nyaya-model'...
+be31d5f Fix silent bf16 emulation on Turing; disable the optional third baseline
+
+$ /usr/bin/python3 scripts/25_build_eval_v1.py
+[eval-v1] records in            : 500
+[eval-v1] gradeable             : 413
+[eval-v1] need manual curation  : 87
+[eval-v1] facts kept/quarantined: 665 / 400
+[eval-v1] split public/private  : 305 / 195
+
+[eval-v1] GOLD CEILING fact_recall      : 100.0%
+[eval-v1] GOLD CEILING citation accuracy: 100.0%
+[eval-v1] GOLD CEILING all_facts        : 100.0%
+
+[eval-v1] wrote /kaggle/working/nyaya-model/data/eval/nyaya_eval_v1.jsonl
+[eval-v1] wrote /kaggle/working/nyaya-model/data/eval/nyaya_eval_v1_public.jsonl
+[eval-v1] wrote /kaggle/working/nyaya-model/data/eval/nyaya_eval_v1_private.jsonl   <- NEVER publish this file
+[eval-v1] wrote /kaggle/working/nyaya-model/reports/eval_v1_curation.json
+[eval-v1] records in            : 500
+[eval-v1] gradeable             : 413
+[eval-v1] need manual curation  : 87
+[eval-v1] facts kept/quarantined: 665 / 400
+[eval-v1] split public/private  : 305 / 195
+
+[eval-v1] GOLD CEILING fact_recall      : 100.0%
+[eval-v1] GOLD CEILING citation accuracy: 100.0%
+[eval-v1] GOLD CEILING all_facts        : 100.0%
+
+[eval-v1] wrote /kaggle/working/nyaya-model/data/eval/nyaya_eval_v1.jsonl
+[eval-v1] wrote /kaggle/working/nyaya-model/data/eval/nyaya_eval_v1_public.jsonl
+[eval-v1] wrote /kaggle/working/nyaya-model/data/eval/nyaya_eval_v1_private.jsonl   <- NEVER publish this file
+[eval-v1] wrote /kaggle/working/nyaya-model/reports/eval_v1_curation.json
+GPU: Tesla T4  (sm_75)
+torch 2.10.0+cu128 supports: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']
+preflight OK
+$ /usr/bin/python3 scripts/26_eval_v1_run.py --adapter none --dense --k 8 --split all --batch-size 4 --label base
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 2020.28it/s]
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 2020.28it/s]
+
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 2020.28it/s]
+[eval-v1] base: 413 questions, model=Qwen/Qwen2.5-3B-Instruct, adapter=none, k=8
+[load] Qwen/Qwen2.5-3B-Instruct as torch.float16
+[eval-v1] base: 413 questions, model=Qwen/Qwen2.5-3B-Instruct, adapter=none, k=8
+[load] Qwen/Qwen2.5-3B-Instruct as torch.float16
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files:  50%|█████     | 1/2 [00:13<00:13, 13.10s/it]Fetching 2 files:  50%|█████     | 1/2 [00:13<00:13, 13.10s/it]
+Fetching 2 files:  50%|█████     | 1/2 [00:13<00:13, 13.10s/it]Fetching 2 files: 100%|██████████| 2/2 [00:24<00:00, 11.82s/it]Fetching 2 files: 100%|██████████| 2/2 [00:24<00:00, 12.01s/it]
+Fetching 2 files: 100%|██████████| 2/2 [00:24<00:00, 11.82s/it]Fetching 2 files: 100%|██████████| 2/2 [00:24<00:00, 12.01s/it]
+
+Fetching 2 files: 100%|██████████| 2/2 [00:24<00:00, 11.82s/it]Fetching 2 files: 100%|██████████| 2/2 [00:24<00:00, 12.01s/it]
+Loading weights:   0%|          | 0/434 [00:00<?, ?it/s]Loading weights:   0%|          | 0/434 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/434 [00:00<?, ?it/s]Loading weights:   0%|          | 1/434 [00:00<06:44,  1.07it/s]Loading weights:  17%|█▋        | 75/434 [00:01<00:03, 92.57it/s]Loading weights:   0%|          | 1/434 [00:00<06:44,  1.07it/s]Loading weights:  17%|█▋        | 75/434 [00:01<00:03, 92.57it/s]
+Loading weights:   0%|          | 1/434 [00:00<06:44,  1.07it/s]Loading weights:  17%|█▋        | 75/434 [00:01<00:03, 92.57it/s]Loading weights:  24%|██▍       | 104/434 [00:01<00:03, 106.39it/s]Loading weights:  29%|██▉       | 127/434 [00:01<00:02, 113.09it/s]Loading weights:  24%|██▍       | 104/434 [00:01<00:03, 106.39it/s]Loading weights:  29%|██▉       | 127/434 [00:01<00:02, 113.09it/s]
+Loading weights:  24%|██▍       | 104/434 [00:01<00:03, 106.39it/s]Loading weights:  29%|██▉       | 127/434 [00:01<00:02, 113.09it/s]Loading weights:  34%|███▎      | 146/434 [00:01<00:02, 116.37it/s]Loading weights:  38%|███▊      | 163/434 [00:01<00:02, 107.01it/s]Loading weights:  34%|███▎      | 146/434 [00:01<00:02, 116.37it/s]Loading weights:  38%|███▊      | 163/434 [00:01<00:02, 107.01it/s]
+Loading weights:  34%|███▎      | 146/434 [00:01<00:02, 116.37it/s]Loading weights:  38%|███▊      | 163/434 [00:01<00:02, 107.01it/s]Loading weights:  42%|████▏     | 183/434 [00:02<00:02, 103.72it/s]Loading weights:  48%|████▊     | 207/434 [00:02<00:01, 117.09it/s]Loading weights:  42%|████▏     | 183/434 [00:02<00:02, 103.72it/s]Loading weights:  48%|████▊     | 207/434 [00:02<00:01, 117.09it/s]
+Loading weights:  42%|████▏     | 183/434 [00:02<00:02, 103.72it/s]Loading weights:  48%|████▊     | 207/434 [00:02<00:01, 117.09it/s]Loading weights:  51%|█████     | 221/434 [00:02<00:02, 106.36it/s]Loading weights:  56%|█████▌    | 243/434 [00:02<00:01, 120.92it/s]Loading weights:  51%|█████     | 221/434 [00:02<00:02, 106.36it/s]Loading weights:  56%|█████▌    | 243/434 [00:02<00:01, 120.92it/s]
+Loading weights:  51%|█████     | 221/434 [00:02<00:02, 106.36it/s]Loading weights:  56%|█████▌    | 243/434 [00:02<00:01, 120.92it/s]Loading weights:  59%|█████▉    | 257/434 [00:02<00:01, 107.81it/s]Loading weights:  64%|██████▍   | 279/434 [00:02<00:01, 123.22it/s]Loading weights:  59%|█████▉    | 257/434 [00:02<00:01, 107.81it/s]Loading weights:  64%|██████▍   | 279/434 [00:02<00:01, 123.22it/s]
+Loading weights:  59%|█████▉    | 257/434 [00:02<00:01, 107.81it/s]Loading weights:  64%|██████▍   | 279/434 [00:02<00:01, 123.22it/s]Loading weights:  68%|██████▊   | 293/434 [00:02<00:01, 116.13it/s]Loading weights:  71%|███████   | 306/434 [00:03<00:01, 107.19it/s]Loading weights:  68%|██████▊   | 293/434 [00:02<00:01, 116.13it/s]Loading weights:  71%|███████   | 306/434 [00:03<00:01, 107.19it/s]
+Loading weights:  68%|██████▊   | 293/434 [00:02<00:01, 116.13it/s]Loading weights:  71%|███████   | 306/434 [00:03<00:01, 107.19it/s]Loading weights:  75%|███████▌  | 327/434 [00:03<00:00, 121.58it/s]Loading weights:  78%|███████▊  | 340/434 [00:03<00:00, 106.92it/s]Loading weights:  75%|███████▌  | 327/434 [00:03<00:00, 121.58it/s]Loading weights:  78%|███████▊  | 340/434 [00:03<00:00, 106.92it/s]
+Loading weights:  75%|███████▌  | 327/434 [00:03<00:00, 121.58it/s]Loading weights:  78%|███████▊  | 340/434 [00:03<00:00, 106.92it/s]Loading weights:  81%|████████▏ | 353/434 [00:03<00:00, 109.31it/s]Loading weights:  86%|████████▋ | 375/434 [00:03<00:00, 128.80it/s]Loading weights:  81%|████████▏ | 353/434 [00:03<00:00, 109.31it/s]Loading weights:  86%|████████▋ | 375/434 [00:03<00:00, 128.80it/s]
+Loading weights:  81%|████████▏ | 353/434 [00:03<00:00, 109.31it/s]Loading weights:  86%|████████▋ | 375/434 [00:03<00:00, 128.80it/s]Loading weights:  90%|████████▉ | 389/434 [00:03<00:00, 114.09it/s]Loading weights:  95%|█████████▍| 411/434 [00:03<00:00, 121.32it/s]Loading weights:  90%|████████▉ | 389/434 [00:03<00:00, 114.09it/s]Loading weights:  95%|█████████▍| 411/434 [00:03<00:00, 121.32it/s]
+Loading weights:  90%|████████▉ | 389/434 [00:03<00:00, 114.09it/s]Loading weights:  95%|█████████▍| 411/434 [00:03<00:00, 121.32it/s]Loading weights:  98%|█████████▊| 424/434 [00:04<00:00, 122.02it/s]Loading weights: 100%|██████████| 434/434 [00:04<00:00, 107.61it/s]
+Loading weights:  98%|█████████▊| 424/434 [00:04<00:00, 122.02it/s]Loading weights: 100%|██████████| 434/434 [00:04<00:00, 107.61it/s]
+
+Loading weights:  98%|█████████▊| 424/434 [00:04<00:00, 122.02it/s]Loading weights: 100%|██████████| 434/434 [00:04<00:00, 107.61it/s]
+[eval-v1]   4/413[eval-v1]   4/413[eval-v1]   8/413[eval-v1]   8/413[eval-v1]   12/413[eval-v1]   12/413[eval-v1]   16/413[eval-v1]   16/413[eval-v1]   20/413[eval-v1]   20/413[eval-v1]   24/413[eval-v1]   24/413[eval-v1]   28/413[eval-v1]   28/413[eval-v1]   32/413[eval-v1]   32/413[eval-v1]   36/413[eval-v1]   36/413[eval-v1]   40/413[eval-v1]   40/413[eval-v1]   44/413[eval-v1]   44/413[eval-v1]   48/413[eval-v1]   48/413[eval-v1]   52/413[eval-v1]   52/413[eval-v1]   56/413[eval-v1]   56/413[eval-v1]   60/413[eval-v1]   60/413[eval-v1]   64/413[eval-v1]   64/413[eval-v1]   68/413[eval-v1]   68/413[eval-v1]   72/413[eval-v1]   72/413[eval-v1]   76/413[eval-v1]   76/413[eval-v1]   80/413[eval-v1]   80/413[eval-v1]   84/413[eval-v1]   84/413[eval-v1]   88/413[eval-v1]   88/413[eval-v1]   92/413[eval-v1]   92/413[eval-v1]   96/413[eval-v1]   96/413[eval-v1]   100/413[eval-v1]   100/413[eval-v1]   104/413[eval-v1]   104/413[eval-v1]   108/413[eval-v1]   108/413[eval-v1]   112/413[eval-v1]   112/413[eval-v1]   116/413[eval-v1]   116/413[eval-v1]   120/413[eval-v1]   120/413[eval-v1]   124/413[eval-v1]   124/413[eval-v1]   128/413[eval-v1]   128/413[eval-v1]   132/413[eval-v1]   132/413[eval-v1]   136/413[eval-v1]   136/413[eval-v1]   140/413[eval-v1]   140/413[eval-v1]   144/413[eval-v1]   144/413[eval-v1]   148/413[eval-v1]   148/413[eval-v1]   152/413[eval-v1]   152/413[eval-v1]   156/413[eval-v1]   156/413[eval-v1]   160/413[eval-v1]   160/413[eval-v1]   164/413[eval-v1]   164/413[eval-v1]   168/413[eval-v1]   168/413[eval-v1]   172/413[eval-v1]   172/413[eval-v1]   176/413[eval-v1]   176/413[eval-v1]   180/413[eval-v1]   180/413[eval-v1]   184/413[eval-v1]   184/413[eval-v1]   188/413[eval-v1]   188/413[eval-v1]   192/413[eval-v1]   192/413[eval-v1]   196/413[eval-v1]   196/413[eval-v1]   200/413[eval-v1]   200/413[eval-v1]   204/413[eval-v1]   204/413[eval-v1]   208/413[eval-v1]   208/413[eval-v1]   212/413[eval-v1]   212/413[eval-v1]   216/413[eval-v1]   216/413[eval-v1]   220/413[eval-v1]   220/413[eval-v1]   224/413[eval-v1]   224/413[eval-v1]   228/413[eval-v1]   228/413[eval-v1]   232/413[eval-v1]   232/413[eval-v1]   236/413[eval-v1]   236/413[eval-v1]   240/413[eval-v1]   240/413[eval-v1]   244/413[eval-v1]   244/413[eval-v1]   248/413[eval-v1]   248/413[eval-v1]   252/413[eval-v1]   252/413[eval-v1]   256/413[eval-v1]   256/413[eval-v1]   260/413[eval-v1]   260/413[eval-v1]   264/413[eval-v1]   264/413[eval-v1]   268/413[eval-v1]   268/413[eval-v1]   272/413[eval-v1]   272/413[eval-v1]   276/413[eval-v1]   276/413[eval-v1]   280/413[eval-v1]   280/413[eval-v1]   284/413[eval-v1]   284/413[eval-v1]   288/413[eval-v1]   288/413[eval-v1]   292/413[eval-v1]   292/413[eval-v1]   296/413[eval-v1]   296/413[eval-v1]   300/413[eval-v1]   300/413[eval-v1]   304/413[eval-v1]   304/413[eval-v1]   308/413[eval-v1]   308/413[eval-v1]   312/413[eval-v1]   312/413[eval-v1]   316/413[eval-v1]   316/413[eval-v1]   320/413[eval-v1]   320/413[eval-v1]   324/413[eval-v1]   324/413[eval-v1]   328/413[eval-v1]   328/413[eval-v1]   332/413[eval-v1]   332/413[eval-v1]   336/413[eval-v1]   336/413[eval-v1]   340/413[eval-v1]   340/413[eval-v1]   344/413[eval-v1]   344/413[eval-v1]   348/413[eval-v1]   348/413[eval-v1]   352/413[eval-v1]   352/413[eval-v1]   356/413[eval-v1]   356/413[eval-v1]   360/413[eval-v1]   360/413[eval-v1]   364/413[eval-v1]   364/413[eval-v1]   368/413[eval-v1]   368/413[eval-v1]   372/413[eval-v1]   372/413[eval-v1]   376/413[eval-v1]   376/413[eval-v1]   380/413[eval-v1]   380/413[eval-v1]   384/413[eval-v1]   384/413[eval-v1]   388/413[eval-v1]   388/413[eval-v1]   392/413[eval-v1]   392/413[eval-v1]   396/413[eval-v1]   396/413[eval-v1]   400/413[eval-v1]   400/413[eval-v1]   404/413[eval-v1]   404/413[eval-v1]   408/413[eval-v1]   408/413[eval-v1]   412/413[eval-v1]   412/413[eval-v1]   413/413[eval-v1]   413/413
+[eval-v1] === base ===
+  fact_recall        : 34.3%   <- headline
+  citation_accuracy  : 52.8%  (n=144)
+  substance_recall   : 30.4%
+  all_facts (v0-like): 19.1%
+  forbidden violations: 0.2%
+  scored             : 409
+  wall clock         : 3402.6s
+
+[eval-v1] predictions -> /kaggle/working/nyaya-model/outputs/eval-v1/base/predictions.jsonl
+[eval-v1] metrics     -> /kaggle/working/nyaya-model/reports/eval_v1_results.json
+
+[eval-v1] === base ===
+  fact_recall        : 34.3%   <- headline
+  citation_accuracy  : 52.8%  (n=144)
+  substance_recall   : 30.4%
+  all_facts (v0-like): 19.1%
+  forbidden violations: 0.2%
+  scored             : 409
+  wall clock         : 3402.6s
+
+[eval-v1] predictions -> /kaggle/working/nyaya-model/outputs/eval-v1/base/predictions.jsonl
+[eval-v1] metrics     -> /kaggle/working/nyaya-model/reports/eval_v1_results.json
+$ /usr/bin/python3 scripts/26_eval_v1_run.py --model NyayaLabs98/nyaya-3b-v3 --adapter none --dense --k 8 --split all --batch-size 4 --label nyaya-3b-v3
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 2485.17it/s]
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 2485.17it/s]
+
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 2485.17it/s]
+[eval-v1] nyaya-3b-v3: 413 questions, model=NyayaLabs98/nyaya-3b-v3, adapter=none, k=8
+[load] NyayaLabs98/nyaya-3b-v3 as torch.float16
+[eval-v1] nyaya-3b-v3: 413 questions, model=NyayaLabs98/nyaya-3b-v3, adapter=none, k=8
+[load] NyayaLabs98/nyaya-3b-v3 as torch.float16
+Loading weights:   0%|          | 0/434 [00:00<?, ?it/s]Loading weights:   0%|          | 0/434 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/434 [00:00<?, ?it/s]Loading weights:   0%|          | 1/434 [00:01<07:38,  1.06s/it]Loading weights:  17%|█▋        | 75/434 [00:01<00:04, 87.77it/s]Loading weights:   0%|          | 1/434 [00:01<07:38,  1.06s/it]Loading weights:  17%|█▋        | 75/434 [00:01<00:04, 87.77it/s]
+Loading weights:   0%|          | 1/434 [00:01<07:38,  1.06s/it]Loading weights:  17%|█▋        | 75/434 [00:01<00:04, 87.77it/s]Loading weights:  26%|██▋       | 115/434 [00:01<00:03, 97.23it/s]Loading weights:  26%|██▋       | 115/434 [00:01<00:03, 97.23it/s]
+Loading weights:  26%|██▋       | 115/434 [00:01<00:03, 97.23it/s]Loading weights:  33%|███▎      | 142/434 [00:01<00:02, 101.62it/s]Loading weights:  38%|███▊      | 163/434 [00:01<00:02, 103.52it/s]Loading weights:  33%|███▎      | 142/434 [00:01<00:02, 101.62it/s]Loading weights:  38%|███▊      | 163/434 [00:01<00:02, 103.52it/s]
+Loading weights:  33%|███▎      | 142/434 [00:01<00:02, 101.62it/s]Loading weights:  38%|███▊      | 163/434 [00:01<00:02, 103.52it/s]Loading weights:  42%|████▏     | 183/434 [00:02<00:02, 112.51it/s]Loading weights:  46%|████▌     | 200/434 [00:02<00:01, 117.43it/s]Loading weights:  42%|████▏     | 183/434 [00:02<00:02, 112.51it/s]Loading weights:  46%|████▌     | 200/434 [00:02<00:01, 117.43it/s]
+Loading weights:  42%|████▏     | 183/434 [00:02<00:02, 112.51it/s]Loading weights:  46%|████▌     | 200/434 [00:02<00:01, 117.43it/s]Loading weights:  50%|████▉     | 216/434 [00:02<00:01, 115.83it/s]Loading weights:  53%|█████▎    | 231/434 [00:02<00:01, 106.27it/s]Loading weights:  50%|████▉     | 216/434 [00:02<00:01, 115.83it/s]Loading weights:  53%|█████▎    | 231/434 [00:02<00:01, 106.27it/s]
+Loading weights:  50%|████▉     | 216/434 [00:02<00:01, 115.83it/s]Loading weights:  53%|█████▎    | 231/434 [00:02<00:01, 106.27it/s]Loading weights:  59%|█████▉    | 255/434 [00:02<00:01, 118.61it/s]Loading weights:  62%|██████▏   | 269/434 [00:02<00:01, 113.53it/s]Loading weights:  59%|█████▉    | 255/434 [00:02<00:01, 118.61it/s]Loading weights:  62%|██████▏   | 269/434 [00:02<00:01, 113.53it/s]
+Loading weights:  59%|█████▉    | 255/434 [00:02<00:01, 118.61it/s]Loading weights:  62%|██████▏   | 269/434 [00:02<00:01, 113.53it/s]Loading weights:  67%|██████▋   | 291/434 [00:02<00:01, 122.52it/s]Loading weights:  70%|███████   | 304/434 [00:03<00:01, 123.43it/s]Loading weights:  67%|██████▋   | 291/434 [00:02<00:01, 122.52it/s]Loading weights:  70%|███████   | 304/434 [00:03<00:01, 123.43it/s]
+Loading weights:  67%|██████▋   | 291/434 [00:02<00:01, 122.52it/s]Loading weights:  70%|███████   | 304/434 [00:03<00:01, 123.43it/s]Loading weights:  73%|███████▎  | 317/434 [00:03<00:01, 110.45it/s]Loading weights:  78%|███████▊  | 339/434 [00:03<00:00, 118.89it/s]Loading weights:  73%|███████▎  | 317/434 [00:03<00:01, 110.45it/s]Loading weights:  78%|███████▊  | 339/434 [00:03<00:00, 118.89it/s]
+Loading weights:  73%|███████▎  | 317/434 [00:03<00:01, 110.45it/s]Loading weights:  78%|███████▊  | 339/434 [00:03<00:00, 118.89it/s]Loading weights:  81%|████████  | 352/434 [00:03<00:00, 113.35it/s]Loading weights:  86%|████████▋ | 375/434 [00:03<00:00, 134.10it/s]Loading weights:  81%|████████  | 352/434 [00:03<00:00, 113.35it/s]Loading weights:  86%|████████▋ | 375/434 [00:03<00:00, 134.10it/s]
+Loading weights:  81%|████████  | 352/434 [00:03<00:00, 113.35it/s]Loading weights:  86%|████████▋ | 375/434 [00:03<00:00, 134.10it/s]Loading weights:  90%|████████▉ | 389/434 [00:03<00:00, 113.74it/s]Loading weights:  92%|█████████▏| 401/434 [00:03<00:00, 111.33it/s]Loading weights:  90%|████████▉ | 389/434 [00:03<00:00, 113.74it/s]Loading weights:  92%|█████████▏| 401/434 [00:03<00:00, 111.33it/s]
+Loading weights:  90%|████████▉ | 389/434 [00:03<00:00, 113.74it/s]Loading weights:  92%|█████████▏| 401/434 [00:03<00:00, 111.33it/s]Loading weights:  95%|█████████▌| 413/434 [00:04<00:00, 103.44it/s]Loading weights: 100%|██████████| 434/434 [00:04<00:00, 104.49it/s]
+Loading weights:  95%|█████████▌| 413/434 [00:04<00:00, 103.44it/s]Loading weights: 100%|██████████| 434/434 [00:04<00:00, 104.49it/s]
+
+Loading weights:  95%|█████████▌| 413/434 [00:04<00:00, 103.44it/s]Loading weights: 100%|██████████| 434/434 [00:04<00:00, 104.49it/s]
+[eval-v1]   4/413[eval-v1]   4/413[eval-v1]   8/413[eval-v1]   8/413[eval-v1]   12/413[eval-v1]   12/413[eval-v1]   16/413[eval-v1]   16/413[eval-v1]   20/413[eval-v1]   20/413[eval-v1]   24/413[eval-v1]   24/413[eval-v1]   28/413[eval-v1]   28/413[eval-v1]   32/413[eval-v1]   32/413[eval-v1]   36/413[eval-v1]   36/413[eval-v1]   40/413[eval-v1]   40/413[eval-v1]   44/413[eval-v1]   44/413[eval-v1]   48/413[eval-v1]   48/413[eval-v1]   52/413[eval-v1]   52/413[eval-v1]   56/413[eval-v1]   56/413[eval-v1]   60/413[eval-v1]   60/413[eval-v1]   64/413[eval-v1]   64/413[eval-v1]   68/413[eval-v1]   68/413[eval-v1]   72/413[eval-v1]   72/413[eval-v1]   76/413[eval-v1]   76/413[eval-v1]   80/413[eval-v1]   80/413[eval-v1]   84/413[eval-v1]   84/413[eval-v1]   88/413[eval-v1]   88/413[eval-v1]   92/413[eval-v1]   92/413[eval-v1]   96/413[eval-v1]   96/413[eval-v1]   100/413[eval-v1]   100/413[eval-v1]   104/413[eval-v1]   104/413[eval-v1]   108/413[eval-v1]   108/413[eval-v1]   112/413[eval-v1]   112/413[eval-v1]   116/413[eval-v1]   116/413[eval-v1]   120/413[eval-v1]   120/413[eval-v1]   124/413[eval-v1]   124/413[eval-v1]   128/413[eval-v1]   128/413[eval-v1]   132/413[eval-v1]   132/413[eval-v1]   136/413[eval-v1]   136/413[eval-v1]   140/413[eval-v1]   140/413[eval-v1]   144/413[eval-v1]   144/413[eval-v1]   148/413[eval-v1]   148/413[eval-v1]   152/413[eval-v1]   152/413[eval-v1]   156/413[eval-v1]   156/413[eval-v1]   160/413[eval-v1]   160/413[eval-v1]   164/413[eval-v1]   164/413[eval-v1]   168/413[eval-v1]   168/413[eval-v1]   172/413[eval-v1]   172/413[eval-v1]   176/413[eval-v1]   176/413[eval-v1]   180/413[eval-v1]   180/413[eval-v1]   184/413[eval-v1]   184/413[eval-v1]   188/413[eval-v1]   188/413[eval-v1]   192/413[eval-v1]   192/413[eval-v1]   196/413[eval-v1]   196/413[eval-v1]   200/413[eval-v1]   200/413[eval-v1]   204/413[eval-v1]   204/413[eval-v1]   208/413[eval-v1]   208/413[eval-v1]   212/413[eval-v1]   212/413[eval-v1]   216/413[eval-v1]   216/413[eval-v1]   220/413[eval-v1]   220/413[eval-v1]   224/413[eval-v1]   224/413[eval-v1]   228/413[eval-v1]   228/413[eval-v1]   232/413[eval-v1]   232/413[eval-v1]   236/413[eval-v1]   236/413[eval-v1]   240/413[eval-v1]   240/413[eval-v1]   244/413[eval-v1]   244/413[eval-v1]   248/413[eval-v1]   248/413[eval-v1]   252/413[eval-v1]   252/413[eval-v1]   256/413[eval-v1]   256/413[eval-v1]   260/413[eval-v1]   260/413[eval-v1]   264/413[eval-v1]   264/413[eval-v1]   268/413[eval-v1]   268/413[eval-v1]   272/413[eval-v1]   272/413[eval-v1]   276/413[eval-v1]   276/413[eval-v1]   280/413[eval-v1]   280/413[eval-v1]   284/413[eval-v1]   284/413[eval-v1]   288/413[eval-v1]   288/413[eval-v1]   292/413[eval-v1]   292/413[eval-v1]   296/413[eval-v1]   296/413[eval-v1]   300/413[eval-v1]   300/413[eval-v1]   304/413[eval-v1]   304/413[eval-v1]   308/413[eval-v1]   308/413[eval-v1]   312/413[eval-v1]   312/413[eval-v1]   316/413[eval-v1]   316/413[eval-v1]   320/413[eval-v1]   320/413[eval-v1]   324/413[eval-v1]   324/413[eval-v1]   328/413[eval-v1]   328/413[eval-v1]   332/413[eval-v1]   332/413[eval-v1]   336/413[eval-v1]   336/413[eval-v1]   340/413[eval-v1]   340/413[eval-v1]   344/413[eval-v1]   344/413[eval-v1]   348/413[eval-v1]   348/413[eval-v1]   352/413[eval-v1]   352/413[eval-v1]   356/413[eval-v1]   356/413[eval-v1]   360/413[eval-v1]   360/413[eval-v1]   364/413[eval-v1]   364/413[eval-v1]   368/413[eval-v1]   368/413[eval-v1]   372/413[eval-v1]   372/413[eval-v1]   376/413[eval-v1]   376/413[eval-v1]   380/413[eval-v1]   380/413[eval-v1]   384/413[eval-v1]   384/413[eval-v1]   388/413[eval-v1]   388/413[eval-v1]   392/413[eval-v1]   392/413[eval-v1]   396/413[eval-v1]   396/413[eval-v1]   400/413[eval-v1]   400/413[eval-v1]   404/413[eval-v1]   404/413[eval-v1]   408/413[eval-v1]   408/413[eval-v1]   412/413[eval-v1]   412/413[eval-v1]   413/413[eval-v1]   413/413
+[eval-v1] === nyaya-3b-v3 ===
+  fact_recall        : 32.9%   <- headline
+  citation_accuracy  : 50.3%  (n=144)
+  substance_recall   : 30.1%
+  all_facts (v0-like): 15.9%
+  forbidden violations: 0.2%
+  scored             : 409
+  wall clock         : 3106.7s
+
+[eval-v1] predictions -> /kaggle/working/nyaya-model/outputs/eval-v1/nyaya-3b-v3/predictions.jsonl
+[eval-v1] metrics     -> /kaggle/working/nyaya-model/reports/eval_v1_results.json
+
+[eval-v1] === nyaya-3b-v3 ===
+  fact_recall        : 32.9%   <- headline
+  citation_accuracy  : 50.3%  (n=144)
+  substance_recall   : 30.1%
+  all_facts (v0-like): 15.9%
+  forbidden violations: 0.2%
+  scored             : 409
+  wall clock         : 3106.7s
+
+[eval-v1] predictions -> /kaggle/working/nyaya-model/outputs/eval-v1/nyaya-3b-v3/predictions.jsonl
+[eval-v1] metrics     -> /kaggle/working/nyaya-model/reports/eval_v1_results.json
+optional baseline disabled — set RUN_OPTIONAL_BASELINE = True to include it
+dtype: torch.float16
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+!! BhashaBench SKIPPED: DatasetNotFoundError: Dataset 'bharatgenai/BhashaBench-Legal' is a gated dataset on the Hub. You must be authenticated to access it.
+!! Most likely cause: HF_TOKEN secret missing, or the dataset terms
+!! have not been accepted on huggingface.co with that account.
+!! The Eval-v1 results are unaffected — continue to the results cell.
+run                 fact_recall   citation  all_facts  forbidden
+base                     34.3%      52.8%      19.1%       0.2%
+nyaya-3b-v3              32.9%      50.3%      15.9%       0.2%
+
+fact_recall  base 34.3%  ->  v3 32.9%   delta -1.3%  (n=409)
+Treat a delta under ~2 points at this n as noise, not a win.
+
+Files collected: ['base_predictions.jsonl', 'eval_v1_curation.json', 'eval_v1_results.json', 'nyaya-3b-v3_predictions.jsonl']
+Download /kaggle/working/nyaya-eval-v1-results.zip from the Output tab.
+/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+[NbConvertApp] Writing 41522 bytes to __notebook__.ipynb
+[NbConvertApp] Converting notebook __notebook__.ipynb to html
+[NbConvertApp] Writing 349788 bytes to __results__.html
