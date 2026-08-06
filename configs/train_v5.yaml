@@ -16,6 +16,12 @@ output_dir: outputs/legal-3b-v5
 data:
   train_file: data/splits_v5/train.jsonl
   val_file: data/splits_v5/val.jsonl
+  # Sized to the hardware, measured not guessed: a T4 does ~152 s/step at
+  # seq 4096 with batch 1 x accum 16, so the full 2,817 x 2 epochs projects to
+  # 14.9h -- more than the entire remaining quota. 1,200 examples x 1 epoch is
+  # 75 steps, ~3.2h. scripts/30 shuffles by section before writing, so the head
+  # of the file is already a mix of subtypes rather than one act's worth.
+  max_examples: 1200
 
 method: lora
 
@@ -32,7 +38,9 @@ training:
   # so 4096 covers every row. v3/v4 used 6144, which on a 16GB T4 would waste
   # activation memory on padding that no example needs.
   max_seq_length: 4096
-  num_train_epochs: 2
+  # 1 epoch, not 2: see the max_examples note above. Two epochs over the full
+  # set is a 14.9h run on this hardware.
+  num_train_epochs: 1
   learning_rate: 1.0e-4
   warmup_ratio: 0.03
   lr_scheduler_type: cosine
