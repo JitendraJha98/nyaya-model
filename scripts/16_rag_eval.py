@@ -39,15 +39,31 @@ from nyaya.retrieval import build_rag_prompt, load_statute_index
 MODEL_ID = "Qwen/Qwen2.5-3B-Instruct"
 
 
-def load_model(adapter_dir: str | None, model_id: str = MODEL_ID):
+def pick_dtype():
+    """bf16 where the GPU supports it, fp16 otherwise.
+
+    Training ran on A100s (Ampere, native bf16), but evals now run wherever a
+    free GPU is available. Kaggle/Colab T4s are Turing (compute 7.5) and have
+    NO native bf16 — forcing it there is silently slow or errors outright.
+    """
     import torch
+
+    if not torch.cuda.is_available():
+        return torch.float32
+    return torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+
+
+def load_model(adapter_dir: str | None, model_id: str = MODEL_ID):
+    import torch  # noqa: F401  (kept for callers that inspect the module)
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     tokenizer = AutoTokenizer.from_pretrained(model_id, padding_side="left")
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+    dtype = pick_dtype()
+    print(f"[load] {model_id} as {dtype}")
     model = AutoModelForCausalLM.from_pretrained(
-        model_id, dtype=torch.bfloat16, device_map="auto")
+        model_id, dtype=dtype, device_map="auto")
     if adapter_dir:
         from peft import PeftModel
         model = PeftModel.from_pretrained(model, adapter_dir)
