@@ -302,6 +302,10 @@ def main() -> None:
                    help="Push ONLY the model card to an existing repo — no weights. "
                         "Use this to correct a published card in place.")
     p.add_argument("--private", action="store_true", help="Create the model repo private")
+    p.add_argument("--create-pr", action="store_true",
+                   help="Open a Pull Request instead of committing to main. Needed when the "
+                        "token can read the org but lacks org write (HF returns 403 with a "
+                        "'pass create_pr=1' hint).")
     p.add_argument("--publish-datasets", action="store_true",
                    help="Also create + push the training/statute dataset repos (public)")
     p.add_argument("--publish-eval", action="store_true",
@@ -346,11 +350,28 @@ def main() -> None:
     api.create_repo(repo, repo_type="model", private=args.private, exist_ok=True)
 
     if args.card_only:
-        api.upload_file(path_or_fileobj=card.encode("utf-8"), path_in_repo="README.md",
-                        repo_id=repo, repo_type="model",
-                        commit_message=f"Correct model card: licence ({BASE_LICENSE_NAME}), "
-                                       "matched-retrieval metrics, strict-metric caveat")
-        print(f"[publish] card-only update pushed -> https://huggingface.co/{repo}")
+        res = api.upload_file(
+            path_or_fileobj=card.encode("utf-8"), path_in_repo="README.md",
+            repo_id=repo, repo_type="model", create_pr=args.create_pr or None,
+            commit_message=f"Correct model card: licence ({BASE_LICENSE_NAME}), "
+                           "matched-retrieval metrics, strict-metric caveat",
+            commit_description=(
+                "Corrects three defects in the published card:\n"
+                f"1. Licence was apache-2.0; the base {BASE_MODEL} is "
+                f"{BASE_LICENSE_NAME} (non-commercial) and a merged LoRA inherits it.\n"
+                "2. The 90.2% dataset citation pass-rate was a v1 checkpoint-50 "
+                "number presented as v3's.\n"
+                "3. Eval table now uses the matched-retrieval re-baseline, states that "
+                "base/v3/v4 are statistically tied, and explains that `strict` measures "
+                "verbatim phrasing agreement rather than legal correctness."
+            ),
+        )
+        url = getattr(res, "pr_url", None)
+        if url:
+            print(f"[publish] opened PR (token lacks org write) -> {url}")
+            print("[publish] review and merge it from the Hub UI to make the fix live.")
+        else:
+            print(f"[publish] card-only update pushed -> https://huggingface.co/{repo}")
         return
 
     print(f"[publish] uploading merged model -> {repo} (this is the slow part)")
