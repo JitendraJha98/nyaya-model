@@ -158,9 +158,22 @@ def train(config_path: str | Path) -> dict:
 
     tokenizer = AutoTokenizer.from_pretrained(config["model_id"])
     dtype = pick_dtype()
-    print(f"[train] loading {config['model_id']} as {dtype}")
+
+    # Pin to a single device rather than device_map="auto".
+    #
+    # "auto" invokes accelerate's dispatch, which wraps module.forward in a
+    # functools.partial. TRL's SFTTrainer then calls
+    # inspect.signature(original_forward.__func__) in its chunked cross-entropy
+    # patch, and a partial has no __func__ -- so training dies with
+    # AttributeError before the first step.
+    #
+    # Sharding is not needed anyway: Qwen2.5-3B in fp16 is ~6.2 GB and fits a
+    # single 16 GB T4 with LoRA and gradient checkpointing. "auto" was
+    # inherited from the 80 GB A100 setup where it was equally unnecessary.
+    device_map = {"": 0} if _cuda_available() else None
+    print(f"[train] loading {config['model_id']} as {dtype} on {device_map}")
     model = AutoModelForCausalLM.from_pretrained(
-        config["model_id"], dtype=dtype, device_map="auto"
+        config["model_id"], dtype=dtype, device_map=device_map
     )
     model.config.use_cache = False  # required with gradient checkpointing
 
