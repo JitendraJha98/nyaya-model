@@ -219,12 +219,15 @@ def main() -> None:
         reranker.flush()          # persist scores so repeat sweeps are near-free
     # Separate files per configuration so an experimental run can never
     # overwrite the canonical BM25-only numbers.
+    # Name by the FULL configuration: dense+rerank and rerank-only are
+    # different experiments and must not land in the same file.
+    parts = []
+    if args.dense:
+        parts.append("dense" if args.dense == "intfloat/multilingual-e5-base"
+                     else "dense-" + args.dense.split("/")[-1])
     if reranker is not None:
-        name = "retrieval_recall_rerank.json"
-    elif args.dense:
-        name = "retrieval_recall_dense.json"
-    else:
-        name = "retrieval_recall.json"
+        parts.append("rerank")
+    name = "retrieval_recall" + ("_" + "_".join(parts) if parts else "") + ".json"
     out = ROOT / "reports" / name
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
