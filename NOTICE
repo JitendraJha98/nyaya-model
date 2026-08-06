@@ -20,8 +20,18 @@ Code in this repository is Apache-2.0. The models, datasets, and legal texts
 it builds on carry their own licenses, which you MUST verify before any
 commercial use or redistribution:
 
-* Base model: Qwen/Qwen2.5-3B-Instruct is distributed under its own license
-  (Apache-2.0 for Qwen2.5 at the time of writing) — confirm on the model card.
+* Base model: Qwen/Qwen2.5-3B-Instruct is distributed under the QWEN RESEARCH
+  LICENSE — **non-commercial, research use only**. This is NOT Apache-2.0.
+  The 3B and 72B are the Qwen2.5 sizes carrying restricted licenses; the
+  1.5B / 7B / 14B / 32B are Apache-2.0. Verified 2026-08-06 against
+  https://huggingface.co/Qwen/Qwen2.5-3B-Instruct (license tag: qwen-research).
+
+  CONSEQUENCE: any merged fine-tune of this base (including the released
+  Nyaya-3B weights) is a derivative and inherits the non-commercial
+  restriction. The Apache-2.0 license in this repository covers the CODE
+  ONLY — it does not extend to the model weights. Do not label released
+  weights Apache-2.0. To obtain commercially-usable weights, retrain on an
+  Apache-2.0 base (e.g. Qwen2.5-7B-Instruct — re-verify before relying on it).
 
 * Indian primary law (bare acts, judgments) is public domain in India under
   Section 52(1)(q) of the Copyright Act, 1957. Do NOT scrape Indian Kanoon
