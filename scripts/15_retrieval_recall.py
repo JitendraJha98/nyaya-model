@@ -149,12 +149,22 @@ def main() -> None:
     max_k = max(args.k)
 
     scored, no_gold, unresolved_facts = [], 0, []
+    t_start = time.time()
     for rec in records:
         gold, unresolved = gold_keys(rec, index)
         unresolved_facts.extend(unresolved)
         if not gold:
             no_gold += 1
             continue
+        if reranker is not None and len(scored) % 25 == 0:
+            # Reranked sweeps run silent for tens of minutes otherwise, which
+            # is indistinguishable from a hang in Kaggle's log (it publishes
+            # only on completion). Emit a heartbeat with an ETA.
+            elapsed = time.time() - t_start
+            done = len(scored)
+            eta = (elapsed / done * (len(records) - done)) if done else 0
+            print(f"[recall] {done}/{len(records)} scored, "
+                  f"elapsed {elapsed:.0f}s, eta ~{eta:.0f}s", flush=True)
         hits = index.retrieve(rec["question"], k=max_k)
         hit_keys = [f"{h['act_id']}:{h['section'].upper()}" for h in hits]
         scored.append((rec, gold, hit_keys))
