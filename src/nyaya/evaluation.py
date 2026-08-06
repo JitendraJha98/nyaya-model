@@ -98,8 +98,15 @@ def fact_present(fact: str, response: str) -> bool:
     if section_numbers:
         for number in section_numbers:
             base = _normalize(number)
+            # Trailing \b is wrong here: _PUNCT does not strip parentheses, so a
+            # subsection number normalizes to "103(2)" and \b never matches after
+            # ')' (both sides non-word). That made EVERY subsection fact —
+            # "Section 103(2) BNS", "Section 318(4) BNS" — unmatchable, even
+            # against its own gold answer. Assert "not continued by an
+            # alphanumeric" instead, which still stops 103 matching 1031/103A.
             if not re.search(
-                rf"(?:section|sec|dhara|धारा|अनुच्छेद|article|art)\s*{re.escape(base)}\b",
+                rf"(?:section|sec|dhara|धारा|अनुच्छेद|article|art)\s*"
+                rf"{re.escape(base)}(?![0-9A-Za-z])",
                 resp_norm,
             ):
                 return False

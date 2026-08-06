@@ -13,6 +13,33 @@ from nyaya.evaluation import (
 ROOT = Path(__file__).resolve().parents[1]
 
 
+class TestSubsectionCitations:
+    """Regression: subsection facts were unmatchable against their own gold text.
+
+    _PUNCT does not strip parentheses, so "Section 103(2)" normalizes to
+    "103(2)"; the matcher's trailing \\b then never matched, because ')' and the
+    following space are both non-word. Every "Section N(x)" required fact
+    scored 0 no matter what the model said — 26 facts in Nyaya-Eval-v0, and it
+    held citation accuracy on the gold answers down to 82.9% (96.6% once fixed).
+    """
+
+    def test_subsection_matches_itself(self):
+        assert fact_present("Section 103(2) BNS",
+                            "Section 103(2) BNS punishes mob lynching.")
+
+    def test_subsection_matches_spelled_out_act(self):
+        assert fact_present(
+            "Section 318(4) BNS",
+            "covered by Section 318(4) of the Bharatiya Nyaya Sanhita, 2023")
+
+    def test_wrong_subsection_still_fails(self):
+        assert not fact_present("Section 103(2) BNS", "Section 103(1) BNS applies.")
+
+    def test_fix_does_not_let_a_section_match_a_longer_number(self):
+        assert not fact_present("Section 103 BNS", "Section 1031 BNS applies.")
+        assert not fact_present("Section 103 BNS", "Section 103A BNS applies.")
+
+
 class TestFactPresent:
     def test_plain_substring(self):
         assert fact_present("free copy of FIR", "You are entitled to a free copy of the FIR.")
