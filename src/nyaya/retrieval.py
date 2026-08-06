@@ -137,18 +137,35 @@ LEGAL_SYNONYMS = {
     # Constitutional concepts -> article language. The single worst cluster
     # (9 of 34 unreachable golds): nobody asks about "protection of life and
     # personal liberty", they ask whether privacy is a right.
+    # NB: keys are matched with \b...\b, so prefer ATOMIC keys over long
+    # phrases -- "fundamental right violated" silently failed to match
+    # "my fundamental rights are violated" (plural + intervening word).
+    # Plural forms are listed explicitly for the same reason.
     "privacy": "protection of life and personal liberty fundamental right",
     "private life": "protection of life and personal liberty",
     "right to property": "persons not to be deprived of property save by authority of law",
+    "land": "persons not to be deprived of property save by authority of law acquisition",
     "reservation": "equality of opportunity in matters of public employment backward class",
-    "reservations in promotion": "equality of opportunity matters of public employment",
-    "fundamental right violated": "power of high courts to issue writs remedies enforcement",
+    "reservations": "equality of opportunity in matters of public employment backward class",
+    "promotions": "equality of opportunity in matters of public employment",
+    "fundamental rights": "power of high courts to issue certain writs remedies enforcement",
+    "fundamental right": "power of high courts to issue certain writs remedies enforcement",
     "writ": "power of high courts to issue certain writs habeas corpus mandamus",
     "free legal aid": "equal justice and free legal aid legal services",
     "court provide a lawyer": "equal justice and free legal aid",
     "mercy petition": "power of president governor to grant pardons reprieves remissions",
+    "mercy petitions": "power of president governor to grant pardons reprieves remissions",
+    "pardon": "power of president governor to grant pardons reprieves remissions",
     "self incrimination": "no person accused of any offence shall be compelled to be a witness against himself",
-    "silence of the accused": "compelled to be a witness against himself protection conviction offences",
+    "silence": "compelled to be a witness against himself protection conviction offences",
+    "protest": "protection of certain rights regarding freedom of speech assembly",
+    "assembly": "protection of certain rights regarding freedom of speech assembly",
+    "travel abroad": "protection of life and personal liberty",
+    "passport": "protection of life and personal liberty",
+    "custodial": "protection of life and personal liberty remedy torture",
+    "torture": "protection of life and personal liberty",
+    "school": "right to education free and compulsory education children",
+    "admission": "right to education free and compulsory education",
 
     # Modern digital evidence -> "electronic record". The BSA cluster: the
     # Act never names a single one of these artefacts.
@@ -177,7 +194,41 @@ LEGAL_SYNONYMS = {
     "never delivered": "cheating dishonestly induces deliver property",
     "hit-and-run": "causing death by negligence escaping without reporting rash negligent",
 
+    # Cyber / IT Act: the Act says "personation", nobody else does
+    "fake profile": "cheating by personation by using computer resource",
+    "fake account": "cheating by personation by using computer resource",
+    "impersonating": "cheating by personation by using computer resource",
+    "pretending to be": "cheating by personation by using computer resource",
+    "private photos": "publishing transmitting obscene material electronic form",
+    "intimate images": "publishing transmitting obscene material electronic form",
+    "without consent": "publishing transmitting obscene material privacy",
+
+    # Cheque: NI Act presumption and interim compensation
+    "blank cheque": "presumption in favour of holder consideration discharge debt",
+    "security cheque": "presumption in favour of holder consideration debt liability",
+    "presumption": "presumption in favour of holder consideration",
+    "interim compensation": "power of appellate court to order payment pending appeal",
+    "pendency": "power of appellate court to order payment pending appeal",
+
+    # Domestic violence: "shared household" is the operative term
+    "throw me out": "right to reside in a shared household",
+    "thrown out": "right to reside in a shared household",
+    "shared household": "right to reside in a shared household",
+    "matrimonial home": "right to reside in a shared household",
+
+    # Motor vehicles: minors driving is its own offence
+    "juvenile": "offences by juveniles guardian owner",
+    "underage": "offences by juveniles guardian owner",
+    "minor drive": "offences by juveniles guardian owner",
+
+    # Workplace harassment, incl. Hinglish phrasing
+    "touch karta": "sexual harassment unwelcome physical contact advances",
+    "galat tarah": "sexual harassment unwelcome physical contact advances",
+    "inappropriately": "sexual harassment unwelcome physical contact advances",
+
     # Hindi / Hinglish (both scripts) -> English statutory vocabulary
+    "भरण-पोषण": "order for maintenance of wives children and parents monthly allowance",
+    "भरण": "order for maintenance of wives children and parents monthly allowance",
     "जमानत": "bail bailable bond release",
     "zamanat": "bail bailable bond release",
     "jamanat": "bail bailable bond release",
