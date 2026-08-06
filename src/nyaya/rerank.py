@@ -25,6 +25,25 @@ model score should be allowed to displace it.
 Statutes and procedural-guidance rows are reranked separately so the KB
 appendix stays additive, matching the contract in StatuteIndex.retrieve.
 
+Cost — measured, not estimated
+------------------------------
+bge-reranker-v2-m3 (568M) on CPU: **1.59 s per (query, passage) pair**.
+
+  150 eval records x depth 50  = 7,500 pairs -> ~199 min
+  one live query   x depth 50  =    50 pairs ->  ~80 s
+
+So this stage is GPU-only in practice. Two consequences:
+
+1. Recall sweeps run on a GPU box, not in the local iteration loop. The
+   first-stage vocabulary work (nyaya.retrieval LEGAL_SYNONYMS) is where CPU
+   iteration pays off, and it took full_hit@8 from 63.3% to 79.3% on its own.
+2. For a *self-hostable* deployment, 80 s per query is unusable. Either ship
+   with a GPU, or swap in a much smaller cross-encoder and re-measure the
+   recall gain -- a smaller reranker is not automatically worth its latency.
+
+CachedReranker exists because of point 1: identical pairs are re-scored across
+k values and across runs, and on CPU that repetition is the entire cost.
+
 Usage:
     from nyaya.rerank import CrossEncoderReranker
     index.set_reranker(CrossEncoderReranker())      # default model
