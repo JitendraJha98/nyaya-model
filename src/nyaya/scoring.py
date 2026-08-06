@@ -233,11 +233,67 @@ def score_fact(fact: str, response: str) -> dict:
             "reason": f"below floor: {hits}/{len(unique)} content tokens"}
 
 
+# Forbidden facts are often phrased as claims about FRAMING, not as strings:
+#   "Section 154 CrPC as current law", "sedition under 124A is still in force"
+# fact_present() only matches the section number and act, so it fires on ANY
+# mention of the old provision. That penalised the correct answer -- "Section
+# 173 BNSS, which replaced Section 154 CrPC" was scored as citing stale law.
+# Every correct IPC->BNS / CrPC->BNSS bridging answer was being zeroed.
+_FRAMING_QUALIFIERS = ("as current law", "still in force", "still applies",
+                       "is current", "remains in force", "is enforceable",
+                       # Hindi eval rows phrase the qualifier in Devanagari.
+                       "वर्तमान कानून के रूप में", "अभी भी लागू")
+
+# Language that shows an old provision is being referenced AS old — the whole
+# point of old->new mapping, and the opposite of citing stale law.
+_REPEAL_MARKERS = ("replac", "repeal", "erstwhile", "former", "previous",
+                   "earlier", "no longer", "not retained", "superseded",
+                   "omitted", "corresponds", "equivalent", "renumber",
+                   "old law", "old provision", "old section", "the old ",
+                   "before 1 july 2024", "prior to", "used to", "has been",
+                   "was ", "struck down", "unconstitutional",
+                   # Hindi: पुराना/पुरानी (old), प्रतिस्थापित (replaced),
+                   # निरस्त (repealed), रद्द (struck down)
+                   "पुरान", "प्रतिस्थापित", "निरस्त", "रद्द")
+
+_SENTENCE_SPLIT = re.compile(r"[.!?;\n।]+")
+
+
+def forbidden_present(fact: str, response: str) -> bool:
+    """Did the answer actually commit the forbidden error?
+
+    For framing-qualified facts, a mention of the old provision only counts as
+    a violation when it is presented as live law. If every sentence mentioning
+    it also carries repeal/replacement language, the answer is doing correct
+    old->new bridging and is not penalised.
+    """
+    if not fact_present(fact, response):
+        return False
+
+    lowered = fact.lower()
+    if not any(q in lowered for q in _FRAMING_QUALIFIERS):
+        return True  # a plain forbidden string — mention alone is the error
+
+    # Strip the qualifier so we can locate the bare citation in the answer.
+    bare = lowered
+    for qualifier in _FRAMING_QUALIFIERS:
+        bare = bare.replace(qualifier, "")
+    bare = bare.strip(" ,.-")
+
+    mentions = [s for s in _SENTENCE_SPLIT.split(response) if fact_present(bare, s)]
+    if not mentions:
+        return True
+    return not all(
+        any(marker in sentence.lower() for marker in _REPEAL_MARKERS)
+        for sentence in mentions
+    )
+
+
 def score_record(record: dict, response: str) -> dict:
     """Score one eval record. Forbidden facts zero everything."""
     facts = [score_fact(f, response) for f in record.get("required_facts", [])]
     violated = [f for f in record.get("forbidden_facts", [])
-                if fact_present(f, response)]
+                if forbidden_present(f, response)]
 
     citations = [f for f in facts if f["kind"] == "citation"]
     substance = [f for f in facts if f["kind"] == "substance"]

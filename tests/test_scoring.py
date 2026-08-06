@@ -12,6 +12,7 @@ from nyaya.evaluation import fact_present
 from nyaya.scoring import (
     PARTIAL_FLOOR,
     aggregate,
+    forbidden_present,
     lint_fact,
     normalize_tokens,
     score_fact,
@@ -85,6 +86,41 @@ def _record(**kw):
             "required_facts": [], "forbidden_facts": []}
     base.update(kw)
     return base
+
+
+class TestForbiddenFraming:
+    """Forbidden facts are claims about FRAMING, not strings.
+
+    "Section 154 CrPC as current law" must fire on an answer that treats 154
+    as live law, and must NOT fire on "Section 173 BNSS, which replaced
+    Section 154 CrPC" -- correct old->new bridging. v0 matched the section
+    number alone and ignored the qualifier, so it penalised every correct
+    bridging answer, including the eval set's own gold answers.
+    """
+
+    def test_correct_bridging_is_not_a_violation(self):
+        assert not forbidden_present(
+            "Section 154 CrPC as current law",
+            "FIR registration is governed by Section 173 BNSS, which replaced "
+            "Section 154 CrPC.")
+
+    def test_genuinely_stale_citation_is_a_violation(self):
+        assert forbidden_present("Section 154 CrPC as current law",
+                                 "You should file an FIR under Section 154 CrPC.")
+
+    def test_struck_down_framing_is_not_a_violation(self):
+        assert not forbidden_present(
+            "Section 66A is enforceable",
+            "Section 66A was struck down as unconstitutional in Shreya Singhal.")
+
+    def test_hindi_framing_is_understood(self):
+        assert not forbidden_present(
+            "धारा 125 CrPC वर्तमान कानून के रूप में",
+            "BNSS की धारा 144 (पुरानी CrPC धारा 125) के तहत भरण-पोषण मिलता है।")
+
+    def test_unqualified_forbidden_fact_fires_on_mention(self):
+        """Without a framing qualifier, mentioning it at all is the error."""
+        assert forbidden_present("Section 302 IPC", "Section 302 IPC applies.")
 
 
 def test_forbidden_fact_zeroes_the_record():
