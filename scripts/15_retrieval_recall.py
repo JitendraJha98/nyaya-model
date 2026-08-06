@@ -113,9 +113,29 @@ def main() -> None:
                              "retrieval_recall_dense.json. Bare --dense uses "
                              "e5-base — the model behind the committed "
                              "recall numbers — via the shared .npy cache")
+    parser.add_argument("--rerank", nargs="?", const=None, default=False,
+                        metavar="MODEL",
+                        help="enable the cross-encoder second stage "
+                             "(nyaya.rerank). Bare --rerank uses the default "
+                             "multilingual checkpoint. Scores are cached on "
+                             "disk so repeat sweeps are near-free.")
+    parser.add_argument("--rerank-depth", type=int, default=50,
+                        help="candidates pulled from stage 1 before reranking; "
+                             "this is the ceiling on what reranking can recover")
+    parser.add_argument("--limit", type=int,
+                        help="only score the first N eval records (fast iteration)")
     args = parser.parse_args()
 
     index = load_statute_index(args.canonical_dir)
+    reranker = None
+    if args.rerank is not False:
+        from nyaya.rerank import DEFAULT_MODEL, CachedReranker, CrossEncoderReranker
+        model_name = args.rerank or DEFAULT_MODEL
+        inner = CrossEncoderReranker(model_name=model_name, depth=args.rerank_depth)
+        reranker = CachedReranker(
+            inner, ROOT / "data" / "generated" / "rerank_cache.json")
+        index.set_reranker(reranker)
+        print(f"[recall] reranking with {model_name} (depth {args.rerank_depth})")
     if args.dense:
         from nyaya.dense import DEFAULT_ATTACH_MODEL, attach_dense_index
         attach_dense_index(
@@ -124,6 +144,8 @@ def main() -> None:
             cache_path=(ROOT / "data" / "generated" / "e5_doc_vectors.npy"
                         if args.dense == DEFAULT_ATTACH_MODEL else None))
     records = load_eval_records()
+    if args.limit:
+        records = records[: args.limit]
     max_k = max(args.k)
 
     scored, no_gold, unresolved_facts = [], 0, []
@@ -173,7 +195,16 @@ def main() -> None:
     report["measured_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
     # the dense run goes to a separate file so the canonical BM25-only report
     # is never overwritten by an experimental hybrid measurement
-    name = "retrieval_recall_dense.json" if args.dense else "retrieval_recall.json"
+    if reranker is not None:
+        reranker.flush()          # persist scores so repeat sweeps are near-free
+    # Separate files per configuration so an experimental run can never
+    # overwrite the canonical BM25-only numbers.
+    if reranker is not None:
+        name = "retrieval_recall_rerank.json"
+    elif args.dense:
+        name = "retrieval_recall_dense.json"
+    else:
+        name = "retrieval_recall.json"
     out = ROOT / "reports" / name
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
