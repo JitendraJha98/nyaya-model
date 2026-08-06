@@ -53,10 +53,25 @@ class TestKwargMapping:
         kwargs = training_kwargs(config)
         assert kwargs["output_dir"] == config["output_dir"]
         assert kwargs["learning_rate"] == pytest.approx(1e-4)
-        assert kwargs["bf16"] is True
         assert kwargs["run_name"] == config["run_name"]
         assert "quantization" not in kwargs
         assert "8bit" not in kwargs["optim"]
+
+    def test_precision_follows_the_hardware_not_just_the_config(self):
+        """bf16: true must not force bf16 onto a GPU that lacks the cores.
+
+        Only Ampere+ (sm_80) has bf16 tensor cores. On a Turing T4 the flag
+        selects software emulation, which is several times slower -- that cost
+        4.5h of GPU on an eval run before it was noticed. So the config states
+        intent and the hardware decides, with fp16 as the CUDA fallback and
+        neither flag set on CPU.
+        """
+        from nyaya.trainer import _cuda_available, _native_bf16
+
+        kwargs = training_kwargs(load_config(ROOT_SMOKE))
+        assert kwargs["bf16"] is _native_bf16()
+        assert kwargs["fp16"] is (_cuda_available() and not _native_bf16())
+        assert not (kwargs["bf16"] and kwargs["fp16"]), "cannot request both"
 
     def test_eval_strategy_follows_val_file(self):
         smoke = training_kwargs(load_config("configs/smoke.yaml"))
