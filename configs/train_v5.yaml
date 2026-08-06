@@ -28,9 +28,10 @@ lora:
   target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
 
 training:
-  # RAG prompts with ~9 statute passages are long; 6144 held for v3/v4 and the
-  # grounding records are built with the same k, so keep it.
-  max_seq_length: 6144
+  # Measured, not inherited: the longest v5 example is ~3,850 tokens (p100),
+  # so 4096 covers every row. v3/v4 used 6144, which on a 16GB T4 would waste
+  # activation memory on padding that no example needs.
+  max_seq_length: 4096
   num_train_epochs: 2
   learning_rate: 1.0e-4
   warmup_ratio: 0.03
