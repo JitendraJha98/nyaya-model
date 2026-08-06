@@ -51,11 +51,27 @@ def gold_keys(record: dict, index) -> tuple[set[str], list[str]]:
 
 
 def phrase_coverage(records, index, k: int) -> dict:
-    """For records with NO resolvable citation gold (the phrase-only set):
-    fraction whose top-k retrieved text contains at least one required_fact
-    verbatim (case-insensitive). The KB-coverage metric — statute recall@k
-    cannot see these records at all."""
-    covered = total = 0
+    """Content coverage for records with NO resolvable citation gold.
+
+    Statute recall@k cannot see these records at all — their required facts are
+    phrases ("up to 3 years", "Zero FIR"), not section references — so this is
+    the only measure of whether retrieval surfaced the substance they need.
+
+    It originally tested for the fact appearing VERBATIM in the retrieved text,
+    which is the same defect that made Eval-v0 score its own gold answers at
+    10.7%: statutes say "which may extend to three years", the eval says "up to
+    3 years", and a substring test calls that a miss. That reported 5.1%
+    coverage and pointed the whole project at a retrieval problem that was
+    substantially a measurement problem — the paraphrase-tolerant score is 64%.
+
+    Scored with nyaya.scoring so retrieval and answers are judged on the same
+    basis. Both numbers are reported: `any_fact_verbatim` for continuity with
+    earlier reports, `any_fact_scored` / `mean_best_fact` as the real signal.
+    """
+    from nyaya.scoring import score_fact
+
+    verbatim = scored = total = 0
+    best_scores = []
     for rec in records:
         facts = [f for f in rec.get("required_facts", []) if f.strip()]
         if not facts:
@@ -66,11 +82,23 @@ def phrase_coverage(records, index, k: int) -> dict:
         total += 1
         blob = " ".join(
             f"{h.get('title') or ''} {h.get('text') or ''}"
-            for h in index.retrieve(rec["question"], k=k)).lower()
-        if any(f.lower() in blob for f in facts):
-            covered += 1
-    return {"n": total,
-            "any_fact_in_topk": round(covered / total, 4) if total else 0.0}
+            for h in index.retrieve(rec["question"], k=k))
+        verbatim += any(f.lower() in blob.lower() for f in facts)
+        best = max(score_fact(f, blob)["score"] for f in facts)
+        best_scores.append(best)
+        scored += best > 0
+
+    def pct(x):
+        return round(x / total, 4) if total else 0.0
+
+    return {
+        "n": total,
+        "any_fact_verbatim": pct(verbatim),
+        "any_fact_scored": pct(scored),
+        "mean_best_fact": round(sum(best_scores) / total, 4) if total else 0.0,
+        # kept so older reports/dashboards keep resolving
+        "any_fact_in_topk": pct(scored),
+    }
 
 
 def main() -> None:

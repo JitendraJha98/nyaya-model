@@ -19,14 +19,14 @@
       "full_hit": 0.58
     },
     "k=8": {
-      "any_hit": 0.6533,
-      "full_hit": 0.6067
+      "any_hit": 0.68,
+      "full_hit": 0.6333
     }
   },
   "by_language": {
     "english": {
       "n": 139,
-      "full_hit@8": 0.5899
+      "full_hit@8": 0.6187
     },
     "hindi": {
       "n": 5,
@@ -40,11 +40,11 @@
   "by_domain": {
     "bns": {
       "n": 46,
-      "full_hit@8": 0.6522
+      "full_hit@8": 0.6957
     },
     "bnss": {
       "n": 25,
-      "full_hit@8": 0.68
+      "full_hit@8": 0.72
     },
     "bsa": {
       "n": 11,
@@ -56,7 +56,7 @@
     },
     "constitutional_law": {
       "n": 33,
-      "full_hit@8": 0.6364
+      "full_hit@8": 0.6667
     },
     "cyber_law": {
       "n": 12,
@@ -85,7 +85,7 @@
   },
   "phrase_coverage": {
     "n": 350,
-    "any_fact_in_topk": 0.0486
+    "any_fact_in_topk": 0.0514
   },
-  "measured_at": "2026-07-16 03:41:00"
+  "measured_at": "2026-08-07 02:03:50"
 }
