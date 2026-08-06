@@ -124,6 +124,13 @@ def main() -> None:
                              "this is the ceiling on what reranking can recover")
     parser.add_argument("--limit", type=int,
                         help="only score the first N eval records (fast iteration)")
+    parser.add_argument("--max-minutes", type=float, default=20.0,
+                        help="HARD wall-clock budget. Stops early and reports "
+                             "what was scored rather than running away. A "
+                             "projection cannot be trusted; a clock can.")
+    parser.add_argument("--skip-phrase-coverage", action="store_true",
+                        help="skip phrase coverage (it costs ~350 extra "
+                             "retrieve() calls — 70%% of a reranked sweep)")
     args = parser.parse_args()
 
     index = load_statute_index(args.canonical_dir)
@@ -150,12 +157,24 @@ def main() -> None:
 
     scored, no_gold, unresolved_facts = [], 0, []
     t_start = time.time()
+    budget_exhausted = False
     for rec in records:
         gold, unresolved = gold_keys(rec, index)
         unresolved_facts.extend(unresolved)
         if not gold:
             no_gold += 1
             continue
+        # HARD STOP. Two projections in a row were wrong (5.7x under on the
+        # pair count), each costing hours of GPU with no way to see progress.
+        # A wall clock cannot be miscalculated: stop, report what was scored,
+        # and mark the report partial rather than running away.
+        if (time.time() - t_start) / 60 > args.max_minutes:
+            print(f"\n[recall] HARD STOP at {args.max_minutes} min — "
+                  f"scored {len(scored)}/{len(records)}. Report is PARTIAL.",
+                  flush=True)
+            budget_exhausted = True
+            break
+
         if reranker is not None and len(scored) % 25 == 0:
             # Reranked sweeps run silent for tens of minutes otherwise, which
             # is indistinguishable from a hang in Kaggle's log (it publishes
@@ -173,6 +192,8 @@ def main() -> None:
         "dense_model": args.dense,
         "eval_records": len(records),
         "gold_bearing": len(scored),
+        "partial": budget_exhausted,
+        "elapsed_minutes": round((time.time() - t_start) / 60, 1),
         "no_citation_gold": no_gold,
         "unresolved_fact_count": len(unresolved_facts),
         "unresolved_facts_sample": sorted(set(unresolved_facts))[:25],
@@ -220,7 +241,13 @@ def main() -> None:
             for name, (n, hit) in sorted(agg.items())
         }
 
-    report["phrase_coverage"] = phrase_coverage(records, index, max_k)
+    # ~350 extra retrieve() calls — about 70% of a reranked sweep's cost, for a
+    # secondary diagnostic. Skippable so the headline recall number is never
+    # the thing that gets cut when time runs out.
+    if args.skip_phrase_coverage or budget_exhausted:
+        report["phrase_coverage"] = {"skipped": True}
+    else:
+        report["phrase_coverage"] = phrase_coverage(records, index, max_k)
 
     report["measured_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
     # the dense run goes to a separate file so the canonical BM25-only report
