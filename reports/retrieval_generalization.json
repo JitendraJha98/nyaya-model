@@ -1,0 +1,21 @@
+{
+  "audited": {
+    "n": 32,
+    "before": 0.0,
+    "after": 0.7188,
+    "delta": 0.7188
+  },
+  "never_audited": {
+    "n": 118,
+    "before": 0.8051,
+    "after": 0.8136,
+    "delta": 0.0085
+  },
+  "overall": {
+    "n": 150,
+    "before": 0.6333,
+    "after": 0.7933,
+    "delta": 0.16
+  },
+  "generalises": false
+}
