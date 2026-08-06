@@ -2,47 +2,49 @@
   "dense_model": null,
   "eval_records": 500,
   "gold_bearing": 150,
+  "partial": false,
+  "elapsed_minutes": 7.0,
   "no_citation_gold": 350,
   "unresolved_fact_count": 0,
   "unresolved_facts_sample": [],
   "recall": {
     "k=1": {
-      "any_hit": 0.5267,
-      "full_hit": 0.48,
+      "any_hit": 0.54,
+      "full_hit": 0.4933,
       "full_hit_never_audited": 0.5847,
       "n_never_audited": 118
     },
     "k=3": {
-      "any_hit": 0.6667,
-      "full_hit": 0.6267,
-      "full_hit_never_audited": 0.7288,
+      "any_hit": 0.6533,
+      "full_hit": 0.6,
+      "full_hit_never_audited": 0.6949,
       "n_never_audited": 118
     },
     "k=5": {
-      "any_hit": 0.7333,
-      "full_hit": 0.6867,
-      "full_hit_never_audited": 0.7881,
+      "any_hit": 0.7133,
+      "full_hit": 0.6667,
+      "full_hit_never_audited": 0.7458,
       "n_never_audited": 118
     },
     "k=8": {
-      "any_hit": 0.78,
-      "full_hit": 0.74,
-      "full_hit_never_audited": 0.8305,
+      "any_hit": 0.82,
+      "full_hit": 0.78,
+      "full_hit_never_audited": 0.839,
       "n_never_audited": 118
     }
   },
   "by_language": {
     "english": {
       "n": 139,
-      "full_hit@8": 0.7554
+      "full_hit@8": 0.7842
     },
     "hindi": {
       "n": 5,
-      "full_hit@8": 0.8
+      "full_hit@8": 1.0
     },
     "hinglish": {
       "n": 6,
-      "full_hit@8": 0.3333
+      "full_hit@8": 0.5
     }
   },
   "by_domain": {
@@ -52,23 +54,23 @@
     },
     "bnss": {
       "n": 25,
-      "full_hit@8": 0.68
+      "full_hit@8": 0.88
     },
     "bsa": {
       "n": 11,
-      "full_hit@8": 0.5455
+      "full_hit@8": 0.7273
     },
     "cheque_bounce": {
       "n": 8,
-      "full_hit@8": 0.5
+      "full_hit@8": 0.25
     },
     "constitutional_law": {
       "n": 33,
-      "full_hit@8": 0.8788
+      "full_hit@8": 0.9697
     },
     "cyber_law": {
       "n": 12,
-      "full_hit@8": 0.6667
+      "full_hit@8": 0.5833
     },
     "labour_law": {
       "n": 1,
@@ -88,16 +90,12 @@
     },
     "womens_protection": {
       "n": 6,
-      "full_hit@8": 0.6667
+      "full_hit@8": 0.5
     }
   },
   "audited_excluded": 32,
   "phrase_coverage": {
-    "n": 350,
-    "any_fact_verbatim": 0.0629,
-    "any_fact_scored": 0.7,
-    "mean_best_fact": 0.618,
-    "any_fact_in_topk": 0.7
+    "skipped": true
   },
-  "measured_at": "2026-08-06 22:02:37"
+  "measured_at": "2026-08-06 22:16:50"
 }
