@@ -165,6 +165,20 @@ def main() -> None:
     REPORT.write_text(json.dumps(rows, indent=2), encoding="utf-8")
     print(f"\n[generalization] wrote {REPORT}")
 
+    # Persist the audited set so EVERY later retrieval measurement can report
+    # the never-audited slice as its headline. Tuning was done against these
+    # 32 records; any number that includes them is optimistic by construction,
+    # and that should be the default view rather than a thing to remember.
+    audited_path = ROOT / "reports" / "audited_record_ids.json"
+    audited_path.write_text(json.dumps({
+        "note": "Records whose retrieval failures were inspected while writing "
+                "LEGAL_SYNONYMS. Recall including these is tuned-on and "
+                "optimistic; report the never-audited slice instead.",
+        "baseline_ref": args.baseline_ref,
+        "audited": sorted(audited),
+    }, indent=2), encoding="utf-8")
+    print(f"[generalization] wrote {audited_path} ({len(audited)} records)")
+
 
 if __name__ == "__main__":
     main()

@@ -6,65 +6,55 @@
   "unresolved_fact_count": 0,
   "unresolved_facts_sample": [],
   "recall": {
-    "k=1": {
-      "any_hit": 0.42,
-      "full_hit": 0.3733
-    },
-    "k=3": {
-      "any_hit": 0.54,
-      "full_hit": 0.4933
-    },
-    "k=5": {
-      "any_hit": 0.62,
-      "full_hit": 0.58
-    },
     "k=8": {
-      "any_hit": 0.68,
-      "full_hit": 0.6333
+      "any_hit": 0.8267,
+      "full_hit": 0.7933,
+      "full_hit_never_audited": 0.8136,
+      "n_never_audited": 118
     }
   },
   "by_language": {
     "english": {
       "n": 139,
-      "full_hit@8": 0.6187
+      "full_hit@8": 0.777
     },
     "hindi": {
       "n": 5,
-      "full_hit@8": 0.8
+      "full_hit@8": 1.0
     },
     "hinglish": {
       "n": 6,
-      "full_hit@8": 0.8333
+      "full_hit@8": 1.0
     }
   },
   "by_domain": {
     "bns": {
       "n": 46,
-      "full_hit@8": 0.6957
+      "full_hit@8": 0.8043
     },
     "bnss": {
       "n": 25,
-      "full_hit@8": 0.72
+      "full_hit@8": 0.8
     },
     "bsa": {
       "n": 11,
-      "full_hit@8": 0.5455
+      "full_hit@8": 0.8182
     },
     "cheque_bounce": {
       "n": 8,
-      "full_hit@8": 0.375
+      "full_hit@8": 0.5
     },
     "constitutional_law": {
       "n": 33,
-      "full_hit@8": 0.6667
+      "full_hit@8": 0.9394
     },
     "cyber_law": {
       "n": 12,
-      "full_hit@8": 0.5
+      "full_hit@8": 0.6667
     },
     "labour_law": {
       "n": 1,
-      "full_hit@8": 0.0
+      "full_hit@8": 1.0
     },
     "motor_vehicles": {
       "n": 4,
@@ -80,12 +70,16 @@
     },
     "womens_protection": {
       "n": 6,
-      "full_hit@8": 0.5
+      "full_hit@8": 0.6667
     }
   },
+  "audited_excluded": 32,
   "phrase_coverage": {
     "n": 350,
-    "any_fact_in_topk": 0.0514
+    "any_fact_verbatim": 0.0514,
+    "any_fact_scored": 0.6143,
+    "mean_best_fact": 0.5313,
+    "any_fact_in_topk": 0.6143
   },
-  "measured_at": "2026-08-07 02:03:50"
+  "measured_at": "2026-08-07 02:31:20"
 }

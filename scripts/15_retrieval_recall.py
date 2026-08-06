@@ -170,13 +170,33 @@ def main() -> None:
         "by_language": {},
         "by_domain": {},
     }
+    # The synonym table was written by reading the failures of 32 specific
+    # records (scripts/28). Recall that includes them is tuned-on and
+    # optimistic by construction -- it showed +16pts overall while the
+    # never-audited slice moved +0.9pts. Report both, always, so the honest
+    # number cannot be lost by whoever reads this next.
+    audited_path = ROOT / "reports" / "audited_record_ids.json"
+    audited = set()
+    if audited_path.exists():
+        try:
+            audited = set(json.loads(audited_path.read_text(encoding="utf-8"))["audited"])
+        except (ValueError, KeyError):
+            audited = set()
+    clean = [row for row in scored if row[0]["id"] not in audited]
+    report["audited_excluded"] = len(scored) - len(clean)
+
     for k in sorted(args.k):
         any_hit = sum(1 for _, gold, hk in scored if gold & set(hk[:k]))
         full_hit = sum(1 for _, gold, hk in scored if gold <= set(hk[:k]))
-        report["recall"][f"k={k}"] = {
+        cell = {
             "any_hit": round(any_hit / len(scored), 4),
             "full_hit": round(full_hit / len(scored), 4),
         }
+        if clean and len(clean) != len(scored):
+            cell["full_hit_never_audited"] = round(
+                sum(1 for _, gold, hk in clean if gold <= set(hk[:k])) / len(clean), 4)
+            cell["n_never_audited"] = len(clean)
+        report["recall"][f"k={k}"] = cell
 
     buckets = {"by_language": "language", "by_domain": "legal_domain"}
     for out_key, field in buckets.items():
