@@ -1,26 +1,26 @@
 {
-  "total": 2263,
+  "total": 2276,
   "by_subtype": {
-    "which_section": 2015,
+    "which_section": 2030,
     "skipped_eval_reachable": 111,
     "skipped_gold_not_retrieved": 72,
     "max_years": 126,
     "deadline": 44,
     "min_years": 14,
-    "fine": 64
+    "fine": 62
   },
   "by_act": {
     "bnss_2023": 400,
     "sma_1954": 61,
-    "ni_act_1881": 143,
+    "ni_act_1881": 144,
     "constitution_1950": 400,
     "bsa_2023": 166,
     "cpa_2019": 116,
-    "bns_2023": 400,
+    "bns_2023": 401,
     "rti_2005": 26,
-    "mv_act_1988": 266,
-    "hma_1955": 37,
-    "it_act_2000": 120,
+    "mv_act_1988": 271,
+    "hma_1955": 36,
+    "it_act_2000": 127,
     "wages_code_2019": 65,
     "posh_2013": 29,
     "dv_act_2005": 34
