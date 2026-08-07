@@ -1,179 +1,146 @@
-# Nyaya-3B — Indian Legal Guidance Model
+# Nyaya — an open Indian legal guidance system
 
-**Goal:** Train the best open legal **guidance/information** model for Indian citizens.
-Any Indian, in English / Hindi / Hinglish, can ask a legal question and get an accurate,
-plain-language, citation-verified answer — with a clear signal of when they need a real lawyer.
+Ask a legal question in **English, Hindi or Hinglish** and get a plain-language
+answer **cited to a section of current Indian law** — BNS / BNSS / BSA as in
+force after 1 July 2024, with IPC↔BNS bridging.
 
-> **Positioning:** This is a legal *guidance/information* model, **not a legal advisor**.
-> The Advocates Act, 1961 reserves the practice of law for enrolled advocates.
-> All prompts, model cards, and outputs use "guidance" language and carry a
-> "not legal advice — consult a licensed advocate" disclaimer, plus pointers to
-> NALSA/DLSA free legal aid.
+> **⚖️ Not legal advice.** Nyaya provides legal *information*. The practice of
+> law in India is reserved to advocates enrolled under the Advocates Act, 1961.
+> Consult a licensed advocate for anything consequential. Free legal aid is
+> available through NALSA / DLSA.
 
-## Base model (frozen for v1)
+---
 
-`Qwen/Qwen2.5-3B-Instruct` — starting smaller than the 7B in the original plan, on purpose:
-faster iteration on data quality, cheaper experiments, and the pipeline scales up to 7B later
-without changes. Do **not** change models during the first experiment cycle.
+## It is a system, not a model
 
-Training method for v1: **SFT with LoRA** (full-precision bf16 base — no quantization).
+That distinction is the point, and it was learned the hard way — see
+[Results](#results-what-actually-worked).
 
-## What "best" means (the four axes)
+| Part | What it does | State |
+|---|---|---|
+| **Statute DB** | 16 acts, one row per section, + official IPC↔BNS / CrPC↔BNSS mapping tables | ✅ |
+| **Retriever** | Exact-citation lookup, BM25, optional dense fusion | ✅ |
+| **Reranker** | Cross-encoder picks which retrieved sections actually answer the question | ✅ **+12.7 pts @k=1** |
+| **Model** | Reads the retrieved sections, writes a cited answer | Qwen2.5-3B-Instruct |
+| **Scorer** | Grades citations strictly, substance with partial credit | ✅ |
 
-1. **Current law** — BNS/BNSS/BSA-native (post-July-2024), with IPC↔BNS bridging. Most existing models/datasets are stale on this.
-2. **Language** — Hinglish/Hindi/English code-switching handled natively.
-3. **Truthfulness** — every cited section verified programmatically against the statute DB. Citation accuracy is the primary metric, not loss.
-4. **Safety** — knows its limits, escalates to "consult an advocate" appropriately.
+Anyone can download a 3B model for free. What is hard to obtain is **current
+Indian law as clean, section-level data, and a retriever that finds the right
+section.** That is what this repository is.
 
-## Repository structure
+---
 
-```
-├── README.md
-├── requirements.txt
-├── docs/
-│   └── ROADMAP.md           # Technical roadmap: 12 steps, data plan, eval plan, gates
-├── configs/
-│   ├── hf_datasets.yaml     # HF dataset IDs to pull into data/hf/
-│   ├── smoke.yaml           # 1K-example smoke training config
-│   └── train_v1.yaml        # Nyaya-3B-v1 full training config
-├── data/
-│   ├── raw/                 # Scraped statutes (India Code), mapping tables, procedure KB
-│   ├── hf/                  # Hugging Face datasets, one subfolder per dataset ID
-│   ├── canonical/           # Cleaned single-source-of-truth JSONL (statute DB, mappings)
-│   ├── generated/           # Synthetic training examples (added later)
-│   ├── validated/           # Examples that passed the validation pipeline
-│   ├── splits/              # train/val/internal-test (split by source section, never by row)
-│   └── eval/                # Nyaya-Eval-v0 — 500 frozen eval questions. NEVER train on these.
-├── scripts/                 # Numbered pipeline steps, run in order
-│   ├── 00_download_hf_datasets.py
-│   ├── 01_download_model.py
-│   ├── 02_run_baseline.py
-│   ├── 03_build_corpus.py
-│   ├── 04_generate_examples.py
-│   ├── 05_validate_examples.py
-│   ├── 06_deduplicate.py
-│   ├── 07_create_splits.py
-│   ├── 08_smoke_train.py
-│   ├── 09_train.py
-│   ├── 10_evaluate.py
-│   └── 11_error_analysis.py
-├── src/nyaya/               # Shared library code
-│   ├── schemas.py           # Canonical record schemas (statute, mapping, train, eval)
-│   ├── prompts.py           # System prompts + grounded generation prompt skeletons
-│   ├── validators.py        # Citation verification, dedup, leakage detection
-│   ├── dataset.py           # Dataset loading/formatting for TRL
-│   ├── trainer.py           # LoRA training wrapper (bf16, no quantization)
-│   └── evaluation.py        # Eval harness (citation accuracy, benchmarks)
-├── outputs/                 # Model outputs and checkpoints (gitignored)
-│   ├── baseline/            # Base Qwen predictions on Nyaya-Eval-v0
-│   ├── smoke/               # Smoke-run checkpoints
-│   └── legal-3b-v1/         # v1 checkpoints
-└── reports/                 # baseline.json, validation_report.json, per-checkpoint metrics, error_analysis.json
-```
+## Results: what actually worked
 
-## The 12-step roadmap (do in exactly this order)
+Measured on Nyaya-Eval-v1 (409 gradeable questions), paired, 10k-round bootstrap.
 
-```
-1. Freeze model (Qwen2.5-3B-Instruct)     7. Generate training examples
-2. Set up repository          ✅ done      8. Validate + deduplicate dataset
-3. Download base model                     9. Create splits (by source section)
-4. Create Nyaya-Eval-v0 (500 questions)   10. Run 1K-example smoke training
-5. Run base-model benchmark               11. Train Nyaya-3B-v1 (8K–15K examples)
-6. Build raw legal corpus                 12. Evaluate + error analysis → v2 data
-```
+### Retrieval — the win
 
-The core loop: **DATA → TRAIN → EVALUATE → FAILURE ANALYSIS → BETTER DATA → TRAIN AGAIN.**
-Never "more epochs, more epochs, more epochs."
+Cross-encoder reranking, scored **only on the 118 records never used to tune
+anything** (see `scripts/28_validate_generalization.py`):
+
+| | k=1 | k=3 | k=8 |
+|---|---|---|---|
+| BM25 | 45.8% | 61.0% | 81.4% |
+| **+ reranker** | **58.5%** | **69.5%** | **83.9%** |
+
+The right statute now reaches the **top result** far more often. That matters
+because the model scores **63.2%** when the gold section is in context and
+**17.1%** when it is not.
+
+### Fine-tuning — five attempts, none beat the base model
+
+| | fact recall | vs base |
+|---|---|---|
+| **base Qwen2.5-3B + RAG** | **34.3%** | — |
+| v3 (RAFT) | 32.9% | tied (CI spans 0) |
+| v5 (grounded citation data) | 23.4% | **worse**, CI [−13.5, −7.2] |
+| v6 (v5 + answer-style fix) | 23.4% | **worse**, CI [−14.0, −7.8] |
+
+The cause is answer length, and it is monotone: base 173 words → v5 90 → v6 57.
+Shorter answers carry fewer of the facts being scored. Rule-based synthetic
+targets have a fixed shape, and the model learns the shape rather than the task.
+
+**Conclusion: base + retrieval is the product.** Beating base would need a
+strong teacher model, not another template.
+
+### Four measurement bugs found in our own evaluation
+
+Each of these made a number look like progress while measuring something else:
+
+1. **Eval-v0 scored its own gold answers at 10.7%** — no model could exceed
+   that, so base/v3/v4 were pinned within a 2-answer spread by the ruler.
+2. **Subsection citations were unmatchable.** `\b` after `)` never matches, so
+   every `Section 103(2)` fact scored 0 regardless of the answer.
+3. **Correct old→new bridging was penalised.** "Section 173 BNSS, which
+   replaced Section 154 CrPC" was scored as citing stale law.
+4. **Retrieval phrase coverage reported 5.1%, actually 64%** — the metric
+   demanded verbatim text where statutes say "may extend to three years" and
+   the eval says "up to 3 years".
+
+A vocabulary fix that looked like +16 pts turned out to be **+0.9** on records
+it had not been tuned against. `scripts/28` now prints an explicit
+`DID NOT GENERALISE` verdict so that cannot recur silently.
+
+---
 
 ## Quickstart
 
 ```bash
 git clone https://github.com/JitendraJha98/nyaya-model.git
 cd nyaya-model
-
-python -m venv .venv
-source .venv/bin/activate            # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-# or, to use the src/nyaya package directly:  pip install -e .
 
-# Verify GPU
-nvidia-smi
-python -c "import torch; print(torch.cuda.is_available())"
-
-# Pull the ready-made Indian legal datasets from Hugging Face.
-# aalap + IL-TUR are gated: log in and accept their terms on huggingface.co first.
-huggingface-cli login
-python scripts/00_download_hf_datasets.py
-
-# Download + smoke-test the base model (do not train until this works)
-python scripts/01_download_model.py
+python scripts/03_build_corpus.py          # build the statute DB
+python scripts/15_retrieval_recall.py --k 1 3 5 8       # measure retrieval
+python scripts/15_retrieval_recall.py --rerank --rerank-depth 20   # with reranking (GPU)
 ```
 
-## Data plan
+Reranking is GPU-practical only: the multilingual cross-encoder runs at
+~1.6 s/pair on CPU, i.e. ~80 s per query at depth 50.
 
-### Core data assets to build (in order)
+---
 
-| Asset | What | Where |
-|---|---|---|
-| 1. Statute DB | ~3–4K sections from 13 priority acts (BNS, BNSS, BSA, Constitution, CPA 2019, RTI, DV Act, HMA/SMA, NI Act, MV Act, IT Act, POSH, wages), one JSONL row per section, from indiacode.nic.in | `data/canonical/` |
-| 2. IPC↔BNS / CrPC↔BNSS mapping table | ~600 + ~500 rows from official MHA comparison tables — training data AND runtime lookup | `data/canonical/` |
-| 3. Procedure KB | 60–80 hand-written "how do I…" docs (FIR, consumer complaint, RTI, cheque bounce, bail, divorce, challans, cybercrime, POSH…) verified against act text | `data/raw/` → `data/canonical/` |
-| 4. Judgment corpus | Existing HF sets + ~200 landmark SC judgments; bulk scraping is a v2 feature | `data/hf/` |
+## Repository map
 
-### Hugging Face datasets (populated by `scripts/00_download_hf_datasets.py`)
+```
+src/nyaya/
+  retrieval.py    statute index: exact citation lookup, BM25, RRF fusion
+  rerank.py       cross-encoder second stage (nyaya.rerank)
+  dense.py        optional dense embedding stage
+  scoring.py      Eval-v1 scorer: strict citations, partial-credit substance
+  evaluation.py   Eval-v0 harness (retained for continuity)
+  trainer.py      LoRA SFT; precision follows the hardware
+scripts/
+  15  retrieval recall, with --rerank and a hard --max-minutes budget
+  25  build Eval-v1 from the frozen v0 set
+  26  run a model on Eval-v1; always saves raw predictions
+  27  paired bootstrap comparison between two runs
+  28  does a retrieval change generalise, or did it fit the eval?
+  29  RAG-grounded training data generator
+docs/
+  RELEASE_PLAN.md   what ships, and what must never be claimed
+```
 
-Edit `configs/hf_datasets.yaml` to add/remove IDs. Referenced in the planning docs:
+Every eval run writes `predictions.jsonl`. Scoring can then be revised on CPU
+forever — v1–v4 kept only aggregates and their results died with the cluster
+that produced them.
 
-| Dataset | Use |
-|---|---|
-| `Exploration-Lab/IL-TUR` | 8-task Indian legal benchmark (evaluation) |
-| `opennyaiorg/aalap_instruction_dataset` | ~22K instruction examples (filter citizen-relevant tasks; check per-slice license) |
-| BhashaBench-Legal (bharatgenai) | 24,365 exam MCQs English+Hindi (evaluation) |
-| NyayaAnumana / ILDC / MILDSum | Judgment prediction & summarization corpora |
-| `viber1/indian-law-dataset` | Supplementary instruction data |
+---
 
-**Licensing note:** government primary law is public domain (Copyright Act §52(1)(q)), but
-aggregated datasets carry mixed licenses (some CC-BY-NC). Check each before commercial use.
-Never scrape Indian Kanoon HTML — use the paid API or government sources.
+## Licensing — read before using the weights
 
-### Synthetic data (later — `data/generated/`)
+- **Code**: Apache-2.0.
+- **Weights**: any released Nyaya adapter is a derivative of
+  `Qwen/Qwen2.5-3B-Instruct`, which is **`qwen-research` — non-commercial**,
+  *not* Apache-2.0. The 3B is one of the two Qwen2.5 sizes with a restricted
+  licence.
+- **Statutory text**: Government of India material, public domain under
+  Section 52(1)(q) of the Copyright Act, 1957.
+- Some aggregated research datasets referenced here are CC-BY-NC. See `NOTICE`.
 
-Grounded generation only: every example generated **from verbatim statute text**, never from
-model memory. The single most important rule: *if you let a teacher LLM invent section numbers,
-you bake hallucinations permanently into your training data.* Every generated example passes a
-deterministic citation-verification gate (regex-extract sections → resolve against statute DB →
-drop the whole example on any failure). Expect and welcome a 15–20% rejection rate.
+## Claims this project does not make
 
-First 10K target composition: 3,000 grounded legal QA · 1,500 procedural guidance ·
-1,000 old→new law mapping · 1,500 Hindi · 1,500 Hinglish · 500 safety/abstention ·
-500 ambiguous/insufficient info · 500 legal terminology.
-**8,000 excellent examples beat 25,000 mediocre ones.**
-
-## Non-negotiable rules
-
-1. **Eval set first.** Build Nyaya-Eval-v0 (500 curated questions) and baseline the untouched
-   base model *before* creating any training data. Without a baseline we cannot prove training helped.
-2. **The eval set stays frozen.** Never train on it; run leakage detection on every dataset version.
-3. **Split by source section/document, never by row.** All Q&A generated from BNS §318 go in the same split. Hold out 2 entire acts to measure generalization.
-4. **Every citation verified.** Deterministic post-check against the statute DB — the primary metric.
-5. **Version everything.** Every dataset a version, every experiment a config, every checkpoint traceable.
-6. **Benchmark every meaningful checkpoint** — the best model might be checkpoint-750, not the final one.
-
-## Go/no-go gates (from the master plan)
-
-- Statute extraction spot-check ≥98% clean before generating synthetic data
-- Generation rejection rate <30% before scaling to 25K
-- Citation accuracy ≥95% (with RAG, in later phases) before any public demo
-- Human eval passes before any "best/better than" claim
-
-## License & disclaimer
-
-Code is licensed under **Apache-2.0** (see `LICENSE`). See `NOTICE` for third-party
-component licensing — in particular, the base model, primary law, and aggregated
-datasets carry their own terms (some dataset slices are CC-BY-NC / non-commercial),
-which you must verify before commercial use.
-
-**Nyaya provides legal information/guidance, not legal advice**, and is not a substitute
-for a licensed advocate. The practice of law in India is reserved to advocates under the
-Advocates Act, 1961. Any deployment must carry a prominent "not legal advice — consult a
-licensed advocate" disclaimer and point users to free legal aid (NALSA/DLSA).
+No external benchmark comparison has been run, and no human evaluation has
+been passed. Nyaya is **not** claimed to be the best Indian legal model, and no
+fine-tune here has beaten its own base model. See `docs/RELEASE_PLAN.md`.
