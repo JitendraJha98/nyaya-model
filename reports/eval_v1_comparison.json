@@ -1,6 +1,6 @@
 {
   "baseline": "base",
-  "candidate": "nyaya-3b-v5",
+  "candidate": "nyaya-3b-v6",
   "bootstrap_rounds": 10000,
   "results": [
     {
@@ -11,18 +11,18 @@
         "mean": 0.3427
       },
       "b": {
-        "label": "nyaya-3b-v5",
-        "mean": 0.2397
+        "label": "nyaya-3b-v6",
+        "mean": 0.2344
       },
-      "delta": -0.103,
+      "delta": -0.1082,
       "ci95": [
-        -0.1352,
-        -0.0723
+        -0.1396,
+        -0.0775
       ],
       "indistinguishable": false,
       "b_better_on": 22,
-      "b_worse_on": 94,
-      "tied_on": 293
+      "b_worse_on": 104,
+      "tied_on": 283
     },
     {
       "metric": "citation_recall",
@@ -32,18 +32,18 @@
         "mean": 0.5278
       },
       "b": {
-        "label": "nyaya-3b-v5",
-        "mean": 0.4931
+        "label": "nyaya-3b-v6",
+        "mean": 0.3958
       },
-      "delta": -0.0347,
+      "delta": -0.1319,
       "ci95": [
-        -0.0972,
-        0.0278
+        -0.2083,
+        -0.0556
       ],
-      "indistinguishable": true,
+      "indistinguishable": false,
       "b_better_on": 8,
-      "b_worse_on": 14,
-      "tied_on": 122
+      "b_worse_on": 29,
+      "tied_on": 107
     },
     {
       "metric": "substance_recall",
@@ -53,18 +53,18 @@
         "mean": 0.3044
       },
       "b": {
-        "label": "nyaya-3b-v5",
-        "mean": 0.1869
+        "label": "nyaya-3b-v6",
+        "mean": 0.2065
       },
-      "delta": -0.1175,
+      "delta": -0.098,
       "ci95": [
-        -0.1525,
-        -0.0825
+        -0.1324,
+        -0.0639
       ],
       "indistinguishable": false,
-      "b_better_on": 16,
-      "b_worse_on": 83,
-      "tied_on": 261
+      "b_better_on": 18,
+      "b_worse_on": 79,
+      "tied_on": 263
     }
   ]
 }
