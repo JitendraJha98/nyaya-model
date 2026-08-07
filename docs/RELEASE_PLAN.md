@@ -160,6 +160,40 @@ demolished by anyone who checks.
 
 ---
 
+## The competitive landscape — checked, and it is not empty
+
+"Best open Indian legal guidance system" was treated as near-trivially true on
+the assumption that nobody else had built one. That assumption is false.
+
+| project | what it is |
+|---|---|
+| [Legal Assist AI](https://arxiv.org/html/2505.22003v1) | 8B Llama fine-tuned on the Constitution, BNS, BNSS + RAG. **Reports 60.08% on the All India Bar Examination.** |
+| [LawGlance](https://github.com/lawglance/lawglance) | free, open-source RAG legal assistant covering BNS 2023 and other acts |
+| [NYAYA.ai](https://github.com/Priyanksolanki9853/NYAYA.ai) | RAG + Llama-3 over the Constitution and BNS; also uses the Nyaya name |
+| [nyaya-gpt](https://github.com/Debapriya-source/nyaya-gpt) | RAG + ReAct agent on the Constitution and BNS; also uses the Nyaya name |
+| [LexBharat](https://devpost.com/software/lexbharat-ai-legal-assistant-for-every-indian-citizen) | RAG over BNS/BNSS/BSA in Hindi and English |
+| [BNS_definitions](https://huggingface.co/datasets/navaneeth005/BNS_definitions) | BNS definitions dataset on the Hub, built for legal RAG |
+
+Consequences for the release:
+
+1. **"Best" is not defensible.** At least one competitor publishes a benchmark
+   number (60.08% AIBE) and is 8B rather than 3B. We have never run AIBE, so we
+   cannot even say where we stand against it. Claiming "best" invites an
+   immediate, losable comparison.
+2. **The name is taken twice over.** Two active GitHub projects already use
+   "Nyaya" for Indian legal AI. This does not block anything, but "the Nyaya
+   model" will not read as ours, and that is worth knowing before building a
+   launch around the name.
+3. **What is still genuinely differentiated:** the statute DB is 16 acts with
+   `replaces` mappings and per-section `source_url`, which is more than a
+   definitions dump; the retrieval work is measured with held-out validation,
+   which none of the above appear to report; and the evaluation is published
+   including its own bugs.
+
+**If a "best" claim matters, the honest route is to run AIBE and BhashaBench
+against these systems and publish the table.** Until then, describe what Nyaya
+is, not where it ranks.
+
 ## Claims that must never be made
 
 - ❌ "Best Indian legal model" — no external comparison has been run.
