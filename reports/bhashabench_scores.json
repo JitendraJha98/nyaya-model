@@ -1,0 +1,20 @@
+{
+  "base": {
+    "accuracy": 0.478,
+    "n": 1500,
+    "unparsed": 0,
+    "by_language": {
+      "hi": 0.4066666666666667,
+      "en": 0.5493333333333333
+    }
+  },
+  "nyaya-3b-v3": {
+    "accuracy": 0.452,
+    "n": 1500,
+    "unparsed": 1,
+    "by_language": {
+      "hi": 0.388,
+      "en": 0.516
+    }
+  }
+}
