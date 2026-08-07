@@ -190,9 +190,21 @@ Consequences for the release:
    which none of the above appear to report; and the evaluation is published
    including its own bugs.
 
-**If a "best" claim matters, the honest route is to run AIBE and BhashaBench
-against these systems and publish the table.** Until then, describe what Nyaya
-is, not where it ranks.
+**Can we simply benchmark them and settle it? Checked: no.** Searched the Hub
+for downloadable Indian legal generative models. What exists is encoders --
+`law-ai/InLegalBERT`, `nlpaueb/legal-bert-base-uncased` -- which cannot answer
+MCQs and are not comparable. `opennyaiorg/Aalap-Mistral-7B-v0.1` no longer
+resolves. The generative competitors above are RAG *applications* or paper
+artifacts, not published weights.
+
+So "best" is not merely unmeasured, it is **unmeasurable head-to-head** with
+what is publicly available. Any ranking claim would rest on numbers from
+different benchmarks under different conditions, which is exactly the kind of
+comparison this project has spent its whole history learning not to trust.
+
+**Describe what Nyaya is, not where it ranks.** That is not a consolation
+position -- it is the only honest one available, and it is unfalsifiable in the
+good sense: nobody can check it and find it wrong.
 
 ## Claims that must never be made
 
