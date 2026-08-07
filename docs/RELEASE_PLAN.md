@@ -41,13 +41,47 @@ The four parts:
    plus the pipeline that builds everything. Needs the README rewritten around
    the system rather than around "train a model".
 
-### Tier 2 — only if v6's 95% CI excludes zero
+### Tier 2 — a Nyaya-3B model ships either way, but the CARD differs
 
-3. **`NyayaLabs98/nyaya-3b-v6`** (model) — new repo, NOT an overwrite of v3
-   Card must carry: the paired CI, the licence (`qwen-research`,
-   non-commercial), what it is not, and the retrieval requirement.
+The owner wants a downloadable model carrying the Nyaya name, and that is
+legitimate: people want one artifact that works, not four repos to assemble.
+Publishing it is fine. Claiming unproven superiority is not. So the model ships
+in both outcomes; only what the card says changes.
+
+3. **`NyayaLabs98/nyaya-3b-v6`** (model) — new repo, NOT an overwrite of v3.
+
+   **If the paired CI excludes zero** — lead with the result:
+   > Nyaya-3B-v6 outperforms its base model on citation-grounded Indian legal
+   > questions: fact recall X% vs Y%, 95% CI [a, b] on n=409 paired questions.
+
+   **If it ties** — lead with what it is, not what it beats:
+   > Nyaya-3B is the model component of the Nyaya system, pre-configured for
+   > the Nyaya citation format and RAG prompt. **Accuracy is statistically
+   > tied with the base model — the system's gains come from retrieval.**
+   > Ship it with `nyaya-statute-db` and the retriever for a working setup.
+
+   That second card is honest and still worth publishing: the value is a
+   one-download working system, not a claim about the weights. What must never
+   appear is an implication that the weights are the magic when the measurement
+   says they are not.
+
+   Either card carries: licence (`qwen-research`, non-commercial), the
+   retrieval requirement, and "not legal advice" + NALSA/DLSA.
+
    Mark `nyaya-3b-v3` superseded; do not delete it — its card documents a real
    negative result and deleting it would erase reproducible history.
+
+**Behavioural profile as of v5 (measured, n=409, identical questions):**
+
+| run | cites | mean length | notes |
+|---|---|---|---|
+| base | 89.1% | 173 w | |
+| v3 | 87.4% | 165 w | statistically identical to base on every axis |
+| v5 | 97.6% | 90 w | fact recall 10.3pts WORSE |
+
+No version yet has a behavioural property that makes it preferable to base.
+If v6 does — accuracy or a genuine behavioural edge — the card says so with
+the number attached.
 
 ### Tier 3 — later, on the owner's call
 
