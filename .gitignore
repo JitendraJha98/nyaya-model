@@ -13,6 +13,11 @@ wandb/
 outputs/**
 !outputs/**/
 !outputs/**/.gitkeep
+# EXCEPTION: eval predictions are the expensive, unrecoverable artifact —
+# ~1MB of text that costs GPU-hours to regenerate and enables re-scoring on
+# CPU forever. They were assumed committed once and silently were not, which
+# broke a Kaggle run that had no base run to compare against.
+!outputs/eval-v1/**/predictions.jsonl
 
 # Bulk data is not versioned in git (HF hub / dataset versioning instead).
 # Exceptions: canonical statute DB, mappings, and the frozen eval set ARE versioned.
