@@ -25,3 +25,6 @@ boto3>=1.34
 
 # Optional, install later only if the environment supports it:
 #   pip install flash-attn --no-build-isolation
+
+# Demo app (app.py) — optional, not needed by the pipeline
+gradio>=4.0
