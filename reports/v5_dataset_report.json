@@ -1,22 +1,22 @@
 {
-  "train": 2817,
-  "val": 140,
-  "sections_train": 1987,
-  "sections_val": 105,
+  "train": 2832,
+  "val": 138,
+  "sections_train": 2001,
+  "sections_val": 106,
   "sections_straddling": 0,
   "eval_sections_excluded": 111,
   "eval_leak": 0,
   "by_task_type": {
-    "rag_grounding": 2263,
+    "rag_grounding": 2276,
     "extraction_qa": 244,
     "law_mapping": 450
   },
   "by_subtype": {
-    "which_section": 2015,
+    "which_section": 2030,
     "max_years": 126,
     "deadline": 44,
     "min_years": 14,
-    "fine": 64,
+    "fine": 62,
     "-": 694
   }
 }

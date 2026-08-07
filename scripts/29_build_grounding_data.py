@@ -65,7 +65,14 @@ _YEARS = re.compile(
     r"(?:imprisonment|term)[^.]{0,80}?may extend to (\w+(?:[- ]\w+)?) years?", re.I)
 _MIN_YEARS = re.compile(
     r"not be less than (\w+(?:[- ]\w+)?) years?", re.I)
-_FINE = re.compile(r"fine which may extend to (?:rupees\s+)?([\w,]+)(?:\s+rupees)?", re.I)
+# Fine amounts are multi-word ("five hundred rupees", "ten thousand rupees").
+# An earlier single-token capture produced "a fine which may extend to five",
+# which is not merely clumsy -- it is a WRONG fact, and training on it teaches
+# the model to drop magnitudes. Require an explicit rupees anchor so a partial
+# amount cannot match at all.
+_FINE = re.compile(
+    r"fine which may extend to\s+(?:rupees\s+)?"
+    r"((?:[\d,]+|(?:\w+\s+){0,3}?\w+))\s*(?:rupees|rs\.?)", re.I)
 _DAYS = re.compile(r"within (\w+(?:[- ]\w+)?) days", re.I)
 
 
@@ -93,61 +100,64 @@ def _act_phrase(row: dict) -> str:
 
 
 def _questions(row: dict) -> list[tuple[str, str, str]]:
-    """(question, answer_fact, subtype) for whatever this section states clearly.
+    """(question, full_answer, subtype) for whatever this section states clearly.
 
-    Questions deliberately do NOT name the section — that is the whole point.
-    The model must locate it in the retrieved context.
+    Questions deliberately do NOT name the section — the model must locate it
+    in the retrieved context.
+
+    Answers ANSWER the question. v5 learned the opposite: its which_section
+    target was the statute's opening clause copied verbatim, which taught
+    recitation instead of answering and made the model measurably WORSE than
+    base (fact_recall 34.3% -> 24.0%, CI [-13.5, -7.2]). 89% of its answers
+    began "Under Section ...", mean length collapsed 173 -> 90 words, and 8%
+    degenerated into repeated-phrase loops.
+
+    The target style is the eval's own gold answers: subject first, the fact
+    stated plainly, citation embedded, ~41 words. For example
+    "Cheating is covered by Section 318 of the Bharatiya Nyaya Sanhita, 2023."
+    No statute text is copied verbatim beyond the extracted value itself.
     """
     text = row.get("text") or ""
     title = (row.get("title") or "").strip().rstrip(".")
     if not title:
         return []
+    # Many statute titles already read "Punishment for X", which would produce
+    # "Punishment for X is punishable under ...". Strip the prefix so the
+    # subject is the offence itself.
+    subject_src = re.sub(r"^punishment for\s+", "", title, flags=re.I)
+    subject = subject_src[0].upper() + subject_src[1:]
+    cite = _act_phrase(row)
     out = []
 
     years = _one(_YEARS, text)
     if years:
         out.append((f"What is the maximum imprisonment for {title.lower()}?",
-                    f"imprisonment which may extend to {years} years", "max_years"))
+                    f"{subject} is punishable under {cite} with imprisonment "
+                    f"which may extend to {years} years.", "max_years"))
     minimum = _one(_MIN_YEARS, text)
     if minimum:
         out.append((f"Is there a minimum sentence for {title.lower()}?",
-                    f"imprisonment of not less than {minimum} years", "min_years"))
+                    f"Yes. Under {cite}, {title.lower()} carries imprisonment "
+                    f"of not less than {minimum} years.", "min_years"))
     fine = _one(_FINE, text)
     if fine:
+        # The unit is part of the fact. "may extend to five thousand" without
+        # "rupees" is an incomplete answer, and the eval scores the amount.
         out.append((f"What fine applies for {title.lower()}?",
-                    f"a fine which may extend to {fine}", "fine"))
+                    f"{subject} attracts a fine which may extend to "
+                    f"{fine} rupees under {cite}.", "fine"))
     days = _one(_DAYS, text)
     if days:
         out.append((f"What is the time limit regarding {title.lower()}?",
-                    f"within {days} days", "deadline"))
+                    f"Under {cite}, the period is {days} days.", "deadline"))
 
-    # Citation selection — the single largest failure mode (29 of 71 missed
-    # facts, 41%). Needs no numeric pattern, so it applies to EVERY section
-    # rather than the ~7% that state an unambiguous duration or fine. The
-    # answer's fact is the section's own opening clause, kept verbatim, since
-    # copying is precisely the skill being taught.
-    opening = _first_clause(text)
-    if opening:
-        out.append((f"Which provision of Indian law covers {title.lower()}?",
-                    opening, "which_section"))
+    # Citation selection — the largest failure mode (29 of 71 missed facts,
+    # 41%). Applies to every section, not just the ~7% stating an unambiguous
+    # duration or fine, because it needs no numeric pattern. The answer names
+    # the subject and the section and stops.
+    out.append((f"Which provision of Indian law covers {title.lower()}?",
+                f"{subject} is covered by {cite}.", "which_section"))
     return out
-
-
-_SENT_END = re.compile(r"(?<=[.;])\s+")
-
-
-def _first_clause(text: str, max_words: int = 45) -> str | None:
-    """The section's opening clause, verbatim and trimmed to a usable length."""
-    body = (text or "").strip()
-    if not body:
-        return None
-    clause = _SENT_END.split(body)[0].strip().rstrip(".;")
-    words = clause.split()
-    if len(words) < 4:
-        return None
-    if len(words) > max_words:
-        clause = " ".join(words[:max_words])
-    return clause
 
 
 def build(index, excluded: set[str], k: int, cap_per_act: int,
@@ -181,15 +191,14 @@ def build(index, excluded: set[str], k: int, cap_per_act: int,
                 stats["skipped_no_distractors"] += 1
                 continue
 
-            # Lowercase the first letter of a verbatim clause so it reads as a
-            # sentence continuation ("Under Section 92 ..., when any person
-            # ..."), while leaving acronyms and proper nouns alone.
-            body = fact
-            if body[:1].isupper() and not body.split()[0].isupper():
-                body = body[0].lower() + body[1:]
-            answer = (f"Under {_act_phrase(row)} ({row['title']}), {body}. "
-                      f"This is legal information, not legal advice — consult a "
-                      f"licensed advocate for anything consequential.")
+            # `fact` is already a complete answer sentence. The disclaimer is
+            # kept to one short clause: v5's answers averaged 90 words against
+            # the eval gold's 41, and length spent on boilerplate is length not
+            # spent on the facts being scored.
+            answer = f"{fact} Consult a licensed advocate for anything consequential."
+            if len(answer.split()) > 60:
+                stats["skipped_answer_too_long"] += 1
+                continue
             records.append({
                 "id": f"grnd_{len(records):05d}_{subtype}",
                 "messages": [
