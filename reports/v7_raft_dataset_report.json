@@ -1,0 +1,12 @@
+{
+  "raw_records": 1456,
+  "tasks": 1456,
+  "leakage_dropped": 0,
+  "splits": {
+    "train": 1293,
+    "val": 163,
+    "test": 0
+  },
+  "miss_examples": 6,
+  "built_at": "2026-09-04 20:40:47"
+}
