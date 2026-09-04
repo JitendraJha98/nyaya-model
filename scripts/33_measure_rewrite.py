@@ -58,6 +58,28 @@ def _generator(model_id: str):
     return generate
 
 
+def _endpoint_generator(base_url: str, model: str):
+    """Any OpenAI-compatible chat endpoint: llama.cpp's llama-server, Ollama,
+    vLLM, or a hosted API (NYAYA_TEACHER_API_KEY is sent if set)."""
+    import os
+
+    import requests
+
+    headers = {"Content-Type": "application/json"}
+    key = os.environ.get("NYAYA_TEACHER_API_KEY")
+    if key:
+        headers["Authorization"] = f"Bearer {key}"
+
+    def generate(prompt: str) -> str:
+        resp = requests.post(f"{base_url.rstrip('/')}/chat/completions", headers=headers, timeout=300,
+                             json={"model": model, "messages": [{"role": "user", "content": prompt}],
+                                   "max_tokens": 48, "temperature": 0})
+        resp.raise_for_status()
+        return resp.json()["choices"][0]["message"]["content"]
+
+    return generate
+
+
 def _statute_hits(index, query: str, k: int = 8) -> set[str]:
     return {f"{r['act_id']}:{r['section'].upper()}" for r in index.retrieve(query, k=k)
             if r["act_id"] != "procedures_kb"}
@@ -65,12 +87,15 @@ def _statute_hits(index, query: str, k: int = 8) -> set[str]:
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--model", default="Qwen/Qwen2.5-3B-Instruct")
+    p.add_argument("--model", default="Qwen/Qwen2.5-3B-Instruct",
+                   help="HF id / local dir (transformers), or the model name to send to --endpoint")
+    p.add_argument("--endpoint", help="OpenAI-compatible base URL, e.g. http://127.0.0.1:8080/v1 "
+                                      "(llama-server with a GGUF); avoids loading the model in-process")
     p.add_argument("--limit", type=int, help="cap the number of citizen questions (smoke runs)")
     args = p.parse_args()
 
     index = load_statute_index(ROOT / "data" / "canonical")
-    generate = _generator(args.model)
+    generate = _endpoint_generator(args.endpoint, args.model) if args.endpoint else _generator(args.model)
 
     citizen = [q.strip() for q in QUESTIONS.read_text(encoding="utf-8").splitlines() if q.strip()]
     citizen = [q for q in citizen if needs_rewrite(q)][: args.limit or None]
@@ -109,6 +134,7 @@ def main() -> None:
 
     report = {
         "model": args.model,
+        "endpoint": args.endpoint,
         "seconds_per_rewrite": seconds_per_rewrite,
         "citizen_questions": {"n": n, "zero_statute_hits_before": zero["before"],
                               "zero_statute_hits_after": zero["after"]},
