@@ -62,7 +62,7 @@ default.
 | **Statute DB** | 27 acts + the Constitution (3,736 sections), 1,257 official IPC↔BNS / CrPC↔BNSS / IEA↔BSA mappings, 70 procedural guidance notes | ✅ [`NyayaLabs98/nyaya-statute-db`](https://huggingface.co/datasets/NyayaLabs98/nyaya-statute-db) |
 | **Retriever** | Exact-citation lookup (any script, old or new law), BM25 with lay-to-statute vocabulary, dense fusion with a bi-encoder fine-tuned on the project's own question–section pairs | ✅ `src/nyaya/retrieval.py`, [`NyayaLabs98/nyaya-embed-v1`](https://huggingface.co/NyayaLabs98/nyaya-embed-v1) |
 | **Reranker** | Cross-encoder picks which retrieved sections actually answer the question | ✅ +12.7 points at k=1 (`bge-reranker-v2-m3`), +5.9 with the 118M [`nyaya-reranker-mini-v1`](https://huggingface.co/NyayaLabs98/nyaya-reranker-mini-v1); both validated on never-audited records |
-| **Reader** | Reads the retrieved sections, writes a cited answer | `Qwen/Qwen2.5-3B-Instruct` (swappable) |
+| **Reader** | Reads the retrieved sections, writes a cited answer | `Qwen/Qwen3-4B-Instruct-2507` (Apache-2.0; +14.8 points over the 3B base, swappable) |
 | **Scorer** | Grades citations strictly, substance with partial credit; every prediction is kept so scoring can be redone on CPU | ✅ `src/nyaya/scoring.py` |
 
 Anyone can download a 3B model for free. What is hard to obtain is **current
@@ -116,6 +116,25 @@ This is the first change in the project that moves the end-to-end score with a
 confidence interval clear of zero. It came from retrieval, not from the weights,
 and `nyaya-embed-v1` is now the default dense model.
 
+### Which small reader? Qwen3-4B, by a wide margin
+
+Same retriever (zero-shot e5-base, k=8), same 413 questions, 768 new tokens,
+one Kaggle T4, paired against `base-768` (`reports/eval_v1_comparison_qwen3-4b.json`,
+`reports/eval_v1_comparison_nyaya-3b-v3-768.json`):
+
+| reader | licence | fact recall | citation accuracy | vs base-768 | words / answer | s / question (T4) |
+|---|---|---|---|---|---|---|
+| `Qwen/Qwen2.5-3B-Instruct` (`base-768`) | qwen-research | 35.8% | 55.6% | — | 185 | 12.3 |
+| `NyayaLabs98/nyaya-3b-v3` | qwen-research | 33.8% | 48.6% | tied on facts, CI [−5.2, +1.2]; **worse** on citations, CI [−13.9, −0.4] | 169 | 10.9 |
+| **`Qwen/Qwen3-4B-Instruct-2507`** | **Apache-2.0** | **50.6%** | **72.2%** | **+14.8, CI [+11.4, +18.3]** | 306 | 31.5 |
+
+Qwen3-4B is better on 119 questions and worse on 22. Its answers are longer, which
+the substance scorer partly rewards, but citation accuracy (strict, length-blind)
+rises by the same margin. It is also Apache-2.0, which the 3B base is not. It is
+the default reader from this commit; the combined run (Qwen3-4B on the
+`nyaya-embed-v1` retriever) is in progress. Sessions 2 of the shootout (Gemma-3-4B,
+Llama-3.2-3B, Phi-4-mini) need gated-model access and are still queued.
+
 ### Fine-tuning: five attempts, none beat the base model
 
 Nyaya-Eval-v1, 413 gradeable questions, 409 scored, paired 10,000-round
@@ -126,6 +145,7 @@ bootstrap (`reports/eval_v1_results.json`, `reports/eval_v1_comparison_*.json`):
 | **base Qwen2.5-3B-Instruct** | **34.3%** | — |
 | base, 768-token budget | 35.8% | tied, CI [−0.2, +3.3] |
 | v3 (RAFT) — the published `nyaya-3b-v3` | 32.9% | tied, CI [−4.4, +1.8] |
+| v3, 768-token rerun with corrected tokenizer files | 33.8% | tied vs base-768, CI [−5.2, +1.2]; citations worse |
 | v5 (grounded citation data) | 24.0% | **worse**, CI [−13.5, −7.2] |
 | v6 (v5 + answer-style fix) | 23.4% | **worse**, CI [−14.0, −7.8] |
 

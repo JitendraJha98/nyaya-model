@@ -103,6 +103,15 @@ questions — only the weights differ.
 
 95% CI on the paired difference **spans zero** → statistically indistinguishable.
 
+Re-measured on 2026-09-04 with 768 new tokens and the tokenizer/config files
+corrected (the Hub copy was written by transformers 5.12), same retriever as the
+base run: 33.8% vs 35.8% fact recall, CI [−5.2, +1.2] (tied); citation recall
+48.6% vs 55.6%, CI [−13.9, −0.4] (worse). Under that same setup
+`Qwen/Qwen3-4B-Instruct-2507` (Apache-2.0) reaches **50.6%** fact recall and
+72.2% citation accuracy, so the repository now uses it as the default reader.
+If you want the best small reader for Indian statutes, use that model with the
+Nyaya retriever; use this one only where the Nyaya prompt alignment matters.
+
 ### Where the accuracy actually comes from
 
 | retrieval outcome (base model) | n | fact recall |

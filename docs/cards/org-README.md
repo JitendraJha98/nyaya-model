@@ -17,9 +17,11 @@ retrieval stack, and an evaluation harness that publishes its own bugs.
 
 - **[nyaya-statute-db](https://huggingface.co/datasets/NyayaLabs98/nyaya-statute-db)** —
   27 acts + the Constitution, 3,736 sections, 1,257 official mappings, 70 procedural guidance notes.
-- **[nyaya-3b-v3](https://huggingface.co/NyayaLabs98/nyaya-3b-v3)** — the reader model,
+- **[nyaya-3b-v3](https://huggingface.co/NyayaLabs98/nyaya-3b-v3)** — the fine-tuned reader,
   pre-aligned to the Nyaya prompt format. Statistically tied with its base model;
-  published for convenience; non-commercial (qwen-research).
+  published for convenience; non-commercial (qwen-research). The repository's default
+  reader is now `Qwen/Qwen3-4B-Instruct-2507` (Apache-2.0): 50.6% fact recall against
+  35.8% for the 3B base under the same retriever, paired CI [+11.4, +18.3].
 - **[nyaya-embed-v1](https://huggingface.co/NyayaLabs98/nyaya-embed-v1)** — bi-encoder
   fine-tuned on the project's question–section pairs; lifts the base reader's fact recall
   by +3.9 points (95% CI [+0.9, +7.0]), the only end-to-end gain with an interval clear of

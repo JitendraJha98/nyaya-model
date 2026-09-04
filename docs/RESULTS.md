@@ -17,8 +17,41 @@ of this document.
 |---|---|---|---|
 | `Qwen2.5-3B-Instruct` + RAG | **34.3%** | — | baseline |
 | v3 (RAFT) | 32.9% | −1.3, CI [−4.4, +1.8] | **tied** |
+| v3, 768-token rerun, corrected tokenizer (vs `base-768` 35.8%) | 33.8% | −2.0, CI [−5.2, +1.2] | **tied**; citations worse |
 | v5 (grounded citation data) | 24.0% | −10.3, CI [−13.5, −7.2] | **worse** |
 | v6 (v5 + answer-style fix) | 23.4% | −10.8, CI [−14.0, −7.8] | **worse** |
+
+### Base-model shootout, session 1 (2026-09-04)
+
+Same retriever (zero-shot e5-base), same 413 questions, 768 new tokens, batch 2
+on one Kaggle T4; paired 10,000-round bootstrap against `base-768`
+(`reports/eval_v1_comparison_qwen3-4b.json`, `reports/eval_v1_comparison_nyaya-3b-v3-768.json`):
+
+| reader | fact recall | citation | substance | Δ fact recall vs base-768 | better / worse / tied |
+|---|---|---|---|---|---|
+| `Qwen2.5-3B-Instruct` (`base-768`) | 35.8% | 55.6% | 31.6% | — | — |
+| `nyaya-3b-v3` (768 tokens) | 33.8% | 48.6% | 30.6% | −2.0, CI [−5.2, +1.2] **tied** | 56 / 70 / 283 |
+| **`Qwen3-4B-Instruct-2507`** | **50.6%** | **72.2%** | **46.8%** | **+14.8, CI [+11.4, +18.3]** | **119 / 22 / 268** |
+
+Three things this settles:
+
+- **v3 is tied with base a second time**, now with the tokenizer and config
+  files corrected (the Hub copy was written by transformers 5.12; see §3) and
+  under exactly the same retriever. Citation recall is *worse* (−6.9,
+  CI [−13.9, −0.4]). The 32.9% figure was not a loading artefact.
+- **Reader scale moves the score more than anything else tried.** One
+  generation of base model and one billion parameters are worth +14.8 points,
+  against +3.9 for the fine-tuned embedder and nothing for five fine-tunes.
+- **Length is not the whole story.** Qwen3-4B writes 306 words per answer
+  against 185 for the 3B base, and the substance scorer rewards coverage; but
+  citation accuracy — strict, length-blind — rises by the same 16.7 points, and
+  the paired per-question count is 119 better to 22 worse. Cost: 31.5 s per
+  question on a T4 against 12.3 s, and 1 extra GB of weights.
+
+`Qwen3-4B-Instruct-2507` is Apache-2.0, unlike the 3B base (qwen-research). It
+is the default reader from this commit. The combined configuration (Qwen3-4B
+reader, `nyaya-embed-v1` retriever) is being measured against both parents; its
+paired interval will become the system's headline number.
 
 ### An external benchmark (BhashaBench-Legal, 1,500 MCQs, exact scoring)
 
@@ -234,6 +267,8 @@ English/Hindi/Hinglish, citation-verified, self-hostable, free.
 ✅ 47.8% on BhashaBench-Legal against a 25% chance floor.
 ✅ Cross-encoder reranking improves retrieval by +12.7 points at k=1, validated
 on held-out records.
+✅ Swapping the reader to `Qwen3-4B-Instruct-2507` (Apache-2.0) lifts fact recall
+from 35.8% to 50.6% under the same retriever (paired 95% CI [+11.4, +18.3]).
 ✅ A bi-encoder fine-tuned on the project's own pairs lifts the base reader's
 fact recall from 35.8% to 39.7% (paired 95% CI [+0.9, +7.0]) with no change
 to the weights — the only end-to-end gain with an interval clear of zero.
