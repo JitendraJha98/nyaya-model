@@ -114,6 +114,10 @@ That 43-point gap is why this project's effort moved to retrieval
 (`reports/eval_v1_retrieval_outcome.json`). Adding a
 cross-encoder reranker put the correct section in the **top result** for 58.5%
 of questions, up from 45.8% — validated on records never used for tuning.
+A bi-encoder fine-tuned on the project's own pairs
+([`nyaya-embed-v1`](https://huggingface.co/NyayaLabs98/nyaya-embed-v1)) lifts this very
+reader's fact recall from 35.8% to 39.7% (paired 95% CI [+0.9, +7.0]) with no change to
+the weights (`reports/eval_v1_comparison_base-768-embed-v1.json`).
 
 ### Fine-tuning attempts, for the record
 

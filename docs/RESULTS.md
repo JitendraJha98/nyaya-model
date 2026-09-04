@@ -78,6 +78,46 @@ retrieval and still scored worse. The paired CIs stand, but "same retriever"
 is only exactly true for base vs v3. The 768-token reruns planned for the
 base-model shootout put every run under one retriever.
 
+### Fine-tuned bi-encoder (2026-09-04)
+
+`intfloat/multilingual-e5-base` fine-tuned with in-batch negatives on 4,412
+(question, gold section) pairs from the project's own training questions, every
+Eval-v1 question excluded (`scripts/41_build_retriever_pairs.py`,
+`scripts/kaggle_train_retriever.ipynb`, 132 s on one T4). Published as
+`NyayaLabs98/nyaya-embed-v1`. Full-hit recall on the 118 never-tuned records,
+hybrid BM25 + dense with reciprocal-rank fusion
+(`reports/retrieval_recall_dense_embed_v1.json`):
+
+| | k=1 | k=3 | k=5 | k=8 |
+|---|---|---|---|---|
+| BM25 | 45.8% | 61.0% | 74.6% | 81.4% |
+| BM25 + zero-shot e5-base | below BM25 at every k (`retrieval_recall_dense.json`) | | | |
+| **BM25 + nyaya-embed-v1** | **49.2%** | **73.7%** | **78.0%** | **88.1%** |
+| BM25 + bge-reranker-v2-m3 | 58.5% | 69.5% | 74.6% | 83.9% |
+| BM25 + nyaya-reranker-mini-v1 (118M) | 51.7% | 70.3% | 76.3% | 82.2% |
+
+**Effect on the reader.** Same base Qwen2.5-3B, same 413 questions, 768 new
+tokens, k=8; only the dense model changed
+(`reports/eval_v1_comparison_base-768-embed-v1.json`, 10,000-round paired bootstrap):
+
+| dense stage | fact recall | citation | substance | paired Δ fact recall |
+|---|---|---|---|---|
+| zero-shot e5-base (`base-768`) | 35.8% | 55.6% | 31.6% | — |
+| **nyaya-embed-v1** | **39.7%** | 61.1% | 34.6% | **+3.9, 95% CI [+0.9, +7.0]** |
+
+Better on 64 questions, worse on 45, tied on 300. Citation and substance recall
+move the same way but their intervals still touch zero. This is the first
+end-to-end improvement in the project whose confidence interval excludes zero,
+and it comes from retrieval. `nyaya-embed-v1` is the default dense model from
+this date; every earlier run used zero-shot e5-base (their `dense_model` field
+is absent). The 384- vs 768-token comparison of the base model itself is a tie
+(+1.5, CI [−0.2, +3.3], `reports/eval_v1_comparison_base-768.json`), so the
+token budget is not what moved.
+
+The mini reranker costs 3.2 s per query on CPU at depth 20 (Kaggle CPU), so it
+stays out of the browser demo; the embedder needs a GPU or a precomputed vector
+file for the 5,063 rows.
+
 ### Cross-encoder reranking
 
 Scored **only on the 118 records never used to tune anything**:
@@ -194,6 +234,9 @@ English/Hindi/Hinglish, citation-verified, self-hostable, free.
 ✅ 47.8% on BhashaBench-Legal against a 25% chance floor.
 ✅ Cross-encoder reranking improves retrieval by +12.7 points at k=1, validated
 on held-out records.
+✅ A bi-encoder fine-tuned on the project's own pairs lifts the base reader's
+fact recall from 35.8% to 39.7% (paired 95% CI [+0.9, +7.0]) with no change
+to the weights — the only end-to-end gain with an interval clear of zero.
 
 ❌ "Best" anything — one baseline and one external benchmark is not a ranking.
 ❌ That the fine-tuned weights beat the base model. They do not.

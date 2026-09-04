@@ -20,6 +20,12 @@ retrieval stack, and an evaluation harness that publishes its own bugs.
 - **[nyaya-3b-v3](https://huggingface.co/NyayaLabs98/nyaya-3b-v3)** — the reader model,
   pre-aligned to the Nyaya prompt format. Statistically tied with its base model;
   published for convenience; non-commercial (qwen-research).
+- **[nyaya-embed-v1](https://huggingface.co/NyayaLabs98/nyaya-embed-v1)** — bi-encoder
+  fine-tuned on the project's question–section pairs; lifts the base reader's fact recall
+  by +3.9 points (95% CI [+0.9, +7.0]), the only end-to-end gain with an interval clear of
+  zero. MIT.
+- **[nyaya-reranker-mini-v1](https://huggingface.co/NyayaLabs98/nyaya-reranker-mini-v1)** —
+  118M cross-encoder, +5.9 points at k=1 over BM25 on never-tuned records. Apache-2.0.
 - **[nyaya-train-v3](https://huggingface.co/datasets/NyayaLabs98/nyaya-train-v3)** —
   6,429 statute-grounded, citation-verified training records.
 - Code, retriever, reranker, evaluation:

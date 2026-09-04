@@ -62,6 +62,12 @@ questions that were **never used to tune retrieval** (n=118):
 | **BM25 + nyaya-embed-v1, RRF** | **49.2%** | **73.7%** | **78.0%** | **88.1%** |
 | BM25 + bge-reranker-v2-m3 (568M cross-encoder, depth 20) | 58.5% | 69.5% | 74.6% | 83.9% |
 
+**Effect on the reader** (`reports/eval_v1_comparison_base-768-embed-v1.json`): same base
+Qwen2.5-3B-Instruct, same 413 Eval-v1 questions, 768 tokens, k=8, only the dense model
+swapped — fact recall **35.8% → 39.7%**, paired 95% CI **[+0.9, +7.0]** points, better on 64
+questions, worse on 45. The first end-to-end gain in the project with an interval clear of
+zero. This model is the default dense stage of the retriever from 2026-09-04.
+
 Report: `reports/retrieval_recall_dense_embed_v1.json` in the repository. Per language
 (all 150 gold-bearing questions, @8): English 84.2% (n=139), Hindi 80.0% (n=5),
 Hinglish 50.0% (n=6). The Hindi and Hinglish counts are too small to rank anything.
