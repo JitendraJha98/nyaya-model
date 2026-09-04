@@ -48,7 +48,11 @@ EVAL_FILES = {
     "private": ROOT / "data" / "eval" / "nyaya_eval_v1_private.jsonl",
     "all": ROOT / "data" / "eval" / "nyaya_eval_v1.jsonl",
 }
-RESULTS = ROOT / "reports" / "eval_v1_results.json"
+
+
+def _results_path(out_dir: Path) -> Path:
+    """Metrics live next to the predictions' --out-dir, not always in the repo."""
+    return out_dir / "reports" / "eval_v1_results.json"
 
 
 def _rag_helpers():
@@ -123,17 +127,18 @@ def _save(out_dir: Path, label: str, predictions: list[dict], metrics: dict, met
         for p in predictions:
             fh.write(json.dumps(p, ensure_ascii=False) + "\n")
 
+    results_path = _results_path(out_dir)
     results = {}
-    if RESULTS.exists():
+    if results_path.exists():
         try:
-            results = json.loads(RESULTS.read_text(encoding="utf-8"))
+            results = json.loads(results_path.read_text(encoding="utf-8"))
         except ValueError:
             results = {}
     results[label] = {"meta": meta, "metrics": metrics}
-    RESULTS.parent.mkdir(parents=True, exist_ok=True)
-    RESULTS.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
+    results_path.parent.mkdir(parents=True, exist_ok=True)
+    results_path.write_text(json.dumps(results, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"\n[eval-v1] predictions -> {run_dir / 'predictions.jsonl'}")
-    print(f"[eval-v1] metrics     -> {RESULTS}")
+    print(f"[eval-v1] metrics     -> {results_path}")
 
 
 def main() -> None:
@@ -169,8 +174,9 @@ def main() -> None:
     helpers = _rag_helpers()
     records = load_records(args.split, args.limit)
     adapter = None if args.adapter.lower() == "none" else args.adapter
-    label = args.label or ("base" if args.model == MODEL_ID and not adapter
-                           else Path(args.model).name)
+    label = args.label or (
+        "base" if args.model == MODEL_ID and not adapter
+        else Path(args.model).name + (f"+{Path(adapter).name}" if adapter else ""))
 
     index = None
     if not args.no_rag:

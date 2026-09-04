@@ -63,7 +63,7 @@ def pick_dtype():
 
 
 def load_model(adapter_dir: str | None, model_id: str = MODEL_ID):
-    import torch  # noqa: F401  (kept for callers that inspect the module)
+    import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     tokenizer = AutoTokenizer.from_pretrained(model_id, padding_side="left")
@@ -71,13 +71,31 @@ def load_model(adapter_dir: str | None, model_id: str = MODEL_ID):
         tokenizer.pad_token = tokenizer.eos_token
     dtype = pick_dtype()
     print(f"[load] {model_id} as {dtype}")
+    # Pin to one device: device_map="auto" on a two-GPU Kaggle T4 box splits the
+    # model and inputs across devices (docs/HANDOFF.md §5). A 3-4B model in fp16
+    # fits a single 16 GB T4.
+    device_map = {"": 0} if torch.cuda.is_available() else None
     model = AutoModelForCausalLM.from_pretrained(
-        model_id, dtype=dtype, device_map="auto")
+        model_id, dtype=dtype, device_map=device_map)
     if adapter_dir:
         from peft import PeftModel
         model = PeftModel.from_pretrained(model, adapter_dir)
     model.eval()
     return tokenizer, model
+
+
+def chat_text(tokenizer, user_content: str) -> str:
+    """Render system + user through the model's chat template.
+
+    Some templates (the Gemma family) raise on a `system` role. Fold the system
+    prompt into the user turn there so the same eval runs on any reader."""
+    messages = [{"role": "system", "content": NYAYA_SYSTEM_PROMPT},
+                {"role": "user", "content": user_content}]
+    try:
+        return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+    except Exception:  # jinja TemplateError, or a TypeError from a strict template
+        merged = [{"role": "user", "content": f"{NYAYA_SYSTEM_PROMPT}\n\n{user_content}"}]
+        return tokenizer.apply_chat_template(merged, tokenize=False, add_generation_prompt=True)
 
 
 def build_rag_generate_fn(tokenizer, model, index, k: int,
@@ -91,13 +109,7 @@ def build_rag_generate_fn(tokenizer, model, index, k: int,
             hits = index.retrieve(q, k=k) if index else []
             retrieval_log[q] = [f"{h['act_id']}:{h['section'].upper()}" for h in hits]
             prompts.append(build_rag_prompt(q, hits) if index else q)
-        texts = [
-            tokenizer.apply_chat_template(
-                [{"role": "system", "content": NYAYA_SYSTEM_PROMPT},
-                 {"role": "user", "content": p}],
-                tokenize=False, add_generation_prompt=True)
-            for p in prompts
-        ]
+        texts = [chat_text(tokenizer, p) for p in prompts]
         inputs = tokenizer(texts, return_tensors="pt", padding=True).to(model.device)
         with torch.no_grad():
             out = model.generate(**inputs, max_new_tokens=max_new_tokens,
@@ -183,7 +195,7 @@ def main() -> None:
 
     report = {
         "label": label,
-        "model": MODEL_ID,
+        "model": args.model,
         "adapter": adapter or "none",
         "rag": not args.no_rag,
         "k": None if args.no_rag else args.k,
