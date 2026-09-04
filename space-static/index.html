@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nyaya — current Indian law, section by section</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Source+Sans+3:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap">
+<style>
+  :root { --ground:#F3F5F8; --surface:#fff; --ink:#101828; --ink2:#344054; --muted:#5B6675; --rule:#D3DAE3; --accent:#0E6B6B; --accent-soft:#DDEFEF; --warn:#A86A0F; --warn-soft:#F6EBD6; --good:#2A6E47; --good-soft:#DDEEE3; }
+  @media (prefers-color-scheme: dark) { :root { --ground:#0E141C; --surface:#151D27; --ink:#E7ECF3; --ink2:#C5CEDA; --muted:#94A1B2; --rule:#2A3644; --accent:#57B8B4; --accent-soft:#14312F; --warn:#E2A84C; --warn-soft:#3A2C13; --good:#6CC994; --good-soft:#17301F; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--ground); color:var(--ink); font: 17px/1.55 "Source Sans 3", "Noto Sans Devanagari", system-ui, sans-serif; }
+  .page { max-width: 860px; margin: 0 auto; padding: 36px 20px 80px; }
+  h1 { font-family: Literata, Georgia, serif; font-weight:600; font-size: clamp(28px,4vw,40px); margin: 0 0 6px; line-height:1.15; }
+  .sub { color: var(--ink2); margin: 0 0 18px; max-width: 66ch; }
+  .disc { border-left: 4px solid var(--accent); background: var(--surface); padding: 10px 14px; margin: 0 0 22px; font-size: 15.5px; }
+  form { display:flex; gap:10px; flex-wrap:wrap; align-items:stretch; }
+  textarea { flex: 1 1 420px; min-height: 64px; font: inherit; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); color: var(--ink); resize: vertical; }
+  .controls { display:flex; flex-direction:column; gap:8px; min-width: 150px; }
+  select, button { font: inherit; padding: 9px 12px; border-radius: 4px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); }
+  button.go { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; cursor: pointer; }
+  .examples { display:flex; gap:8px; flex-wrap:wrap; margin: 12px 0 20px; }
+  .examples button { font-size: 14px; padding: 6px 10px; cursor:pointer; }
+  .banner { padding: 12px 14px; border-radius: 4px; margin: 0 0 14px; font-size: 15.5px; display:none; }
+  .banner.ok { display:block; background: var(--good-soft); color: var(--good); }
+  .banner.warn { display:block; background: var(--warn-soft); color: var(--warn); }
+  .banner.cite { display:block; background: var(--accent-soft); color: var(--accent); }
+  .card { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 14px 16px; margin: 0 0 12px; }
+  .card h3 { font-family: Literata, Georgia, serif; font-weight: 600; font-size: 17px; margin: 0 0 4px; }
+  .card .meta { color: var(--muted); font-size: 14px; margin: 0 0 8px; }
+  .card p { margin: 0; color: var(--ink2); font-size: 15.5px; }
+  .card.kb { border-left: 4px solid var(--accent); }
+  .foot { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 14.5px; }
+  a { color: var(--accent); }
+  #status { color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Nyaya</h1>
+  <p class="sub">The statute retriever behind an open Indian legal guidance system. Ask in English, Hindi or Hinglish and see the sections of <b>current</b> Indian law (BNS / BNSS / BSA in force since 1 July 2024, the Constitution and ten other acts) your question resolves to. Old IPC / CrPC numbers are bridged through the official mapping tables. Runs entirely in your browser.</p>
+  <div class="disc"><b>⚖️ Not legal advice.</b> Nyaya provides legal <i>information</i>. The practice of law in India is reserved to advocates enrolled under the Advocates Act, 1961. Consult a licensed advocate for anything consequential. Free legal aid: NALSA / DLSA (helpline 15100).</div>
+
+  <form id="f">
+    <textarea id="q" placeholder="Police FIR nahi likh rahi, kya karu?"></textarea>
+    <div class="controls">
+      <select id="k"><option value="3">3 sections</option><option value="5" selected>5 sections</option><option value="8">8 sections</option></select>
+      <button class="go" type="submit">Find the law</button>
+      <span id="status">loading statute database…</span>
+    </div>
+  </form>
+  <div class="examples" id="ex"></div>
+  <div id="banner" class="banner"></div>
+  <div id="out"></div>
+
+  <p class="foot">Coverage: 13 acts + the Constitution (2,528 sections), 1,257 official IPC↔BNS / CrPC↔BNSS / IEA↔BSA mappings, 70 procedural guidance notes. Absence is flagged, not hidden: about a quarter of real citizen questions (rent, property, loans, children) fall outside the indexed acts today. This page is a JavaScript port of the Python retriever, checked for identical results on real questions. Code, data, and every measurement including the wrong ones: <a href="https://github.com/JitendraJha98/nyaya-model">github.com/JitendraJha98/nyaya-model</a>. Reader model: <a href="https://huggingface.co/NyayaLabs98/nyaya-3b-v3">NyayaLabs98/nyaya-3b-v3</a>.</p>
+</div>
+<script type="module">
+  import { buildIndex } from "./app.js";
+  const EXAMPLES = ["Police FIR nahi likh rahi, kya karu?", "What is the punishment for cheque bounce?",
+    "Are WhatsApp chats admissible as evidence in court?", "मेरा चेक बाउंस हो गया, मैं क्या कर सकता हूँ?",
+    "Section 302 IPC ab BNS mein kya hai?", "makan malik security deposit wapas nahi kar raha"];
+  const $ = id => document.getElementById(id);
+  const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  let idx = null;
+  for (const e of EXAMPLES) { const b = document.createElement("button"); b.type = "button"; b.textContent = e; b.onclick = () => { $("q").value = e; ask(); }; $("ex").appendChild(b); }
+  fetch("./data.json").then(r => r.json()).then(d => { idx = buildIndex(d); $("status").textContent = `${d.rows.length} sections ready`; });
+  function ask() {
+    if (!idx) return;
+    const q = $("q").value.trim(); if (!q) return;
+    const k = parseInt($("k").value, 10);
+    const cov = idx.coverage(q);
+    const rows = idx.retrieve(q, k);
+    const b = $("banner");
+    if (cov.covered && cov.top_statute_score === null) { b.className = "banner cite"; b.textContent = "Explicit citation resolved."; }
+    else if (cov.covered) { b.className = "banner ok"; b.textContent = `Inside the database (best statute match ${cov.top_statute_score.toFixed(1)}).`; }
+    else { b.className = "banner warn"; b.textContent = `This question appears to fall outside the acts in this database (best statute match ${cov.top_statute_score.toFixed(1)}, gate ${idx.params.coverage_min_score}). The sections below are the nearest matches, not an answer. Rent, property, loans and children's law are not indexed yet.`; }
+    $("out").innerHTML = rows.length ? rows.map(r => r.act_id === "procedures_kb"
+      ? `<div class="card kb"><h3>${esc(r.title)}</h3><p class="meta">official guidance</p><p>${esc(r.text.slice(0, 700))}</p></div>`
+      : `<div class="card"><h3>Section ${esc(r.section)} of the ${esc(r.act_name)}</h3><p class="meta">${esc(r.title)}</p><p>${esc(r.text.slice(0, 700))}${r.text.length > 700 ? " …" : ""}</p></div>`).join("")
+      : `<div class="card"><p>No matching sections.</p></div>`;
+  }
+  $("f").addEventListener("submit", e => { e.preventDefault(); ask(); });
+</script>
+</body>
+</html>
