@@ -65,16 +65,19 @@ describe the IPC, CrPC and Evidence Act as current law. This one does not.
   "chapter": "...",
   "subsection": null,
   "effective_date": "2024-07-01",
-  "replaces": null,
-  "punishment_summary": null,
+  "replaces": ["IPC 302"],
+  "punishment_summary": "death or imprisonment for life, and shall also be liable to fine",
   "tags": [],
   "source_url": "https://www.indiacode.nic.in/..."
 }
 ```
 
-Old→new bridging ("Section 302 IPC" → BNS 103) comes from `law_mappings.jsonl`.
-The `replaces`, `punishment_summary` and `tags` fields are reserved and are
-currently empty in every statute row; only `procedures_kb.jsonl` carries tags.
+`replaces` lists the old-law sections a BNS / BNSS / BSA section corresponds to,
+derived from the official tables in `law_mappings.jsonl` (present on 346/358 BNS,
+479/531 BNSS and 168/170 BSA rows; the mapping file itself remains the source of
+truth for old→new lookups, e.g. "Section 302 IPC" → BNS 103). `punishment_summary`
+is the section's first penalty clause where one exists (302 rows across all acts).
+`tags` are curated keywords and are present only on the guidance notes.
 
 ## Intended use
 

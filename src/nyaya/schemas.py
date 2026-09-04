@@ -11,9 +11,10 @@ class StatuteSection:
     """One row of the statute DB (data/canonical/) — the single source of truth.
 
     Example: act_id="bns_2023", section="318", title="Cheating",
-    replaces={"act": "ipc_1860", "section": "415-420"}.
-    The `tags` field includes Hindi/colloquial terms and old IPC numbers —
-    it powers both retrieval and IPC-era queries.
+    replaces=["IPC 415", "IPC 417", "IPC 418", "IPC 420"].
+    `replaces` and `punishment_summary` are filled by scripts/38 from the
+    official mapping table and the section's own penalty clause. `tags` are
+    curated retrieval keywords, present today only on the guidance notes.
     """
 
     act_id: str
@@ -24,7 +25,7 @@ class StatuteSection:
     chapter: str | None = None
     subsection: str | None = None
     effective_date: str | None = None
-    replaces: dict | None = None    # {"act": "ipc_1860", "section": "415-420"}
+    replaces: list[str] | None = None   # ["IPC 415", "IPC 420"], from law_mappings.jsonl
     punishment_summary: str | None = None
     tags: list[str] = field(default_factory=list)
     source_url: str | None = None
