@@ -211,7 +211,7 @@ def main() -> None:
     parser.add_argument("--no-rag", action="store_true",
                         help="skip retrieval (plain adapter, sanity anchor)")
     parser.add_argument("--dense", action="store_true",
-                        help="hybrid retrieval: BM25 + multilingual-e5 (RRF)")
+                        help="hybrid retrieval: BM25 + the default dense model (RRF)")
     parser.add_argument("--model", default=MODEL_ID,
                         help="base model id or a merged-model dir "
                              "(e.g. the DPO output)")
@@ -234,9 +234,13 @@ def main() -> None:
 
     index = None if args.no_rag else load_statute_index(args.canonical_dir)
     if index is not None and args.dense:
-        from nyaya.dense import attach_dense_index
-        attach_dense_index(index,
-                           cache_path=ROOT / "data" / "generated" / "e5_doc_vectors.npy")
+        from nyaya.dense import (
+            DEFAULT_ATTACH_MODEL,
+            attach_dense_index,
+            doc_vector_cache,
+        )
+        attach_dense_index(index, cache_path=doc_vector_cache(
+            DEFAULT_ATTACH_MODEL, ROOT / "data" / "generated"))
     records = load_eval_records()
     if args.limit:
         records = records[: args.limit]

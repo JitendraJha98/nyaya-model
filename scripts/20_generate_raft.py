@@ -119,9 +119,13 @@ def main() -> None:
 
     index = load_statute_index(ROOT / "data" / "canonical")
     if args.dense:
-        from nyaya.dense import attach_dense_index
-        attach_dense_index(index,
-                           cache_path=ROOT / "data" / "generated" / "e5_doc_vectors.npy")
+        from nyaya.dense import (
+            DEFAULT_ATTACH_MODEL,
+            attach_dense_index,
+            doc_vector_cache,
+        )
+        attach_dense_index(index, cache_path=doc_vector_cache(
+            DEFAULT_ATTACH_MODEL, ROOT / "data" / "generated"))
     plan = []
     for split in args.splits:
         records = load_jsonl(ROOT / "data" / "splits" / f"{split}.jsonl")

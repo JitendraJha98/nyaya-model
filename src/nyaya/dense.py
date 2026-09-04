@@ -8,8 +8,13 @@ cosine ranking with BM25 via RRF:
   content-fingerprinted on-disk embedding cache. Default e5-small (~470 MB,
   CPU-friendly, handles the Devanagari queries pure BM25 struggles with).
 - attach_dense_index(index, cache_path): the GPU-job path — model reused for
-  batch query embedding, doc vectors cached to a named .npy. Default e5-base, the model behind the committed frozen-eval
-  recall numbers (reports/retrieval_recall_dense.json).
+  batch query embedding, doc vectors cached to a named .npy. Default
+  NyayaLabs98/nyaya-embed-v1, e5-base fine-tuned on the project's own
+  question–section pairs (2026-09-04): never-audited recall@8 88.1% against
+  81.4% for BM25 alone, and +3.9 points of reader fact recall over zero-shot
+  e5-base (reports/eval_v1_comparison_base-768-embed-v1.json). Zero-shot
+  e5-base (LEGACY_ATTACH_MODEL) is the model behind every run before that
+  date; doc_vector_cache() keeps the two models' vectors in separate files.
 
 e5 models REQUIRE the "query: " / "passage: " prefixes; cosine scores are
 meaningless without them. That contract lives here, not in callers.
@@ -18,8 +23,25 @@ meaningless without them. That contract lives here, not in callers.
 import hashlib
 from pathlib import Path
 
-DEFAULT_ATTACH_MODEL = "intfloat/multilingual-e5-base"
+DEFAULT_ATTACH_MODEL = "NyayaLabs98/nyaya-embed-v1"
+LEGACY_ATTACH_MODEL = "intfloat/multilingual-e5-base"  # every eval run before 2026-09-04
 DEFAULT_STAGE_MODEL = "intfloat/multilingual-e5-small"
+
+
+def doc_vector_cache(model_name: str, cache_dir: str | Path) -> Path:
+    """Where attach_dense_index caches the statute vectors of one model.
+
+    e5-base keeps its historical e5_doc_vectors.npy; every other embedder gets
+    a file named after it (a Hub id keeps its org, a local directory keeps its
+    basename), so two models can never silently share vectors.
+    """
+    cache_dir = Path(cache_dir)
+    if model_name == LEGACY_ATTACH_MODEL:
+        return cache_dir / "e5_doc_vectors.npy"
+    looks_local = (model_name.startswith(("/", ".", "~")) or "\\" in model_name
+                   or model_name.count("/") > 1 or Path(model_name).exists())
+    name = Path(model_name).name if looks_local else model_name.replace("/", "__")
+    return cache_dir / f"dense_vectors_{name}.npy"
 
 
 class DenseStage:

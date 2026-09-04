@@ -33,7 +33,12 @@ sys.path.insert(0, str(ROOT / "src"))
 from nyaya.dataset import grouped_split, load_jsonl
 from nyaya.evaluation import load_eval_records
 from nyaya.retrieval import build_rag_training_record, load_statute_index
-from nyaya.validators import detect_eval_leakage, is_near_duplicate, load_statute_db, validate_example
+from nyaya.validators import (
+    detect_eval_leakage,
+    is_near_duplicate,
+    load_statute_db,
+    validate_example,
+)
 
 HOLDOUT_ACTS = ["posh_2013", "mv_act_1988"]  # same as scripts/07
 SPLITS = ("train", "val", "test")
@@ -116,9 +121,13 @@ def main() -> None:
     statute_db = load_statute_db(include_old_law=True)
     index = load_statute_index(ROOT / "data" / "canonical")
     if args.dense:
-        from nyaya.dense import attach_dense_index
-        attach_dense_index(index,
-                           cache_path=ROOT / "data" / "generated" / "e5_doc_vectors.npy")
+        from nyaya.dense import (
+            DEFAULT_ATTACH_MODEL,
+            attach_dense_index,
+            doc_vector_cache,
+        )
+        attach_dense_index(index, cache_path=doc_vector_cache(
+            DEFAULT_ATTACH_MODEL, ROOT / "data" / "generated"))
 
     raft, leaked = select_raft(Path(args.raft_raw), eval_records)
     extraction, ex_stats = prepare_extraction(

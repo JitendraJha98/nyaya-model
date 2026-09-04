@@ -33,6 +33,7 @@ if hasattr(sys.stdout, "reconfigure"):  # Devanagari on cp1252 Windows consoles
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from nyaya.dense import DEFAULT_ATTACH_MODEL, LEGACY_ATTACH_MODEL
 from nyaya.evaluation import load_eval_records
 from nyaya.retrieval import CITATION_PATTERN, load_statute_index
 
@@ -106,13 +107,13 @@ def main() -> None:
     parser.add_argument("--k", type=int, nargs="+", default=[1, 3, 5, 8])
     parser.add_argument("--canonical-dir", default=str(ROOT / "data" / "canonical"))
     parser.add_argument("--dense", nargs="?",
-                        const="intfloat/multilingual-e5-base",
+                        const=DEFAULT_ATTACH_MODEL,
                         default=None, metavar="MODEL",
                         help="enable the hybrid dense stage (requires "
                              "pip install -e '.[dense]'); writes a separate "
-                             "retrieval_recall_dense.json. Bare --dense uses "
-                             "e5-base — the model behind the committed "
-                             "recall numbers — via the shared .npy cache")
+                             "retrieval_recall_dense-<model>.json. Bare --dense uses "
+                             "nyaya-embed-v1; intfloat/multilingual-e5-base is the "
+                             "zero-shot model behind retrieval_recall_dense.json")
     parser.add_argument("--rerank", nargs="?", const=None, default=False,
                         metavar="MODEL",
                         help="enable the cross-encoder second stage "
@@ -144,12 +145,10 @@ def main() -> None:
         index.set_reranker(reranker)
         print(f"[recall] reranking with {model_name} (depth {args.rerank_depth})")
     if args.dense:
-        from nyaya.dense import DEFAULT_ATTACH_MODEL, attach_dense_index
+        from nyaya.dense import attach_dense_index, doc_vector_cache
         attach_dense_index(
             index, model_name=args.dense,
-            # the named .npy cache only matches the e5-base doc vectors
-            cache_path=(ROOT / "data" / "generated" / "e5_doc_vectors.npy"
-                        if args.dense == DEFAULT_ATTACH_MODEL else None))
+            cache_path=doc_vector_cache(args.dense, ROOT / "data" / "generated"))
     records = load_eval_records()
     if args.limit:
         records = records[: args.limit]
@@ -260,7 +259,7 @@ def main() -> None:
     # different experiments and must not land in the same file.
     parts = []
     if args.dense:
-        parts.append("dense" if args.dense == "intfloat/multilingual-e5-base"
+        parts.append("dense" if args.dense == LEGACY_ATTACH_MODEL
                      else "dense-" + args.dense.split("/")[-1])
     if reranker is not None:
         parts.append("rerank")
