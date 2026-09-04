@@ -5,7 +5,10 @@ import math
 
 import pytest
 
-torch = pytest.importorskip("torch")
+try:
+    import torch
+except (ImportError, OSError) as exc:  # a broken CUDA DLL raises OSError, not ImportError
+    pytest.skip(f"torch unavailable: {exc}", allow_module_level=True)
 
 from nyaya.dpo import dpo_loss, sequence_logprob
 

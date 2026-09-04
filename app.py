@@ -45,7 +45,7 @@ EXAMPLES = [
 def _has_gpu() -> bool:
     try:
         import torch
-    except ImportError:
+    except (ImportError, OSError):  # a broken CUDA DLL raises OSError, not ImportError
         return False
     return torch.cuda.is_available()
 

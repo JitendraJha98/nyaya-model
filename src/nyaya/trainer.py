@@ -23,7 +23,7 @@ REQUIRED_KEYS = ("run_name", "model_id", "output_dir", "data", "method", "lora",
 def _cuda_available() -> bool:
     try:
         import torch
-    except ImportError:
+    except (ImportError, OSError):  # a broken CUDA DLL raises OSError, not ImportError
         return False
     return torch.cuda.is_available()
 
@@ -38,7 +38,7 @@ def _native_bf16() -> bool:
     """
     try:
         import torch
-    except ImportError:
+    except (ImportError, OSError):  # a broken CUDA DLL raises OSError, not ImportError
         return False
     if not torch.cuda.is_available():
         return False
@@ -109,6 +109,9 @@ def training_kwargs(config: dict) -> dict:
         "save_steps": t["save_steps"],
         "max_seq_length": t["max_seq_length"],
         "eval_steps": t.get("eval_steps"),
+        # NEFTune (embedding noise) is configured in v3/v4/v5 but was never
+        # forwarded until Sept 2026 -- those runs trained WITHOUT it.
+        "neftune_noise_alpha": t.get("neftune_noise_alpha"),
         "report_to": "none",
     }
     return kwargs
@@ -117,12 +120,14 @@ def training_kwargs(config: dict) -> dict:
 def _filter_to_signature(cls, kwargs: dict) -> dict:
     """Keep only kwargs the installed TRL/transformers version accepts.
 
-    Handles cross-version renames (max_seq_length -> max_length,
-    evaluation_strategy -> eval_strategy) without pinning."""
+    Handles the max_seq_length -> max_length rename. Every OTHER dropped key is
+    reported with a warning: silently swallowing unknown keys is how NEFTune
+    went missing from three training runs (v3, v4, v5)."""
     import inspect
+    import warnings
 
     accepted = set(inspect.signature(cls.__init__).parameters)
-    out = {}
+    out, dropped = {}, []
     for key, value in kwargs.items():
         if value is None:
             continue
@@ -130,6 +135,12 @@ def _filter_to_signature(cls, kwargs: dict) -> dict:
             out[key] = value
         elif key == "max_seq_length" and "max_length" in accepted:
             out["max_length"] = value
+        else:
+            dropped.append(key)
+    if dropped:
+        warnings.warn(
+            f"[trainer] {cls.__name__} does not accept and will IGNORE: {sorted(dropped)}",
+            UserWarning, stacklevel=2)
     return out
 
 

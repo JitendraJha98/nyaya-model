@@ -1,15 +1,19 @@
 """Tests for the LoRA trainer's pure config logic — no GPU/heavy imports."""
 
+import warnings
+from pathlib import Path
+
 import pytest
 import yaml
 
-from nyaya.trainer import load_config, lora_kwargs, training_kwargs
+from nyaya.trainer import _filter_to_signature, load_config, lora_kwargs, training_kwargs
 
-ROOT_SMOKE = "configs/smoke.yaml"
+ROOT = Path(__file__).resolve().parents[1]
+ROOT_SMOKE = ROOT / "configs" / "smoke.yaml"
 
 
 def _write_config(tmp_path, mutate=None):
-    config = yaml.safe_load(open(ROOT_SMOKE, encoding="utf-8"))
+    config = yaml.safe_load(ROOT_SMOKE.read_text(encoding="utf-8"))
     if mutate:
         mutate(config)
     p = tmp_path / "config.yaml"
@@ -74,8 +78,41 @@ class TestKwargMapping:
         assert not (kwargs["bf16"] and kwargs["fp16"]), "cannot request both"
 
     def test_eval_strategy_follows_val_file(self):
-        smoke = training_kwargs(load_config("configs/smoke.yaml"))
-        v1 = training_kwargs(load_config("configs/train_v1.yaml"))
+        smoke = training_kwargs(load_config(ROOT_SMOKE))
+        v1 = training_kwargs(load_config(ROOT / "configs" / "train_v1.yaml"))
         assert smoke.get("eval_steps") is None
         # cadence must sit well under the ~197 total steps of the v1 run
         assert v1["eval_steps"] == 50
+
+
+class TestNeftuneAndDroppedKeys:
+    """NEFTune was configured in v3/v4/v5 but never reached TRL: the kwargs
+    mapper did not read the key and the signature filter silently discarded
+    unknown keys. Those runs trained without it. Both halves are pinned here."""
+
+    def test_neftune_passes_through_when_configured(self):
+        config = load_config(ROOT / "configs" / "train_v3.yaml")
+        assert training_kwargs(config)["neftune_noise_alpha"] == 5
+
+    def test_neftune_absent_when_not_configured(self):
+        config = load_config(ROOT_SMOKE)
+        assert training_kwargs(config).get("neftune_noise_alpha") is None
+
+    def test_filter_warns_on_every_dropped_key(self):
+        class FakeConfig:
+            def __init__(self, output_dir, max_length):
+                pass
+
+        with pytest.warns(UserWarning, match="neftune_noise_alpha"):
+            out = _filter_to_signature(
+                FakeConfig, {"output_dir": "x", "max_seq_length": 4, "neftune_noise_alpha": 5})
+        assert out == {"output_dir": "x", "max_length": 4}
+
+    def test_filter_is_silent_when_nothing_is_dropped(self):
+        class FakeConfig:
+            def __init__(self, output_dir, max_length):
+                pass
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            _filter_to_signature(FakeConfig, {"output_dir": "x", "max_seq_length": 4})
