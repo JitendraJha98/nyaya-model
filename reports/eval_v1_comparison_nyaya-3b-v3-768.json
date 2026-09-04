@@ -1,0 +1,70 @@
+{
+  "baseline": "base-768",
+  "candidate": "nyaya-3b-v3-768",
+  "bootstrap_rounds": 10000,
+  "results": [
+    {
+      "metric": "fact_recall",
+      "n": 409,
+      "a": {
+        "label": "base-768",
+        "mean": 0.3578
+      },
+      "b": {
+        "label": "nyaya-3b-v3-768",
+        "mean": 0.3375
+      },
+      "delta": -0.0203,
+      "ci95": [
+        -0.0518,
+        0.0115
+      ],
+      "indistinguishable": true,
+      "b_better_on": 56,
+      "b_worse_on": 70,
+      "tied_on": 283
+    },
+    {
+      "metric": "citation_recall",
+      "n": 144,
+      "a": {
+        "label": "base-768",
+        "mean": 0.5556
+      },
+      "b": {
+        "label": "nyaya-3b-v3-768",
+        "mean": 0.4861
+      },
+      "delta": -0.0694,
+      "ci95": [
+        -0.1389,
+        -0.0035
+      ],
+      "indistinguishable": false,
+      "b_better_on": 10,
+      "b_worse_on": 19,
+      "tied_on": 115
+    },
+    {
+      "metric": "substance_recall",
+      "n": 360,
+      "a": {
+        "label": "base-768",
+        "mean": 0.3164
+      },
+      "b": {
+        "label": "nyaya-3b-v3-768",
+        "mean": 0.3062
+      },
+      "delta": -0.0103,
+      "ci95": [
+        -0.045,
+        0.0245
+      ],
+      "indistinguishable": true,
+      "b_better_on": 48,
+      "b_worse_on": 57,
+      "tied_on": 255
+    }
+  ]
+}
