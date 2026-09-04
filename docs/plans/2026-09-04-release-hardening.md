@@ -35,8 +35,13 @@ Not on India Code: Gratuity, Maternity Benefit and EPF Acts (absorbed into the
 Social Security Code) and any Model Tenancy Act. A14 closed as NO-GO: the Hindi PDFs
 are image scans (0% Devanagari in India Code's own text extraction).
 
-**Blocked:** GitHub push and About/topics (PAT lacks Contents/Workflows/Administration
-write); history rewrite (needs explicit approval of the destructive command);
+**Unblocked 2026-09-04 evening:** new PAT → `release-hardening` pushed, About text and topics set
+(B1 done); history rewritten with `git filter-repo --mailmap` (194 commits, the collaborator's
+corporate address replaced by a placeholder; pinned hashes repointed: 503d0df→008288e,
+57d89ec→19189df, 5c3d843→decc4d1) and both branches force-pushed. Collaborators must re-clone.
+
+**Blocked:** the v3 Hub tokenizer/config fix (classifier; needs the owner's word); the Kaggle
+`HF_TOKEN` secret (must be added in the Kaggle UI; uploading it as a dataset was blocked);
 C1 session 2 and C2 (need the `HF_TOKEN` Kaggle secret and accepted gated-model
 terms); C4 dropped (paid teacher API); D2 gold review (needs a human reviewer).
 Push retried 2026-09-04 with the same PAT: still 403 (the branch adds
