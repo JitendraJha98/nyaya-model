@@ -74,7 +74,7 @@ def generate_with_oom_retry(generate, questions: list[str]) -> list[str]:
 
     try:
         return generate(questions)
-    except torch.OutOfMemoryError:
+    except torch.cuda.OutOfMemoryError:  # torch.OutOfMemoryError alias only exists from 2.5
         torch.cuda.empty_cache()
         if len(questions) == 1:
             print(f"\n[eval-v1] ! OOM on a single prompt ({len(questions[0])} chars); "

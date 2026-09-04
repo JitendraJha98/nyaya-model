@@ -1,5 +1,5 @@
 """Optional dense retrieval stage (lazily imported — the base package stays
-dependency-free; install requirements-dense.txt to enable).
+dependency-free; install the dense extra (pip install -e ".[dense]") to enable).
 
 Two entry points, both setting StatuteIndex.dense so retrieve() fuses the
 cosine ranking with BM25 via RRF:

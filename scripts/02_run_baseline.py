@@ -38,7 +38,7 @@ def build_generate_fn(max_new_tokens: int):
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(
-        MODEL_ID, torch_dtype=torch.bfloat16, device_map="auto"
+        MODEL_ID, dtype=torch.bfloat16, device_map="auto"
     )
     model.eval()
 

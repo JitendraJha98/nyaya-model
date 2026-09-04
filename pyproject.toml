@@ -17,6 +17,26 @@ classifiers = [
 ]
 dynamic = ["version", "dependencies"]
 
+[project.optional-dependencies]
+# GPU training + evaluation (Kaggle T4 tested). Same floors as requirements-train.txt.
+train = [
+    "torch>=2.5",
+    "transformers>=4.56,<5",
+    "datasets>=2.20",
+    "accelerate>=0.33",
+    "peft>=0.12",
+    "trl>=0.12",
+    "sentencepiece>=0.2",
+    "protobuf>=4.25",
+]
+# Optional dense retrieval stage (src/nyaya/dense.py) and the cross-encoder reranker.
+dense = ["sentence-transformers>=3.0", "numpy"]
+# Statute-DB build (PDF extraction) and bulk judgment sync.
+data = ["pymupdf>=1.24", "boto3>=1.34"]
+# Local demo (app.py).
+demo = ["gradio>=4.0"]
+dev = ["pytest>=8", "ruff>=0.5", "datasets>=2.20"]
+
 [project.urls]
 Homepage = "https://github.com/JitendraJha98/nyaya-model"
 Repository = "https://github.com/JitendraJha98/nyaya-model"

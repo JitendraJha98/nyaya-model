@@ -638,7 +638,7 @@ def load_statute_index(canonical_dir: str | Path,
     """Build a StatuteIndex from data/canonical/*.jsonl (mappings included).
 
     dense_model (e.g. "intfloat/multilingual-e5-small") enables the optional
-    hybrid retrieval stage — requires requirements-dense.txt installed. Left
+    hybrid retrieval stage — requires the dense extra (pip install -e ".[dense]"). Left
     None, retrieval stays pure-BM25 and dependency-free."""
     directory = Path(canonical_dir)
     rows, mappings = [], []

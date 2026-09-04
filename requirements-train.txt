@@ -1,0 +1,17 @@
+# GPU training + evaluation stack (Kaggle T4 tested). Floors are the versions the
+# code actually needs, verified against the sources in Sept 2026:
+#   from_pretrained(dtype=)            -> transformers >= 4.56
+#   SFTTrainer(processing_class=)      -> trl >= 0.12
+#   torch.cuda.OutOfMemoryError        -> torch >= 2.5
+# sentence-transformers 5.x pins transformers < 5, hence the ceiling.
+-r requirements.txt
+torch>=2.5
+transformers>=4.56,<5
+datasets>=2.20
+accelerate>=0.33
+peft>=0.12
+trl>=0.12
+sentencepiece>=0.2
+protobuf>=4.25
+sentence-transformers>=3.0
+numpy

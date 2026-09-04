@@ -1,30 +1,9 @@
-# Nyaya training stack — kept deliberately small (roadmap: "do not install 50 libraries").
-# Version floors are conservative; pin exact versions in your GPU environment once it works.
-torch>=2.3
-transformers>=4.44
-datasets>=2.20
-accelerate>=0.33
-peft>=0.12
-trl>=0.9
-# bitsandbytes intentionally absent: full-precision bf16 LoRA, no QLoRA/4-bit.
-sentencepiece>=0.2
-protobuf>=4.25
-wandb>=0.17
+# Core — retrieval, scoring, statute-DB build, CLI. No GPU stack; the retriever
+# is standard-library Python.
+#
+#   GPU training + evaluation (Kaggle T4 tested):  pip install -r requirements-train.txt
+#   or, from a clone:                              pip install -e ".[train,dense]"
+#   pinned versions that passed the test suite:    requirements.lock
 pyyaml>=6.0
-huggingface_hub>=0.24
-
-# PDF extraction for building the statute DB (docs are image-only PDFs; render with PyMuPDF).
-pymupdf>=1.24
-
-# Statute-source downloads (indiacode.nic.in 403s plain requests; needs browser-like headers).
 requests>=2.32
-
-# Bulk judgment sync from AWS Open Data (scripts/12_bulk_judgments.py); anonymous
-# S3 access, no AWS account needed.
-boto3>=1.34
-
-# Optional, install later only if the environment supports it:
-#   pip install flash-attn --no-build-isolation
-
-# Demo app (app.py) — optional, not needed by the pipeline
-gradio>=4.0
+huggingface_hub>=0.24

@@ -109,7 +109,7 @@ def main() -> None:
                         const="intfloat/multilingual-e5-base",
                         default=None, metavar="MODEL",
                         help="enable the hybrid dense stage (requires "
-                             "requirements-dense.txt); writes a separate "
+                             "pip install -e ".[dense]"); writes a separate "
                              "retrieval_recall_dense.json. Bare --dense uses "
                              "e5-base — the model behind the committed "
                              "recall numbers — via the shared .npy cache")
