@@ -1,5 +1,10 @@
 # Nyaya — an open Indian legal guidance system
 
+![tests](https://github.com/JitendraJha98/nyaya-model/actions/workflows/tests.yml/badge.svg)
+![code: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-blue)
+![weights: qwen-research](https://img.shields.io/badge/weights-qwen--research%20(non--commercial)-orange)
+![statutes: public domain](https://img.shields.io/badge/statutes-public%20domain-green)
+
 Ask a legal question in **English, Hindi or Hinglish** and get a plain-language
 answer **cited to a section of current Indian law** — BNS / BNSS / BSA as in
 force after 1 July 2024, with IPC↔BNS bridging.
