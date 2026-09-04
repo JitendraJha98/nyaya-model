@@ -9,14 +9,57 @@ language:
 - hi
 library_name: transformers
 pipeline_tag: text-generation
+datasets:
+- NyayaLabs98/nyaya-train-v3
+- NyayaLabs98/nyaya-statute-db
+- NyayaLabs98/nyaya-eval-v0
 tags:
 - legal
 - india
 - indian-law
 - bns
+- bnss
+- bsa
 - retrieval-augmented-generation
 - qwen2.5
 - non-commercial
+widget:
+- text: "Police FIR nahi likh rahi, kya karu?"
+  example_title: "FIR refusal (Hinglish)"
+- text: "What is the punishment for cheque bounce under the Negotiable Instruments Act?"
+  example_title: "Cheque bounce (English)"
+model-index:
+- name: nyaya-3b-v3
+  results:
+  - task:
+      type: text-generation
+      name: Legal QA with retrieval (Nyaya-Eval-v1)
+    dataset:
+      type: NyayaLabs98/nyaya-eval-v0
+      name: Nyaya-Eval-v1 (409 scored, k=8 RAG; base model scores 34.3 / 52.8)
+    metrics:
+    - type: fact_recall
+      name: Fact recall
+      value: 32.9
+    - type: citation_accuracy
+      name: Citation accuracy
+      value: 50.3
+    source:
+      name: reports/eval_v1_results.json
+      url: https://github.com/JitendraJha98/nyaya-model/blob/main/reports/eval_v1_results.json
+  - task:
+      type: multiple-choice
+      name: Indian legal MCQ
+    dataset:
+      type: bharatgenai/BhashaBench-Legal
+      name: BhashaBench-Legal (1,500-question sample; base model scores 47.8)
+    metrics:
+    - type: accuracy
+      name: Accuracy
+      value: 45.2
+    source:
+      name: reports/bhashabench_scores.json
+      url: https://github.com/JitendraJha98/nyaya-model/blob/main/reports/bhashabench_scores.json
 ---
 
 # Nyaya-3B — the model component of the Nyaya legal guidance system
@@ -49,8 +92,9 @@ Used bare, without retrieval, it behaves close to the base model.
 
 ## Evaluation
 
-Nyaya-Eval-v1, 409 gradeable questions, paired comparison, 10,000-round
-bootstrap. Same retriever, same questions — only the weights differ.
+Nyaya-Eval-v1, 413 gradeable questions (409 scored; 4 safety rows graded
+separately), paired comparison, 10,000-round bootstrap. Same retriever, same
+questions — only the weights differ.
 
 | | fact recall | citation accuracy |
 |---|---|---|
@@ -82,12 +126,17 @@ of questions, up from 45.8% — validated on records never used for tuning.
 
 None beat base. v5 and v6 regressed because training on short templated targets
 shortened the answers (173 → 90 → 57 words), and shorter answers carry fewer of
-the facts being scored.
+the facts being scored. Two notes for the record: v5 and v6 ran under a retriever
+with an extended vocabulary table, so "same retriever" is exact only for base vs
+v3; and the v3 config lists NEFTune, but the trainer did not forward it until
+September 2026 — v3 was trained without it.
 
 ## Honest status
 
-- **No external benchmark comparison has been run.** No claim is made against
-  any other legal model.
+- **One external benchmark has been run:** BhashaBench-Legal, 1,500-question
+  sample, exact MCQ scoring — base 47.8%, this model 45.2%, 95% CI on the
+  difference [−6.2, +1.0] → tied. Hindi 38.8% vs English 51.6%. No claim is made
+  against any other legal model.
 - **No human evaluation has been passed.**
 - The project's earlier benchmark (Eval-v0) scored its own gold answers at
   10.7%, so **any accuracy figure derived from it is meaningless** — including
