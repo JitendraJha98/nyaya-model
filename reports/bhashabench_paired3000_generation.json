@@ -1,0 +1,189 @@
+{
+  "note": "Generation-based MCQ scoring (8 new tokens, first standalone letter A-D) on a 3,000-question deterministic subset (seed 0) of BhashaBench-Legal, both readers in one Kaggle session, 2026-09-04. Qwen3-4B left 522 answers unparsed (no bare letter within 8 tokens) against 2 for the base, so these accuracies are not comparable; superseded by the logit-scored run.",
+  "subset": 3000,
+  "seed": 0,
+  "base": {
+    "model": "Qwen/Qwen2.5-3B-Instruct",
+    "accuracy": 0.49466666666666664,
+    "n": 3000,
+    "unparsed": 2,
+    "by_language": {
+      "hindi": 0.37117903930131,
+      "english": 0.5489443378119002
+    },
+    "by_subject": {
+      "Civil Litigation & Procedure": {
+        "n": 885,
+        "acc": 0.46214689265536724
+      },
+      "Constitutional & Administrative Law": {
+        "n": 469,
+        "acc": 0.4690831556503198
+      },
+      "Consumer & Competition Law": {
+        "n": 10,
+        "acc": 0.2
+      },
+      "Corporate & Commercial Law": {
+        "n": 328,
+        "acc": 0.524390243902439
+      },
+      "Criminal Law & Justice": {
+        "n": 333,
+        "acc": 0.48348348348348347
+      },
+      "Employment & Labour Law": {
+        "n": 18,
+        "acc": 0.6111111111111112
+      },
+      "Environmental & Energy Law": {
+        "n": 48,
+        "acc": 0.6875
+      },
+      "Family & Personal Law": {
+        "n": 125,
+        "acc": 0.48
+      },
+      "General Academic Subjects": {
+        "n": 219,
+        "acc": 0.634703196347032
+      },
+      "Healthcare & Medical Law": {
+        "n": 3,
+        "acc": 0.6666666666666666
+      },
+      "Human Rights & Social Justice": {
+        "n": 4,
+        "acc": 0.75
+      },
+      "Intellectual Property Law": {
+        "n": 6,
+        "acc": 0.8333333333333334
+      },
+      "Interdisciplinary Studies": {
+        "n": 42,
+        "acc": 0.5714285714285714
+      },
+      "International & Comparative Law": {
+        "n": 111,
+        "acc": 0.45045045045045046
+      },
+      "Legal Skills & Communication": {
+        "n": 108,
+        "acc": 0.3333333333333333
+      },
+      "Legal Theory & Jurisprudence": {
+        "n": 175,
+        "acc": 0.5885714285714285
+      },
+      "Media & Entertainment Law": {
+        "n": 6,
+        "acc": 0.5
+      },
+      "Real Estate & Property Law": {
+        "n": 76,
+        "acc": 0.42105263157894735
+      },
+      "Tax & Revenue Law": {
+        "n": 25,
+        "acc": 0.6
+      },
+      "Technology & Cyber Law": {
+        "n": 9,
+        "acc": 0.4444444444444444
+      }
+    }
+  },
+  "qwen3-4b": {
+    "model": "Qwen/Qwen3-4B-Instruct-2507",
+    "accuracy": 0.4666666666666667,
+    "n": 3000,
+    "unparsed": 522,
+    "by_language": {
+      "hindi": 0.314410480349345,
+      "english": 0.5335892514395394
+    },
+    "by_subject": {
+      "Civil Litigation & Procedure": {
+        "n": 885,
+        "acc": 0.423728813559322
+      },
+      "Constitutional & Administrative Law": {
+        "n": 469,
+        "acc": 0.44776119402985076
+      },
+      "Consumer & Competition Law": {
+        "n": 10,
+        "acc": 0.4
+      },
+      "Corporate & Commercial Law": {
+        "n": 328,
+        "acc": 0.4573170731707317
+      },
+      "Criminal Law & Justice": {
+        "n": 333,
+        "acc": 0.4894894894894895
+      },
+      "Employment & Labour Law": {
+        "n": 18,
+        "acc": 0.4444444444444444
+      },
+      "Environmental & Energy Law": {
+        "n": 48,
+        "acc": 0.5833333333333334
+      },
+      "Family & Personal Law": {
+        "n": 125,
+        "acc": 0.52
+      },
+      "General Academic Subjects": {
+        "n": 219,
+        "acc": 0.6164383561643836
+      },
+      "Healthcare & Medical Law": {
+        "n": 3,
+        "acc": 0.6666666666666666
+      },
+      "Human Rights & Social Justice": {
+        "n": 4,
+        "acc": 0.25
+      },
+      "Intellectual Property Law": {
+        "n": 6,
+        "acc": 0.6666666666666666
+      },
+      "Interdisciplinary Studies": {
+        "n": 42,
+        "acc": 0.5
+      },
+      "International & Comparative Law": {
+        "n": 111,
+        "acc": 0.4954954954954955
+      },
+      "Legal Skills & Communication": {
+        "n": 108,
+        "acc": 0.10185185185185185
+      },
+      "Legal Theory & Jurisprudence": {
+        "n": 175,
+        "acc": 0.5771428571428572
+      },
+      "Media & Entertainment Law": {
+        "n": 6,
+        "acc": 0.5
+      },
+      "Real Estate & Property Law": {
+        "n": 76,
+        "acc": 0.5789473684210527
+      },
+      "Tax & Revenue Law": {
+        "n": 25,
+        "acc": 0.64
+      },
+      "Technology & Cyber Law": {
+        "n": 9,
+        "acc": 0.4444444444444444
+      }
+    }
+  }
+}
