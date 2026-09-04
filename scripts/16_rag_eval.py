@@ -99,14 +99,34 @@ def chat_text(tokenizer, user_content: str) -> str:
 
 
 def build_rag_generate_fn(tokenizer, model, index, k: int,
-                          retrieval_log: dict, max_new_tokens: int = 384):
-    """generate_fn for run_eval: retrieve per question, answer from context."""
+                          retrieval_log: dict, max_new_tokens: int = 384,
+                          rewrite: bool = False, rewrite_log: dict | None = None):
+    """generate_fn for run_eval: retrieve per question, answer from context.
+
+    rewrite=True runs nyaya.rewrite first: Hindi/Hinglish questions are turned
+    into one line of statutory English by the same model (a short greedy
+    generation) and retrieval sees both the original and the rewrite. The
+    rewritten query is recorded in rewrite_log[question] when a dict is given.
+    """
     import torch
+
+    from nyaya.rewrite import rewrite_query
+
+    def plain_generate(prompt: str) -> str:
+        text = chat_text(tokenizer, prompt)
+        enc = tokenizer([text], return_tensors="pt").to(model.device)
+        with torch.no_grad():
+            out = model.generate(**enc, max_new_tokens=48, do_sample=False,
+                                 pad_token_id=tokenizer.pad_token_id)
+        return tokenizer.decode(out[0, enc["input_ids"].shape[1]:], skip_special_tokens=True)
 
     def generate(questions):
         prompts = []
         for q in questions:
-            hits = index.retrieve(q, k=k) if index else []
+            query = rewrite_query(q, plain_generate) if rewrite else q
+            if rewrite_log is not None and query != q:
+                rewrite_log[q] = query
+            hits = index.retrieve(query, k=k) if index else []
             retrieval_log[q] = [f"{h['act_id']}:{h['section'].upper()}" for h in hits]
             prompts.append(build_rag_prompt(q, hits) if index else q)
         texts = [chat_text(tokenizer, p) for p in prompts]

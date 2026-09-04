@@ -149,6 +149,8 @@ def main() -> None:
     p.add_argument("--adapter", default="none", help='LoRA adapter dir, or "none"')
     p.add_argument("--split", choices=sorted(EVAL_FILES), default="all")
     p.add_argument("--dense", action="store_true", help="hybrid BM25 + e5 retrieval")
+    p.add_argument("--rewrite", action="store_true",
+                   help="rewrite Hindi/Hinglish questions into statutory English before retrieval (nyaya.rewrite)")
     p.add_argument("--no-rag", action="store_true")
     p.add_argument("--k", type=int, default=8)
     p.add_argument("--limit", type=int)
@@ -191,9 +193,11 @@ def main() -> None:
 
     tokenizer, model = helpers.load_model(adapter, model_id=args.model)
     retrieval_log: dict = {}
+    rewrite_log: dict = {}
     generate = helpers.build_rag_generate_fn(
         tokenizer, model, index, args.k, retrieval_log,
-        max_new_tokens=args.max_new_tokens)
+        max_new_tokens=args.max_new_tokens,
+        rewrite=args.rewrite, rewrite_log=rewrite_log)
 
     predictions = []
     t0 = time.time()
@@ -208,6 +212,7 @@ def main() -> None:
                 "question": record["question"],
                 "response": response,
                 "retrieved": retrieval_log.get(record["question"], []),
+                "rewritten_query": rewrite_log.get(record["question"]),
                 "latency_s": round(latency, 3),
                 # The record travels with the prediction so --rescore is
                 # self-contained and never has to re-join against the eval file.
@@ -234,7 +239,9 @@ def main() -> None:
         "split": args.split,
         "rag": not args.no_rag,
         "dense": args.dense,
+        "rewrite": args.rewrite,
         "k": args.k,
+        "max_new_tokens": args.max_new_tokens,
         "questions": len(records),
         "eval_seconds": elapsed,
         "scorer": "nyaya.scoring (Eval-v1)",
