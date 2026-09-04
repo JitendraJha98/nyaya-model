@@ -48,10 +48,11 @@ pip install -e ".[train]"
 python app.py                 # with the reader model (GPU recommended)
 ```
 
-The demo runs the **base** `Qwen/Qwen2.5-3B-Instruct` as the reader on
-purpose: the project's own fine-tune, `NyayaLabs98/nyaya-3b-v3`, is
-statistically tied with it (see Results), so the base model is the honest
-default.
+The demo runs `Qwen/Qwen3-4B-Instruct-2507` as the reader, not the project's
+own fine-tune: `NyayaLabs98/nyaya-3b-v3` is statistically tied with the 3B base
+it came from, and Qwen3-4B beats that base by 14.8 points under the same
+retriever (see Results). Pass `--model Qwen/Qwen2.5-3B-Instruct` to the eval
+scripts to reproduce the older runs.
 
 ---
 
@@ -286,6 +287,10 @@ docs/
   `Qwen/Qwen2.5-3B-Instruct`, which is **`qwen-research` — non-commercial**,
   *not* Apache-2.0. The 3B is one of the two Qwen2.5 sizes with a restricted
   licence.
+- **Default reader**: `Qwen/Qwen3-4B-Instruct-2507` is Apache-2.0, as are
+  `NyayaLabs98/nyaya-reranker-mini-v1` (Apache-2.0) and `NyayaLabs98/nyaya-embed-v1`
+  (MIT). A deployment that uses those and not the 3B fine-tune carries no
+  non-commercial term from this project.
 - **Statutory text**: Government of India material, public domain under
   Section 52(1)(q) of the Copyright Act, 1957.
 - Some aggregated research datasets referenced here are CC-BY-NC. See `NOTICE`.

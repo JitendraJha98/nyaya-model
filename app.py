@@ -21,11 +21,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from nyaya.prompts import NYAYA_SYSTEM_PROMPT  # noqa: E402
-from nyaya.retrieval import (  # noqa: E402
-    COVERAGE_MIN_SCORE, build_rag_prompt, format_context, load_statute_index)
+from nyaya.prompts import NYAYA_SYSTEM_PROMPT
+from nyaya.retrieval import (
+    COVERAGE_MIN_SCORE,
+    build_rag_prompt,
+    load_statute_index,
+)
 
-BASE_MODEL = "Qwen/Qwen2.5-3B-Instruct"
+# Qwen3-4B-Instruct-2507 (Apache-2.0): 50.6% fact recall on Eval-v1 against 35.8% for the
+# Qwen2.5-3B base under the same retriever (reports/eval_v1_comparison_qwen3-4b.json).
+BASE_MODEL = "Qwen/Qwen3-4B-Instruct-2507"
 
 DISCLAIMER = (
     "⚖️ **Not legal advice.** Nyaya provides legal *information*. The practice "
