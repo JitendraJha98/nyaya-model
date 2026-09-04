@@ -25,9 +25,14 @@ Devanagari zero-hit questions 19 → 3 of 53.
 **Later on day 1:** India Code moved to indiacode.gov.in (DSpace 9 REST API). New
 client `src/nyaya/indiacode.py` + `scripts/42` build any central act section by
 section from the API (verified identical to the committed BNS on all 358 sections).
-D1 started: Transfer of Property 1882, Indian Contract 1872, POCSO 2012, Juvenile
-Justice 2015 added (3,014 sections, 17 acts + Constitution); real questions with no
-act in the DB fell from 66 (25%) to 12 (4%). A14 closed as NO-GO: the Hindi PDFs
+D1 done for 14 acts: Transfer of Property 1882, Indian Contract 1872, POCSO 2012,
+Juvenile Justice 2015, Hindu Succession 1956, Indian Succession 1925, Dowry
+Prohibition 1961, Senior Citizens 2007, Guardians and Wards 1890, Hindu Minority and
+Guardianship 1956, Hindu Adoptions and Maintenance 1956, Limitation 1963, Legal
+Services Authorities 1987, Code on Social Security 2020 (3,736 sections, 27 acts +
+Constitution); real questions with no act in the DB fell from 66 (25%) to 9 (3%).
+Not on India Code: Gratuity, Maternity Benefit and EPF Acts (absorbed into the
+Social Security Code) and any Model Tenancy Act. A14 closed as NO-GO: the Hindi PDFs
 are image scans (0% Devanagari in India Code's own text extraction).
 
 **Blocked:** GitHub push and About/topics (PAT lacks Contents/Workflows/Administration
