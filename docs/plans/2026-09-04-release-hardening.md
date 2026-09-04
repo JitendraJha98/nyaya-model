@@ -52,7 +52,11 @@ paired 3,000-question run for both readers, queued behind `nyaya-qwen3-embed`.
 recall, 77.1% citation accuracy**; vs base-768 +16.2 [+12.7, +19.9]; vs base-768-embed-v1 +12.3
 [+9.2, +15.4]; vs qwen3-4b (e5-base) +1.4 [−1.5, +4.4] tied; vs the served 14B teacher +7.0 [+3.9,
 +10.1]. README headline, system table, RESULTS §1/§2/§6, embedder card and org card updated.
-Session 2 and BhashaBench wait for the owner to attach the `Nyaya` secret in the Kaggle UI.
+Session 2 and BhashaBench no longer need a token: session 2 loads the ungated Unsloth re-uploads
+of Gemma-3-4B-it and Llama-3.2-3B-Instruct (same weights), and BhashaBench reads the owner's
+private Kaggle parquet copy of all 24,365 questions (`bhashabench-legal-cache`) — 3,000-question
+paired subset, both readers, one session. Both kernels running (2026-09-04 ~17:30 UTC).
+Owner's decisions: holdout review deferred; Phi-4-mini, v7 fine-tune and out-of-scope acts skipped.
 
 **Blocked:** C1 session 2 and C2 (need the `HF_TOKEN` Kaggle secret and accepted gated-model
 terms); C4 dropped (paid teacher API); D2 gold review (needs a human reviewer).
