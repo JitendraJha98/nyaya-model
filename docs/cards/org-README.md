@@ -45,7 +45,9 @@ in finding the right law.
 reading sections found by BM25 + `nyaya-embed-v1` — scores **52.0% fact recall and 77.1%
 citation accuracy** on Nyaya-Eval-v1, +16.2 points over the system as first published
 (paired 95% CI [+12.7, +19.9]). Every prediction behind every number is committed in the
-repository and re-scorable on a CPU.
+repository and re-scorable on a CPU. On the external BhashaBench-Legal set (3,000 paired
+questions, no retrieval) the same reader scores 52.5% against 49.6% for the 3B base,
++3.0 points (CI [+1.0, +5.0]), most of it on Hindi.
 
 **⚖️ Not legal advice.** Nyaya provides legal information. The practice of law
 in India is reserved to advocates enrolled under the Advocates Act, 1961. Free

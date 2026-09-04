@@ -193,16 +193,24 @@ so "same retriever" is exact only for base vs v3 (`docs/RESULTS.md` §2).
 
 ### External benchmark
 
-BhashaBench-Legal, 1,500-question sample (750 English, 750 Hindi), exact MCQ
-scoring, chance is 25% (`reports/bhashabench_scores.json`):
+BhashaBench-Legal, 3,000 questions drawn once with a fixed seed from the full
+24,365 (2,084 English, 916 Hindi), both readers on the same questions, answer
+chosen by comparing the four option letters' next-token logits so nothing is
+generated or parsed; chance is 25% (`reports/bhashabench_paired3000_logit.json`,
+per-question rows under `reports/bhashabench_rows/`):
 
-| reader | overall | English | Hindi |
-|---|---|---|---|
-| base | **47.8%** | 54.9% | 40.7% |
-| v3 | 45.2% | 51.6% | 38.8% |
+| reader (no retrieval; pure MCQ knowledge) | overall | English | Hindi | paired vs base |
+|---|---|---|---|---|
+| base Qwen2.5-3B-Instruct | 49.6% | 54.9% | 37.4% | — |
+| **Qwen3-4B-Instruct-2507** | **52.5%** | 56.7% | **43.1%** | **+3.0, 95% CI [+1.0, +5.0]** |
 
-Difference −2.6 points, CI [−6.2, +1.0]: tied. The 14-point Hindi gap is the
-clearest measured weakness.
+Better on 523 questions, worse on 434, tied on 2,043. The gain is concentrated
+in Hindi (+5.7 points), the project's clearest measured weakness. A first pass
+that parsed generated letters was discarded: Qwen3-4B left 522 answers without a
+bare letter in 8 tokens, the base 2, so those accuracies were not comparable
+(`reports/bhashabench_paired3000_generation.json`). The August sample (1,500
+questions, generation-scored: base 47.8%, v3 45.2%, tied) is kept in
+`reports/bhashabench_scores.json` for the record.
 
 ---
 

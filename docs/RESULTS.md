@@ -72,7 +72,10 @@ the 4B one; the stronger reader is less dependent on which section arrives first
 The gain over the served 14B teacher under identical retrieval is the cleanest
 evidence that reader generation matters more than reader size here.
 
-### An external benchmark (BhashaBench-Legal, 1,500 MCQs, exact scoring)
+### An external benchmark (BhashaBench-Legal)
+
+**Fine-tune vs base, August 2026** — 1,500-question sample, generation-scored
+(`reports/bhashabench_scores.json`):
 
 | model | overall | English | Hindi |
 |---|---|---|---|
@@ -81,6 +84,27 @@ evidence that reader generation matters more than reader size here.
 
 delta −2.6%, CI [−6.2, +1.0] → **tied**. Random guessing is 25%, so both
 models genuinely know Indian law; they just know it equally well.
+
+**Reader vs reader, 2026-09-04** — 3,000 questions drawn once (seed 0) from the
+full 24,365, both models on identical questions, answer = argmax over the four
+option letters' next-token logits (`reports/bhashabench_paired3000_logit.json`,
+rows in `reports/bhashabench_rows/`):
+
+| model (no retrieval) | overall | English (n=2,084) | Hindi (n=916) | paired Δ vs base |
+|---|---|---|---|---|
+| `Qwen2.5-3B-Instruct` | 49.6% | 54.9% | 37.4% | — |
+| **`Qwen3-4B-Instruct-2507`** | **52.5%** | 56.7% | **43.1%** | **+3.0, CI [+1.0, +5.0]**; 523 better / 434 worse / 2,043 tied |
+
+Two lessons for the record. First, scoring method matters more than it should:
+the first pass generated 8 tokens and parsed the first bare letter, and Qwen3-4B
+answered 522 of 3,000 questions in a form that regex did not catch (the base, 2),
+which made it *look* 3 points worse than the base
+(`reports/bhashabench_paired3000_generation.json`). Comparing option-letter
+logits removes the parsing step entirely and treats every model the same; it
+is the harness this project now uses. Second, the external gain (+3.0) is far
+smaller than the in-system gain (+14.8 with retrieval): on bare MCQ knowledge
+the two readers are close, and the difference on Nyaya-Eval-v1 is mostly how
+well the reader *uses* the statute text in front of it.
 
 ### Why v5 and v6 regressed
 
@@ -305,7 +329,8 @@ saved run on CPU with no model loaded.
 
 ✅ An open Indian legal guidance system: BNS/BNSS/BSA-native (post-July-2024),
 English/Hindi/Hinglish, citation-verified, self-hostable, free.
-✅ 47.8% on BhashaBench-Legal against a 25% chance floor.
+✅ 52.5% on BhashaBench-Legal (3,000 paired questions, letter-logit scoring) for
+the default reader, +3.0 over the 3B base (CI [+1.0, +5.0]); chance is 25%.
 ✅ Cross-encoder reranking improves retrieval by +12.7 points at k=1, validated
 on held-out records.
 ✅ The default configuration (Qwen3-4B-Instruct-2507 reader, BM25 + nyaya-embed-v1)
