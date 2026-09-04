@@ -2,7 +2,8 @@
 
 ![tests](https://github.com/JitendraJha98/nyaya-model/actions/workflows/tests.yml/badge.svg)
 ![code: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-blue)
-![weights: qwen-research](https://img.shields.io/badge/weights-qwen--research%20(non--commercial)-orange)
+![default stack: Apache-2.0 / MIT](https://img.shields.io/badge/default%20stack-Apache--2.0%20%2F%20MIT-blue)
+![nyaya-3b-v3: qwen-research](https://img.shields.io/badge/nyaya--3b--v3-qwen--research%20(non--commercial)-orange)
 ![statutes: public domain](https://img.shields.io/badge/statutes-public%20domain-green)
 
 Ask a legal question in **English, Hindi or Hinglish** and get a plain-language
@@ -14,6 +15,13 @@ in force since 1 July 2024, with the official IPC↔BNS / CrPC↔BNSS bridging.
 > law in India is reserved to advocates enrolled under the Advocates Act, 1961.
 > Consult a licensed advocate for anything consequential. Free legal aid is
 > available through NALSA / DLSA.
+
+> **Measured, 2026-09-04.** The default configuration — `Qwen/Qwen3-4B-Instruct-2507`
+> reading sections found by BM25 + `nyaya-embed-v1` — scores **52.0% fact recall and
+> 77.1% citation accuracy** on the project's 413-question benchmark, against 35.8% and
+> 55.6% for the system as first published (paired 95% CI on fact recall
+> **[+12.7, +19.9]** points, better on 135 questions, worse on 24). Every prediction
+> behind every number is committed under `outputs/eval-v1/` and re-scorable on a CPU.
 
 ---
 
@@ -77,6 +85,28 @@ section.** That is what this repository is.
 Every number below comes from a committed file in `reports/`; the file is named
 next to each table.
 
+### The system, end to end
+
+Nyaya-Eval-v1, 413 questions (409 scored), 768 new tokens, k=8, one Kaggle T4. Each
+row changes one thing from the row it is paired against; every interval is a
+10,000-round paired bootstrap on the same questions (`reports/eval_v1_comparison_*.json`):
+
+| configuration | fact recall | citation accuracy | paired against | Δ fact recall, 95% CI |
+|---|---|---|---|---|
+| Qwen2.5-3B + BM25 + zero-shot e5-base (`base-768`, as first published) | 35.8% | 55.6% | — | — |
+| Qwen2.5-3B + BM25 + `nyaya-embed-v1` | 39.7% | 61.1% | `base-768` | **+3.9 [+0.9, +7.0]** |
+| Qwen3-4B + BM25 + zero-shot e5-base | 50.6% | 72.2% | `base-768` | **+14.8 [+11.4, +18.3]** |
+| **Qwen3-4B + BM25 + `nyaya-embed-v1`** (default) | **52.0%** | **77.1%** | `base-768` | **+16.2 [+12.7, +19.9]** |
+| | | | Qwen3-4B + e5-base | +1.4 [−1.5, +4.4], tied |
+| | | | Qwen2.5-14B-AWQ + embed-v1 (served) | **+7.0 [+3.9, +10.1]** |
+
+Two honest readings. The embedder's gain is real for the 3B reader and does not
+reach significance for the 4B one (+1.4, interval spans zero; citation accuracy
++4.9, also spanning zero): a stronger reader recovers more from imperfect
+retrieval. And the 4B reader beats a served 14B model from the previous Qwen
+generation under identical retrieval. Answers from the default configuration
+average 305 words and take ~30 s per question on a T4.
+
 ### Retrieval is where the accuracy comes from
 
 Fact recall of the base model on Nyaya-Eval-v1, split by whether the retriever
@@ -113,9 +143,11 @@ model swapped (`reports/eval_v1_comparison_base-768-embed-v1.json`):
 | dense stage: zero-shot e5-base | 35.8% | — |
 | **dense stage: nyaya-embed-v1** | **39.7%** | **+3.9 points, 95% CI [+0.9, +7.0]** |
 
-This is the first change in the project that moves the end-to-end score with a
+This was the first change in the project to move the end-to-end score with a
 confidence interval clear of zero. It came from retrieval, not from the weights,
-and `nyaya-embed-v1` is now the default dense model.
+and `nyaya-embed-v1` is now the default dense model. With the Qwen3-4B reader the
+same swap adds +1.4 points (CI [−1.5, +4.4]): real for the weaker reader, not
+proven for the stronger one.
 
 ### Which small reader? Qwen3-4B, by a wide margin
 
@@ -132,9 +164,9 @@ one Kaggle T4, paired against `base-768` (`reports/eval_v1_comparison_qwen3-4b.j
 Qwen3-4B is better on 119 questions and worse on 22. Its answers are longer, which
 the substance scorer partly rewards, but citation accuracy (strict, length-blind)
 rises by the same margin. It is also Apache-2.0, which the 3B base is not. It is
-the default reader from this commit; the combined run (Qwen3-4B on the
-`nyaya-embed-v1` retriever) and session 2 of the shootout (Gemma-3-4B, Llama-3.2-3B)
-are in progress. A served 14B teacher (`Qwen2.5-14B-Instruct-AWQ`) scored 45.0%
+the default reader from this commit; combined with `nyaya-embed-v1` it is the
+configuration in the table above (52.0%). Session 2 of the shootout (Gemma-3-4B,
+Llama-3.2-3B) is pending gated-model access. A served 14B teacher (`Qwen2.5-14B-Instruct-AWQ`) scored 45.0%
 under the embed-v1 retriever, above the 3B reader there but below Qwen3-4B, so
 distillation was dropped and its 1,456 verified answers were published instead
 (`NyayaLabs98/nyaya-train-v7-raft`; `docs/RESULTS.md` §1).

@@ -48,6 +48,12 @@ its 1,456 RAFT answers are published as `nyaya-train-v7-raft`. Shootout session 
 and Llama-3.2-3B only (Phi-4-mini dropped by the owner's call, quota). BhashaBench is now one
 paired 3,000-question run for both readers, queued behind `nyaya-qwen3-embed`.
 
+**System number (kernel `nyaya-qwen3-embed`, 208 min):** Qwen3-4B + BM25 + embed-v1 = **52.0% fact
+recall, 77.1% citation accuracy**; vs base-768 +16.2 [+12.7, +19.9]; vs base-768-embed-v1 +12.3
+[+9.2, +15.4]; vs qwen3-4b (e5-base) +1.4 [−1.5, +4.4] tied; vs the served 14B teacher +7.0 [+3.9,
++10.1]. README headline, system table, RESULTS §1/§2/§6, embedder card and org card updated.
+Session 2 and BhashaBench wait for the owner to attach the `Nyaya` secret in the Kaggle UI.
+
 **Blocked:** C1 session 2 and C2 (need the `HF_TOKEN` Kaggle secret and accepted gated-model
 terms); C4 dropped (paid teacher API); D2 gold review (needs a human reviewer).
 Push retried 2026-09-04 with the same PAT: still 403 (the branch adds

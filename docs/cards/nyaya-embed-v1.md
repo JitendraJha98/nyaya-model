@@ -66,7 +66,10 @@ questions that were **never used to tune retrieval** (n=118):
 Qwen2.5-3B-Instruct, same 413 Eval-v1 questions, 768 tokens, k=8, only the dense model
 swapped — fact recall **35.8% → 39.7%**, paired 95% CI **[+0.9, +7.0]** points, better on 64
 questions, worse on 45. The first end-to-end gain in the project with an interval clear of
-zero. This model is the default dense stage of the retriever from 2026-09-04.
+zero. This model is the default dense stage of the retriever from 2026-09-04. With the
+stronger `Qwen3-4B-Instruct-2507` reader the same swap is +1.4 points (CI [−1.5, +4.4]):
+the gain is established for the 3B reader and not proven for the 4B one
+(`reports/eval_v1_comparison_qwen3-4b-embed-v1_vs_qwen3-4b.json`).
 
 Report: `reports/retrieval_recall_dense_embed_v1.json` in the repository. Per language
 (all 150 gold-bearing questions, @8): English 84.2% (n=139), Hindi 80.0% (n=5),

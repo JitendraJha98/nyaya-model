@@ -30,6 +30,9 @@ retrieval stack, and an evaluation harness that publishes its own bugs.
   118M cross-encoder, +5.9 points at k=1 over BM25 on never-tuned records. Apache-2.0.
 - **[nyaya-train-v3](https://huggingface.co/datasets/NyayaLabs98/nyaya-train-v3)** —
   6,429 statute-grounded, citation-verified training records.
+- **[nyaya-train-v7-raft](https://huggingface.co/datasets/NyayaLabs98/nyaya-train-v7-raft)** —
+  1,456 citation-verified answers from a served 14B teacher; published, not trained on
+  (the teacher scores below the default reader).
 - Code, retriever, reranker, evaluation:
   [github.com/JitendraJha98/nyaya-model](https://github.com/JitendraJha98/nyaya-model) (Apache-2.0).
 
@@ -37,6 +40,12 @@ retrieval stack, and an evaluation harness that publishes its own bugs.
 the benchmark could tell the difference. Retrieval did: with the right section
 in context the base model reaches 63% fact recall; without it, 20%. The work is
 in finding the right law.
+
+**Where it stands (2026-09-04):** the default configuration — `Qwen/Qwen3-4B-Instruct-2507`
+reading sections found by BM25 + `nyaya-embed-v1` — scores **52.0% fact recall and 77.1%
+citation accuracy** on Nyaya-Eval-v1, +16.2 points over the system as first published
+(paired 95% CI [+12.7, +19.9]). Every prediction behind every number is committed in the
+repository and re-scorable on a CPU.
 
 **⚖️ Not legal advice.** Nyaya provides legal information. The practice of law
 in India is reserved to advocates enrolled under the Advocates Act, 1961. Free

@@ -53,6 +53,25 @@ is the default reader from this commit. The combined configuration (Qwen3-4B
 reader, `nyaya-embed-v1` retriever) is being measured against both parents; its
 paired interval will become the system's headline number.
 
+### The combined configuration (2026-09-04)
+
+`Qwen3-4B-Instruct-2507` on BM25 + `nyaya-embed-v1`, 768 tokens, k=8
+(`outputs/eval-v1/qwen3-4b-embed-v1/`, 208 min on one T4):
+
+| paired against | their fact recall | Δ fact recall, 95% CI | Δ citation, 95% CI | better / worse / tied |
+|---|---|---|---|---|
+| `base-768` (system as first published) | 35.8% | **+16.2 [+12.7, +19.9]** | +21.5 [+14.6, +28.8] | 135 / 24 / 250 |
+| `base-768-embed-v1` (same retriever, 3B reader) | 39.7% | **+12.3 [+9.2, +15.4]** | +16.0 [+9.0, +23.3] | 116 / 20 / 273 |
+| `qwen3-4b` (same reader, zero-shot e5-base) | 50.6% | +1.4 [−1.5, +4.4] **tied** | +4.9 [−1.0, +10.8] tied | 58 / 47 / 304 |
+| `teacher-qwen2.5-14b-instruct-awq` (same retriever) | 45.0% | **+7.0 [+3.9, +10.1]** | +9.0 [+2.8, +15.6] | 96 / 36 / 277 |
+
+Score: **52.0% fact recall, 77.1% citation accuracy, 33.0% all-facts.** Mean
+answer 305 words, 30 s per question on a T4. This is the configuration the README
+quotes. The embedder's +3.9 on the 3B reader shrinks to a non-significant +1.4 on
+the 4B one; the stronger reader is less dependent on which section arrives first.
+The gain over the served 14B teacher under identical retrieval is the cleanest
+evidence that reader generation matters more than reader size here.
+
 ### An external benchmark (BhashaBench-Legal, 1,500 MCQs, exact scoring)
 
 | model | overall | English | Hindi |
@@ -166,7 +185,8 @@ and it comes from retrieval. `nyaya-embed-v1` is the default dense model from
 this date; every earlier run used zero-shot e5-base (their `dense_model` field
 is absent). The 384- vs 768-token comparison of the base model itself is a tie
 (+1.5, CI [−0.2, +3.3], `reports/eval_v1_comparison_base-768.json`), so the
-token budget is not what moved.
+token budget is not what moved. On the Qwen3-4B reader the same embedder swap is
++1.4 points (CI [−1.5, +4.4]) — see §1, "The combined configuration".
 
 The mini reranker costs 3.2 s per query on CPU at depth 20 (Kaggle CPU), so it
 stays out of the browser demo; the embedder needs a GPU or a precomputed vector
@@ -288,12 +308,18 @@ English/Hindi/Hinglish, citation-verified, self-hostable, free.
 ✅ 47.8% on BhashaBench-Legal against a 25% chance floor.
 ✅ Cross-encoder reranking improves retrieval by +12.7 points at k=1, validated
 on held-out records.
+✅ The default configuration (Qwen3-4B-Instruct-2507 reader, BM25 + nyaya-embed-v1)
+scores 52.0% fact recall / 77.1% citation accuracy on Nyaya-Eval-v1: +16.2 points
+over the system as first published (paired 95% CI [+12.7, +19.9]) and +7.0 over a
+served 14B teacher under the same retriever (CI [+3.9, +10.1]).
 ✅ Swapping the reader to `Qwen3-4B-Instruct-2507` (Apache-2.0) lifts fact recall
 from 35.8% to 50.6% under the same retriever (paired 95% CI [+11.4, +18.3]).
 ✅ A bi-encoder fine-tuned on the project's own pairs lifts the base reader's
 fact recall from 35.8% to 39.7% (paired 95% CI [+0.9, +7.0]) with no change
-to the weights — the only end-to-end gain with an interval clear of zero.
+to the weights; on the Qwen3-4B reader the same swap is +1.4 (CI spans zero).
 
 ❌ "Best" anything — one baseline and one external benchmark is not a ranking.
 ❌ That the fine-tuned weights beat the base model. They do not.
-❌ Apache-2.0 on the weights — the base is `qwen-research`, non-commercial.
+❌ Apache-2.0 on `nyaya-3b-v3` — its base is `qwen-research`, non-commercial. The
+default configuration (Qwen3-4B, nyaya-embed-v1, nyaya-reranker-mini-v1) is
+Apache-2.0 / MIT throughout.
