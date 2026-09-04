@@ -149,6 +149,11 @@ September 2026 — v3 was trained without it.
 
 ## Usage
 
+Quantised builds for llama.cpp / Ollama (Q4_K_M 1.9 GB, Q8_0 3.3 GB, with a
+Modelfile carrying the Nyaya system prompt):
+[`NyayaLabs98/nyaya-3b-v3-GGUF`](https://huggingface.co/NyayaLabs98/nyaya-3b-v3-GGUF).
+Retrieval-only demo: [`NyayaLabs98/nyaya-demo`](https://huggingface.co/spaces/NyayaLabs98/nyaya-demo).
+
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
