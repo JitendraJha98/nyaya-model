@@ -53,3 +53,15 @@ IT Rules traceability challenge, political-parties-under-RTI matter.
   "split": "test"
 }
 ```
+
+## Nyaya-Eval-v1 (2026-08-06) — the graded successor
+
+Built by `scripts/25_build_eval_v1.py` from the frozen v0 file: 413 gradeable
+records (87 need manual curation and are kept but not scored), 665 facts kept
+and 400 quarantined, a public / private split of 305 / 195 rows by id hash.
+Gold answers score 100% on every metric by construction. The scorer is
+`nyaya.scoring` (strict citations, partial-credit substance); v0's strict
+metric, which scored its own gold answers at 10.7%, is retired.
+
+Only `nyaya_eval_v1_public.jsonl` is versioned. Because v0 is public, the
+private half is reconstructible and is damage limitation, not a true holdout.

@@ -18,7 +18,7 @@ That distinction is the point, and it was learned the hard way — see
 
 | Part | What it does | State |
 |---|---|---|
-| **Statute DB** | 16 acts, one row per section, + official IPC↔BNS / CrPC↔BNSS mapping tables | ✅ |
+| **Statute DB** | 13 acts + the Constitution (2,528 sections), 1,257 official IPC↔BNS / CrPC↔BNSS / IEA↔BSA mappings, 70 guidance notes | ✅ |
 | **Retriever** | Exact-citation lookup, BM25, optional dense fusion | ✅ |
 | **Reranker** | Cross-encoder picks which retrieved sections actually answer the question | ✅ **+12.7 pts @k=1** |
 | **Model** | Reads the retrieved sections, writes a cited answer | Qwen2.5-3B-Instruct |
@@ -32,7 +32,8 @@ section.** That is what this repository is.
 
 ## Results: what actually worked
 
-Measured on Nyaya-Eval-v1 (409 gradeable questions), paired, 10k-round bootstrap.
+Measured on Nyaya-Eval-v1 (413 gradeable questions, 409 scored; 4 safety rows are
+graded separately), paired, 10k-round bootstrap.
 
 ### Retrieval — the win
 
@@ -54,7 +55,7 @@ because the model scores **63.2%** when the gold section is in context and
 |---|---|---|
 | **base Qwen2.5-3B + RAG** | **34.3%** | — |
 | v3 (RAFT) | 32.9% | tied (CI spans 0) |
-| v5 (grounded citation data) | 23.4% | **worse**, CI [−13.5, −7.2] |
+| v5 (grounded citation data) | 24.0% | **worse**, CI [−13.5, −7.2] |
 | v6 (v5 + answer-style fix) | 23.4% | **worse**, CI [−14.0, −7.8] |
 
 The cause is answer length, and it is monotone: base 173 words → v5 90 → v6 57.
@@ -141,6 +142,8 @@ that produced them.
 
 ## Claims this project does not make
 
-No external benchmark comparison has been run, and no human evaluation has
-been passed. Nyaya is **not** claimed to be the best Indian legal model, and no
-fine-tune here has beaten its own base model. See `docs/RELEASE_PLAN.md`.
+One external benchmark has been run: BhashaBench-Legal (1,500-question sample,
+exact MCQ scoring) — base 47.8%, v3 45.2%, tied (`reports/bhashabench_scores.json`).
+No human evaluation has been passed. Nyaya is **not** claimed to be the best
+Indian legal model, and no fine-tune here has beaten its own base model.
+See `docs/RELEASE_PLAN.md`.

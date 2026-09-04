@@ -36,9 +36,12 @@ Answer length, and it is monotone:
 
 | | mean answer | fact recall |
 |---|---|---|
-| base | 173 words | 34.1% |
-| v5 | 90 words | 23.7% |
-| v6 | 57 words | 23.2% |
+| base | 173 words | 34.3% |
+| v5 | 90 words | 24.0% |
+| v6 | 57 words | 23.4% |
+
+Mean answer length is over all 413 predictions; fact recall is over the 409
+scored rows, exactly as in the table above.
 
 Shorter answers carry fewer of the facts being scored. Training on templated
 27-word targets taught 57-word answers. Fixing v5's verbatim-recitation problem

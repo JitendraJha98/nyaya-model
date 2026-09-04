@@ -1,6 +1,7 @@
 # Nyaya — Release Plan
 
-**Status:** draft, pending the v6 paired-CI result.
+**Status:** decided 2026-08-07 (v6 regressed; base + retrieval ships). Pre-publication
+checklist tracked below; execution plan in `docs/plans/2026-09-04-release-hardening.md`.
 **Owner decision required before anything below goes public.**
 
 ---
@@ -20,10 +21,10 @@ The four parts:
 
 | Part | What it does | Status |
 |---|---|---|
-| Statute DB | 16 acts, IPC↔BNS mapping | ✅ built, publishable now |
+| Statute DB | 13 acts + Constitution, 1,257 official mappings | ✅ built, published |
 | Retriever | BM25 + dense over the DB | ✅ built |
 | **Reranker** | Picks the 3 that actually answer | ✅ **+12.7pts @k=1, generalises** |
-| Model | Reads context, writes cited answer | ⏳ v6 pending |
+| Model | Reads context, writes cited answer | ❌ v6 regressed (RESULTS §1); base Qwen2.5-3B-Instruct is the reader |
 
 ---
 

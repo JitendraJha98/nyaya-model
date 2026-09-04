@@ -26,13 +26,13 @@ task_categories:
 
 **Current Indian law as clean, section-level JSONL** — the Bharatiya Nyaya
 Sanhita, Bharatiya Nagarik Suraksha Sanhita and Bharatiya Sakshya Adhiniyam as
-in force after **1 July 2024**, plus the official old→new mapping tables and
-twelve other acts a citizen actually runs into.
+in force after **1 July 2024**, plus the official old→new mapping tables, the
+Constitution and ten other acts a citizen actually runs into.
 
 Most Indian legal datasets predate the 2024 criminal-law overhaul and still
 describe the IPC, CrPC and Evidence Act as current law. This one does not.
 
-## Contents — 3,785 rows
+## Contents — 3,785 rows: 14 act files, 1 mapping table, 1 guidance file
 
 | File | Rows | Act |
 |---|---:|---|
@@ -65,15 +65,16 @@ describe the IPC, CrPC and Evidence Act as current law. This one does not.
   "chapter": "...",
   "subsection": null,
   "effective_date": "2024-07-01",
-  "replaces": "IPC 302",
-  "punishment_summary": "death or imprisonment for life, and fine",
-  "tags": ["homicide", "violent_crime"],
+  "replaces": null,
+  "punishment_summary": null,
+  "tags": [],
   "source_url": "https://www.indiacode.nic.in/..."
 }
 ```
 
-`replaces` is what makes old→new bridging possible: a user asking about
-"Section 302 IPC" can be routed to BNS 103 with the mapping made explicit.
+Old→new bridging ("Section 302 IPC" → BNS 103) comes from `law_mappings.jsonl`.
+The `replaces`, `punishment_summary` and `tags` fields are reserved and are
+currently empty in every statute row; only `procedures_kb.jsonl` carries tags.
 
 ## Intended use
 
@@ -88,7 +89,7 @@ from 45.8%.
 
 ## Limitations — read these
 
-- **Coverage is 16 acts, not all Indian law.** Anything outside them is absent,
+- **Coverage is 13 acts plus the Constitution, not all Indian law.** Anything outside them is absent,
   and absence is silent: a retriever will still return the nearest thing it has.
 - **Statutes change.** `effective_date` is recorded, but nothing here tracks
   amendments after collection. Verify against

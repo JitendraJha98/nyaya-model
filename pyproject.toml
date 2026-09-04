@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nyaya"
-description = "Nyaya — an open Indian legal guidance model (Qwen2.5-3B-Instruct + LoRA)"
+description = "Nyaya — an open Indian legal guidance system: statute DB, retriever, reranker, evaluation harness (Qwen2.5-3B-Instruct as the default reader)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"

@@ -1,5 +1,11 @@
 # Nyaya — Technical Roadmap
 
+> **Historical document (July 2026).** This was the original 12-step plan. What
+> actually happened — the retirement of the Eval-v0 metric, five fine-tunes that
+> never beat the base model, and the finding that base + retrieval is the
+> product — is in `docs/RESULTS.md`. The current plan is
+> `docs/plans/2026-09-04-release-hardening.md`.
+
 Public, technical version of the project plan. It covers *what* we build and *in what order*.
 See the top-level `README.md` for the goal, repo layout, and rules.
 
