@@ -22,11 +22,20 @@ Recomputed figures: retrieval outcome 63.2% / **20.3%** (17.1% withdrawn); v5/v6
 ran under a later retriever than base/v3; coverage gate 10.0; rewriting cuts
 Devanagari zero-hit questions 19 → 3 of 53.
 
+**Later on day 1:** India Code moved to indiacode.gov.in (DSpace 9 REST API). New
+client `src/nyaya/indiacode.py` + `scripts/42` build any central act section by
+section from the API (verified identical to the committed BNS on all 358 sections).
+D1 started: Transfer of Property 1882, Indian Contract 1872, POCSO 2012, Juvenile
+Justice 2015 added (3,014 sections, 17 acts + Constitution); real questions with no
+act in the DB fell from 66 (25%) to 12 (4%). A14 closed as NO-GO: the Hindi PDFs
+are image scans (0% Devanagari in India Code's own text extraction).
+
 **Blocked:** GitHub push and About/topics (PAT lacks Contents/Workflows/Administration
 write); history rewrite (needs explicit approval of the destructive command);
-A14 and D1 (India Code is offline, "Site Migration" placeholder); C1 session 2
-and C2 (need the `HF_TOKEN` Kaggle secret and accepted gated-model terms);
-C4 dropped (paid teacher API); D2 gold review (needs a human reviewer).
+C1 session 2 and C2 (need the `HF_TOKEN` Kaggle secret and accepted gated-model
+terms); C4 dropped (paid teacher API); D2 gold review (needs a human reviewer).
+Remaining D1 acts (inheritance, dowry, senior citizens, guardianship, labour) can
+now be added the same way.
 
 ## Global Constraints
 
