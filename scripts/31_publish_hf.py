@@ -1,4 +1,4 @@
-"""Step 24 — Publish Nyaya-3B-v3 to the Hugging Face Hub.
+"""Step 31 — Publish a Nyaya-3B release to the Hugging Face Hub.
 
 Pushes the MERGED full model (a merged model directory), an honest auto-generated
 model card, and the training/eval artifacts to `NyayaLabs98/nyaya-3b-v3`.
@@ -13,16 +13,16 @@ Auth: create a WRITE token for the NyayaLabs98 org, then either
 
 Usage:
     # dry run — build the card, upload nothing
-    python scripts/24_publish_hf.py --model-dir outputs/nyaya-3b-v3-merged --dry-run
+    python scripts/31_publish_hf.py --model-dir outputs/nyaya-3b-v3-merged --dry-run
 
     # publish the model + training artifacts
-    python scripts/24_publish_hf.py --model-dir outputs/nyaya-3b-v3-merged
+    python scripts/31_publish_hf.py --model-dir outputs/nyaya-3b-v3-merged
 
     # also publish the training/RAG datasets (public)
-    python scripts/24_publish_hf.py --model-dir outputs/nyaya-3b-v3-merged --publish-datasets
+    python scripts/31_publish_hf.py --model-dir outputs/nyaya-3b-v3-merged --publish-datasets
 
     # ALSO publish the frozen eval set — IRREVERSIBLE, burns the benchmark
-    python scripts/24_publish_hf.py --model-dir outputs/nyaya-3b-v3-merged \
+    python scripts/31_publish_hf.py --model-dir outputs/nyaya-3b-v3-merged \
         --publish-datasets --publish-eval
 """
 

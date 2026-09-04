@@ -1,4 +1,4 @@
-"""Guards on the published model card (scripts/24_publish_hf.py).
+"""Guards on the published model card (scripts/31_publish_hf.py).
 
 The first v3 release shipped three defects that all reached the public Hub:
   1. `license: apache-2.0` — but Qwen2.5-3B-Instruct is qwen-research
@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _publish_module():
     spec = importlib.util.spec_from_file_location(
-        "publish_hf", ROOT / "scripts" / "24_publish_hf.py"
+        "publish_hf", ROOT / "scripts" / "31_publish_hf.py"
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

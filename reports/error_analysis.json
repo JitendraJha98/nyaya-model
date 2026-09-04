@@ -1,6 +1,6 @@
 {
   "checkpoint": "legal-3b-v1/checkpoint-50",
-  "predictions_file": "C:\\Users\\siddhant.nikumbh\\nyaya-model\\outputs\\legal-3b-v1\\eval\\checkpoint-50\\predictions.jsonl",
+  "predictions_file": "outputs/legal-3b-v1/eval/checkpoint-50/predictions.jsonl",
   "analysed_at": "2026-07-15 13:45:32",
   "scored": 495,
   "failures": 491,
