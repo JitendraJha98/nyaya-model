@@ -1,3 +1,4 @@
-"""Nyaya — Indian legal guidance model, built on Qwen2.5-3B-Instruct."""
+"""Nyaya — an open Indian legal guidance system: statute DB, retriever, reranker, evaluation
+harness. The reader is a small open model (default Qwen3-4B-Instruct-2507)."""
 
 __version__ = "0.1.0"

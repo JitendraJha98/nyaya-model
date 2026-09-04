@@ -44,7 +44,8 @@ from nyaya.dense import DEFAULT_ATTACH_MODEL as DEFAULT_DENSE_MODEL
 from nyaya.dense import doc_vector_cache
 from nyaya.scoring import aggregate, score_record
 
-MODEL_ID = "Qwen/Qwen2.5-3B-Instruct"
+MODEL_ID = "Qwen/Qwen3-4B-Instruct-2507"  # see scripts/16_rag_eval.py; 3B base = LEGACY_MODEL_ID
+LEGACY_MODEL_ID = "Qwen/Qwen2.5-3B-Instruct"
 EVAL_FILES = {
     "public": ROOT / "data" / "eval" / "nyaya_eval_v1_public.jsonl",
     "private": ROOT / "data" / "eval" / "nyaya_eval_v1_private.jsonl",
@@ -197,9 +198,10 @@ def main() -> None:
     helpers = _rag_helpers()
     records = load_records(args.split, args.limit)
     adapter = None if args.adapter.lower() == "none" else args.adapter
+    # "base" is the committed 2026-08 run of the 3B model at 384 tokens; nothing may reuse
+    # that label by default. Unlabelled runs are named after the model (and adapter).
     label = args.label or (
-        "base" if args.model == MODEL_ID and not adapter
-        else Path(args.model).name + (f"+{Path(adapter).name}" if adapter else ""))
+        Path(args.model).name + (f"+{Path(adapter).name}" if adapter else ""))
 
     index = None
     if not args.no_rag:

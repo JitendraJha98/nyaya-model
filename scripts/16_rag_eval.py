@@ -38,7 +38,12 @@ from nyaya.evaluation import load_eval_records, run_eval
 from nyaya.prompts import NYAYA_SYSTEM_PROMPT
 from nyaya.retrieval import build_rag_prompt, load_statute_index
 
-MODEL_ID = "Qwen/Qwen2.5-3B-Instruct"
+# Default reader. Qwen3-4B-Instruct-2507 (Apache-2.0) scored 50.6% fact recall on Eval-v1
+# against 35.8% for Qwen2.5-3B-Instruct under the same retriever, paired CI [+11.4, +18.3]
+# (reports/eval_v1_comparison_qwen3-4b.json, 2026-09-04). Every committed run before that
+# date used the 3B model; pass --model Qwen/Qwen2.5-3B-Instruct to reproduce them.
+MODEL_ID = "Qwen/Qwen3-4B-Instruct-2507"
+LEGACY_MODEL_ID = "Qwen/Qwen2.5-3B-Instruct"
 
 
 def pick_dtype():
