@@ -10,6 +10,24 @@
 
 **Spec:** the audit at https://claude.ai/code/artifact/49bc6358-6233-41a4-ad30-28291999fa0c (Parts III, IV, V, VI, VIII), plus `docs/RESULTS.md` and `docs/RELEASE_PLAN.md` for the claims policy.
 
+## Status — 2026-09-04 (end of day 1)
+
+**Done:** A1–A13; B2–B5 (cards, org page, GGUF); B6 as a free *static* Space
+(`space-static/`, JS port parity-checked on 389 questions) instead of Gradio, which
+now requires a paid plan; D3 (`replaces` / `punishment_summary`); D2 tooling (180
+holdout drafts selected, reviewer brief); C3 preparation (4,712 retriever pairs,
+training notebook); C2 notebook rewritten to load the full gated set from the Hub;
+C1 session 1 running on Kaggle (T4, requested via `machine_shape`).
+Recomputed figures: retrieval outcome 63.2% / **20.3%** (17.1% withdrawn); v5/v6
+ran under a later retriever than base/v3; coverage gate 10.0; rewriting cuts
+Devanagari zero-hit questions 19 → 3 of 53.
+
+**Blocked:** GitHub push and About/topics (PAT lacks Contents/Workflows/Administration
+write); history rewrite (needs explicit approval of the destructive command);
+A14 and D1 (India Code is offline, "Site Migration" placeholder); C1 session 2
+and C2 (need the `HF_TOKEN` Kaggle secret and accepted gated-model terms);
+C4 dropped (paid teacher API); D2 gold review (needs a human reviewer).
+
 ## Global Constraints
 
 - **GPU work runs only on Kaggle.** Accelerator "GPU T4 x2", always `os.environ["CUDA_VISIBLE_DEVICES"] = "0"` before importing torch, fp16 (never bf16) on T4, 12-hour session cap, roughly 30 GPU-hours per week (check the quota bar in the notebook sidebar). Secrets are per notebook: add `HF_TOKEN` to each notebook that needs it.
