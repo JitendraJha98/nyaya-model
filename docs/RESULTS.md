@@ -86,6 +86,27 @@ learns the shape rather than the task. Beating base needs targets with base's
 coverage *and* better accuracy, i.e. a strong teacher model — not another
 template. Fine-tuning at 3B with rule-based data is a closed path.
 
+### The teacher test (C4), 2026-09-04
+
+The paragraph above asked for a strong teacher. Without a paid API, the test used
+an open one: `Qwen/Qwen2.5-14B-Instruct-AWQ` served by vLLM on two Kaggle T4s
+(`scripts/kaggle_teacher.ipynb`), answering Eval-v1 through the same prompt and
+retriever as the 3B reader (`scripts/26 --endpoint`, k=8, `nyaya-embed-v1`, 768 tokens):
+
+| reader, embed-v1 retriever | fact recall | citation | paired Δ vs the 3B reader |
+|---|---|---|---|
+| `Qwen2.5-3B-Instruct` (`base-768-embed-v1`) | 39.7% | 61.1% | — |
+| `Qwen2.5-14B-Instruct-AWQ`, served (`teacher-…`) | 45.0% | 68.1% | +5.3, CI [+2.3, +8.4] |
+
+It passed the distillation gate (CI clear of zero, ≥ 5 points) and generated
+1,456 citation-verified RAFT answers in 4.2 h (315 rejected by the context gate;
+published as `NyayaLabs98/nyaya-train-v7-raft`). No v7 was trained: the same
+day's shootout put `Qwen3-4B-Instruct-2507` at 50.6% with no training, above
+the teacher. A teacher that scores below the student has nothing to transfer, so
+C4 closes on evidence, not on cost. Two readings survive: a 14B model from the
+previous Qwen generation is beaten by a 4B from the next one on this task, and
+the reader's own quality, not fine-tuning, is where the score moves.
+
 ---
 
 ## 2. What actually improved the system: retrieval

@@ -133,8 +133,11 @@ Qwen3-4B is better on 119 questions and worse on 22. Its answers are longer, whi
 the substance scorer partly rewards, but citation accuracy (strict, length-blind)
 rises by the same margin. It is also Apache-2.0, which the 3B base is not. It is
 the default reader from this commit; the combined run (Qwen3-4B on the
-`nyaya-embed-v1` retriever) is in progress. Sessions 2 of the shootout (Gemma-3-4B,
-Llama-3.2-3B, Phi-4-mini) need gated-model access and are still queued.
+`nyaya-embed-v1` retriever) and session 2 of the shootout (Gemma-3-4B, Llama-3.2-3B)
+are in progress. A served 14B teacher (`Qwen2.5-14B-Instruct-AWQ`) scored 45.0%
+under the embed-v1 retriever, above the 3B reader there but below Qwen3-4B, so
+distillation was dropped and its 1,456 verified answers were published instead
+(`NyayaLabs98/nyaya-train-v7-raft`; `docs/RESULTS.md` §1).
 
 ### Fine-tuning: five attempts, none beat the base model
 

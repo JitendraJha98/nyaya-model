@@ -40,9 +40,15 @@ are image scans (0% Devanagari in India Code's own text extraction).
 corporate address replaced by a placeholder; pinned hashes repointed: 503d0df→008288e,
 57d89ec→19189df, 5c3d843→decc4d1) and both branches force-pushed. Collaborators must re-clone.
 
-**Blocked:** the v3 Hub tokenizer/config fix (classifier; needs the owner's word); the Kaggle
-`HF_TOKEN` secret (must be added in the Kaggle UI; uploading it as a dataset was blocked);
-C1 session 2 and C2 (need the `HF_TOKEN` Kaggle secret and accepted gated-model
+**Later that evening:** v3 Hub files fixed (owner approved; verified under transformers 4.45);
+`release-hardening` fast-forwarded into `main` and deleted; the owner created Kaggle secret
+`Nyaya` (notebooks accept `HF_TOKEN` or `Nyaya`). C4 closed on evidence: the served 14B teacher
+scored 45.0% under embed-v1 (+5.3 over the 3B reader, gate passed) but below Qwen3-4B's 50.6%;
+its 1,456 RAFT answers are published as `nyaya-train-v7-raft`. Shootout session 2 runs Gemma-3-4B
+and Llama-3.2-3B only (Phi-4-mini dropped by the owner's call, quota). BhashaBench is now one
+paired 3,000-question run for both readers, queued behind `nyaya-qwen3-embed`.
+
+**Blocked:** C1 session 2 and C2 (need the `HF_TOKEN` Kaggle secret and accepted gated-model
 terms); C4 dropped (paid teacher API); D2 gold review (needs a human reviewer).
 Push retried 2026-09-04 with the same PAT: still 403 (the branch adds
 `.github/workflows/tests.yml`, so the token needs *Workflows* write as well as
