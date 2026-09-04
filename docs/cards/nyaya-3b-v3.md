@@ -91,7 +91,11 @@ the facts being scored.
 - The project's earlier benchmark (Eval-v0) scored its own gold answers at
   10.7%, so **any accuracy figure derived from it is meaningless** — including
   numbers previously shown on this card.
-- Coverage is limited to the 16 acts in the statute DB.
+- `nyaya-eval-v0` is public, so it is **contaminated** as a held-out benchmark;
+  Eval-v1's private half derives from it and is reconstructible.
+- Coverage is 13 acts plus the Constitution. About a quarter of real citizen
+  questions (rent, property, loans, children) fall outside it; the retriever then
+  returns the nearest section it has. Use the coverage gate in the repository.
 
 ## Usage
 

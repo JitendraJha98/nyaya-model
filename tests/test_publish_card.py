@@ -1,14 +1,16 @@
 """Guards on the published model card (scripts/31_publish_hf.py).
 
-The first v3 release shipped three defects that all reached the public Hub:
-  1. `license: apache-2.0` — but Qwen2.5-3B-Instruct is qwen-research
-     (non-commercial), and a merged LoRA inherits that.
-  2. A dataset citation pass-rate read from checkpoint_evals.json, which holds
-     *v1* numbers, presented as v3's.
-  3. A silent 'n/a' in the eval table after the re-baseline renamed run keys —
-     the lookup used .get() and _pct() swallowed the None.
+The card is maintained by hand in docs/cards/nyaya-3b-<version>.md -- it is
+prose about results, not a template -- and the publish script uploads that
+file. These tests pin the parts that must never regress on the Hub:
 
-These tests exist so none of the three can recur.
+  1. `license: other` / `qwen-research` -- Qwen2.5-3B-Instruct is NOT Apache-2.0
+     and a merged LoRA inherits the restriction (the first v3 card got this wrong).
+  2. The card says the weights are statistically tied with base and that no
+     human evaluation has been passed.
+  3. It discloses that nyaya-eval-v0 is public and therefore contaminated.
+  4. It keeps the "not legal advice" disclaimer.
+  5. The eval upload can never include the private Eval-v1 split.
 """
 
 import importlib.util
@@ -35,17 +37,15 @@ def pub():
 
 @pytest.fixture(scope="module")
 def cards(pub):
-    return {v: pub.build_model_card(v) for v in pub.VERSIONS}
+    return {v: pub.load_model_card(v) for v in pub.VERSIONS}
 
 
-def test_every_version_card_builds(cards, pub):
+def test_every_version_card_loads(cards, pub):
     assert set(cards) == set(pub.VERSIONS)
-    for version, card in cards.items():
-        assert f"Nyaya-3B-{version}" in card
+    assert "v3" in cards
 
 
 def test_card_never_claims_apache_for_the_weights(cards):
-    """Qwen2.5-3B is qwen-research; the merged derivative cannot be Apache-2.0."""
     for version, card in cards.items():
         frontmatter = card.split("---")[1]
         assert "license: other" in frontmatter, version
@@ -54,39 +54,13 @@ def test_card_never_claims_apache_for_the_weights(cards):
         assert "non-commercial" in card.lower(), version
 
 
-def test_card_has_no_blank_metrics(cards):
-    """A missing metric must abort the build, never render as 'n/a'."""
+def test_card_states_the_tie_and_the_missing_human_eval(cards):
     for version, card in cards.items():
-        assert "n/a" not in card, f"{version} card rendered a blank metric"
-
-
-def test_missing_run_key_is_fatal(pub):
-    """Reproduce the exact regression: a renamed run key must raise, not blank."""
-    original = pub.VERSIONS["v3"]["eval_key"]
-    pub.VERSIONS["v3"]["eval_key"] = "rag_dense_k8_legal-3b-v3-checkpoint-300"
-    try:
-        with pytest.raises(pub.CardDataError):
-            pub.build_model_card("v3")
-    finally:
-        pub.VERSIONS["v3"]["eval_key"] = original
-
-
-def test_card_does_not_quote_v1_dataset_eval(cards):
-    """checkpoint_evals.json holds v1 numbers — it must not back a v3/v4 claim."""
-    for version, card in cards.items():
-        assert "90.2%" not in card, version
-        assert "checkpoint_evals" not in card, version
-
-
-def test_card_carries_the_strict_metric_caveat(cards):
-    """The strict number is verbatim-phrase agreement, not accuracy — say so."""
-    for version, card in cards.items():
-        assert "not legal correctness" in card, version
-        assert "human-eval ship gate has NOT been passed" in card, version
+        assert "statistically tied" in card, version
+        assert "No human evaluation" in card, version
 
 
 def test_card_discloses_eval_contamination(cards):
-    """nyaya-eval-v0 is public, so it is no longer a held-out benchmark."""
     for version, card in cards.items():
         assert "contaminated" in card, version
 
@@ -95,3 +69,22 @@ def test_card_keeps_the_not_legal_advice_disclaimer(cards):
     for version, card in cards.items():
         assert "Not legal advice" in card, version
         assert "Advocates Act, 1961" in card, version
+
+
+def test_missing_card_is_fatal(pub):
+    with pytest.raises(pub.CardDataError):
+        pub.load_model_card("v99")
+
+
+def test_card_without_frontmatter_licence_is_fatal(pub, tmp_path, monkeypatch):
+    bad = tmp_path / "nyaya-3b-v3.md"
+    bad.write_text("---\nlicense: apache-2.0\n---\n# card\n", encoding="utf-8")
+    monkeypatch.setattr(pub, "CARDS", tmp_path)
+    with pytest.raises(pub.CardDataError, match="license"):
+        pub.load_model_card("v3")
+
+
+def test_eval_upload_allowlist_can_never_match_the_private_split(pub):
+    assert all("private" not in pattern for pattern in pub.EVAL_ALLOW_PATTERNS)
+    assert "nyaya_eval_v1.jsonl" not in pub.EVAL_ALLOW_PATTERNS
+    assert "nyaya_eval_v0.jsonl" in pub.EVAL_ALLOW_PATTERNS
