@@ -6,7 +6,7 @@ colorTo: green
 sdk: static
 pinned: false
 license: apache-2.0
-short_description: Current Indian law, section by section, for any legal question
+short_description: Current Indian law, section by section
 ---
 
 # Nyaya — retrieval demo (static, runs in your browser)

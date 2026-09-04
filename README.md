@@ -19,6 +19,14 @@ in force since 1 July 2024, with the official IPC↔BNS / CrPC↔BNSS bridging.
 
 ## Try it
 
+**In the browser, nothing to install:**
+[huggingface.co/spaces/NyayaLabs98/nyaya-demo](https://huggingface.co/spaces/NyayaLabs98/nyaya-demo)
+— the retriever ported to JavaScript, running client-side over the statute
+database, verified to return the same sections as the Python code on 389 real
+questions (`scripts/39_build_static_demo.py --check`).
+
+**From the command line:**
+
 ```bash
 pip install "git+https://github.com/JitendraJha98/nyaya-model"
 nyaya ask "police FIR nahi likh rahi, kya karu?"

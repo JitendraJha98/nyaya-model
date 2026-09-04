@@ -47,6 +47,9 @@ EVAL_FILES = {
     "public": ROOT / "data" / "eval" / "nyaya_eval_v1_public.jsonl",
     "private": ROOT / "data" / "eval" / "nyaya_eval_v1_private.jsonl",
     "all": ROOT / "data" / "eval" / "nyaya_eval_v1.jsonl",
+    # Holdout-v1: reviewer-graded real citizen questions, never published
+    # (scripts/40_select_holdout.py, docs/HOLDOUT_REVIEW.md). Gitignored.
+    "holdout": ROOT / "data" / "eval" / "nyaya_holdout_v1_private.jsonl",
 }
 
 
