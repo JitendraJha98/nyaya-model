@@ -5,15 +5,19 @@
     "bnss_2023",
     "bsa_2023",
     "constitution_1950",
+    "contract_act_1872",
     "cpa_2019",
     "dv_act_2005",
     "hma_1955",
     "it_act_2000",
+    "jj_act_2015",
     "mv_act_1988",
     "ni_act_1881",
+    "pocso_2012",
     "posh_2013",
     "rti_2005",
     "sma_1954",
+    "tpa_1882",
     "wages_code_2019"
   ],
   "per_bucket": {
@@ -31,13 +35,10 @@
   },
   "buckets_without_an_act": [
     "tenancy_rent",
-    "property_inheritance",
-    "contract_loan",
     "dowry",
-    "senior_citizens",
-    "children"
+    "senior_citizens"
   ],
-  "questions_in_buckets_without_an_act": 66,
+  "questions_in_buckets_without_an_act": 12,
   "uncategorised": 138,
   "zero_statute_hits": {
     "latin": {
@@ -50,7 +51,7 @@
     }
   },
   "coverage_gate_flagged": {
-    "latin": 28,
+    "latin": 20,
     "devanagari": 36
   }
 }

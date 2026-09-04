@@ -39,12 +39,15 @@ _DEVANAGARI = re.compile(r"[ऀ-ॿ]")
 # bucket -> (regex over the lowercased question, is any act for it in the DB?)
 BUCKETS = {
     "tenancy_rent": (r"rent|landlord|tenant|kiraya|kirayedaar|makan malik|मकान मालिक|किराया|pg owner|deposit wapas|security deposit|खाली|khali karne", False),
-    "property_inheritance": (r"property|zameen|plot|jameen|wasiyat|\bwill\b|inheritance|hissa|batwara|संपत्ति|जमीन|registry|mutation|succession", False),
-    "contract_loan": (r"agreement|contract|\bloan\b|\bemi\b|recovery agent|guarantor|udhaar|udhar|कर्ज|लोन|byaj|interest rate", False),
+    # Transfer of Property Act added Sept 2026 (inheritance acts still missing)
+    "property_inheritance": (r"property|zameen|plot|jameen|wasiyat|\bwill\b|inheritance|hissa|batwara|संपत्ति|जमीन|registry|mutation|succession", True),
+    # Indian Contract Act added Sept 2026
+    "contract_loan": (r"agreement|contract|\bloan\b|\bemi\b|recovery agent|guarantor|udhaar|udhar|कर्ज|लोन|byaj|interest rate", True),
     "employment": (r"notice period|\bpf\b|gratuity|resign|terminate|fired|salary|tankhwah|वेतन|naukri|offer letter|\bbond\b", True),
     "dowry": (r"dowry|dahej|दहेज", False),
     "senior_citizens": (r"parents|maa baap|buzurg|senior citizen|बुजुर्ग|माँ-बाप|old age", False),
-    "children": (r"\bchild|bachch|baccha|\bminor\b|17 saal|16 saal|nabalig|बच्च|school", False),
+    # POCSO 2012 and Juvenile Justice Act 2015 added Sept 2026
+    "children": (r"\bchild|bachch|baccha|\bminor\b|17 saal|16 saal|nabalig|बच्च|school", True),
     "traffic": (r"challan|helmet|\bdl\b|licence|license|gaadi|bike|scooty|\bcar\b|rc book|parking|drink and drive|pollution|toll|traffic", True),
     "police_fir_bail": (r"\bfir\b|police|thana|थाने|bail|zamanat|arrest|giraftar|\bncr\b|chargesheet", True),
     "consumer": (r"flipkart|amazon|refund|defective|warranty|consumer|product|delivery|online order|zomato|swiggy|insurance claim", True),

@@ -46,12 +46,14 @@ IN_COVERAGE = re.compile(
     r"|\bfir\b|police|thana|थाने|bail|zamanat|arrest|giraftar|\bncr\b"
     r"|flipkart|amazon|refund|defective|warranty|consumer|cheque|check bounce|\bupi\b|\botp\b|scam|fraud"
     r"|divorce|talaq|तलाक|\brti\b|domestic violence|dowry|dahej", re.IGNORECASE)
+# Domains with no act in the DB as of Sept 2026 (after the Transfer of Property,
+# Contract, POCSO and Juvenile Justice Acts were added): inheritance, dowry,
+# parents / senior citizens, custody.
 OUT_OF_COVERAGE = re.compile(
-    r"rent|landlord|tenant|kiraya|kirayedaar|makan malik|मकान मालिक|किराया|pg owner|security deposit"
-    r"|property|zameen|plot|jameen|wasiyat|\bwill\b|inheritance|hissa|batwara|संपत्ति|जमीन|registry|mutation|succession"
-    r"|agreement|contract|\bloan\b|\bemi\b|recovery agent|guarantor|udhaar|udhar|कर्ज|लोन|byaj"
-    r"|parents|maa baap|buzurg|senior citizen|बुजुर्ग"
-    r"|\bchild|bachch|baccha|\bminor\b|nabalig|बच्च|custody", re.IGNORECASE)
+    r"wasiyat|\bwill\b|inheritance|hissa|batwara|succession|virasat|वसीयत|विरासत"
+    r"|dowry|dahej|दहेज"
+    r"|parents|maa baap|buzurg|senior citizen|बुजुर्ग|माँ-बाप"
+    r"|custody|guardian", re.IGNORECASE)
 
 
 def _score(index, text: str) -> float:

@@ -170,8 +170,15 @@ saved run on CPU with no model loaded.
   sections it now finds are the *right* ones is not yet measured: the 9
   gold-bearing Hindi/Hinglish Eval-v1 questions were already full hits before
   and after. That needs the Hindi holdout.
+- **Hindi statute text is not obtainable from India Code.** The official Hindi
+  PDFs are image scans: the site's own text extraction of the Hindi BNS PDF is
+  64 KB with 0% Devanagari characters (checked 2026-09-04 against the new
+  indiacode.gov.in API). Indexing Hindi statute text is closed as a path;
+  Hindi retrieval relies on query rewriting.
 - **Retrieval still misses ~19%** of gold sections at k=8.
-- **Coverage is 13 acts plus the Constitution.** Absence is silent — a retriever returns the nearest
+- **Coverage is 17 acts plus the Constitution** (four added from the India Code API in
+  Sept 2026; 4% of real citizen questions still fall outside). Absence is flagged by
+  the coverage gate but a retriever still returns the nearest
   thing it has regardless.
 - **No case law**, statutory text only.
 - **No human evaluation** has been run. The project's own ship gate is unmet.

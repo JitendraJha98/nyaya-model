@@ -38,6 +38,12 @@ ACT_ALIASES = {
     "sma": ["sma", "special marriage act", "विशेष विवाह अधिनियम"],
     "wages code": ["wages code", "code on wages", "वेतन संहिता"],
     "constitution": ["constitution", "constitution of india", "संविधान"],
+    # acts added from the India Code API (scripts/42), Sept 2026
+    "tpa": ["tpa", "transfer of property act", "संपत्ति अंतरण अधिनियम"],
+    "contract act": ["contract act", "indian contract act", "संविदा अधिनियम"],
+    "pocso": ["pocso", "pocso act", "protection of children from sexual offences act", "पॉक्सो"],
+    "jj act": ["jj act", "juvenile justice act", "juvenile justice (care and protection of children) act",
+               "किशोर न्याय अधिनियम"],
 }
 
 # act_id prefixes in data/canonical -> act family key above
@@ -56,6 +62,10 @@ _ACT_ID_FAMILY = {
     "sma": "sma",
     "wages_code": "wages code",
     "constitution": "constitution",
+    "tpa": "tpa",
+    "contract_act": "contract act",
+    "pocso": "pocso",
+    "jj_act": "jj act",
 }
 
 # Matches "Section 318", "Sections 34", "Sec. 173", "§420", "§ 420", "dhara 154",

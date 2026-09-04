@@ -27,12 +27,12 @@ task_categories:
 **Current Indian law as clean, section-level JSONL** — the Bharatiya Nyaya
 Sanhita, Bharatiya Nagarik Suraksha Sanhita and Bharatiya Sakshya Adhiniyam as
 in force after **1 July 2024**, plus the official old→new mapping tables, the
-Constitution and ten other acts a citizen actually runs into.
+Constitution and fourteen other acts a citizen actually runs into.
 
 Most Indian legal datasets predate the 2024 criminal-law overhaul and still
 describe the IPC, CrPC and Evidence Act as current law. This one does not.
 
-## Contents — 3,785 rows: 14 act files, 1 mapping table, 1 guidance file
+## Contents — 4,271 rows: 18 act files, 1 mapping table, 1 guidance file
 
 | File | Rows | Act |
 |---|---:|---|
@@ -50,6 +50,10 @@ describe the IPC, CrPC and Evidence Act as current law. This one does not.
 | `dv_act_2005.jsonl` | 37 | Protection of Women from Domestic Violence Act, 2005 |
 | `rti_2005.jsonl` | 31 | Right to Information Act, 2005 |
 | `posh_2013.jsonl` | 30 | POSH Act, 2013 |
+| `tpa_1882.jsonl` | 135 | Transfer of Property Act, 1882 (from the India Code API) |
+| `contract_act_1872.jsonl` | 192 | Indian Contract Act, 1872 (from the India Code API) |
+| `pocso_2012.jsonl` | 47 | Protection of Children from Sexual Offences Act, 2012 (from the India Code API) |
+| `jj_act_2015.jsonl` | 112 | Juvenile Justice (Care and Protection of Children) Act, 2015 (from the India Code API) |
 | **`law_mappings.jsonl`** | **1,257** | **official IPC↔BNS / CrPC↔BNSS / IEA↔BSA mappings** |
 | `procedures_kb.jsonl` | 70 | hand-written "how do I…" procedural guidance |
 
@@ -76,7 +80,7 @@ describe the IPC, CrPC and Evidence Act as current law. This one does not.
 derived from the official tables in `law_mappings.jsonl` (present on 346/358 BNS,
 479/531 BNSS and 168/170 BSA rows; the mapping file itself remains the source of
 truth for old→new lookups, e.g. "Section 302 IPC" → BNS 103). `punishment_summary`
-is the section's first penalty clause where one exists (302 rows across all acts).
+is the section's first penalty clause where one exists (323 rows across all acts).
 `tags` are curated keywords and are present only on the guidance notes.
 
 ## Intended use
@@ -92,7 +96,7 @@ from 45.8%.
 
 ## Limitations — read these
 
-- **Coverage is 13 acts plus the Constitution, not all Indian law.** Anything outside them is absent,
+- **Coverage is 17 acts plus the Constitution, not all Indian law.** Anything outside them is absent,
   and absence is silent: a retriever will still return the nearest thing it has.
 - **Statutes change.** `effective_date` is recorded, but nothing here tracks
   amendments after collection. Verify against

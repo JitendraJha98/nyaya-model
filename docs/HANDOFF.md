@@ -88,7 +88,7 @@ aborts if it exceeds budget. It has caught 6 bad runs at 2–4 minutes each.
 ## 6. Current state
 
 **Published (HuggingFace, cards merged):**
-- `NyayaLabs98/nyaya-statute-db` — 3,785 rows: 13 acts + Constitution, official mappings, guidance notes
+- `NyayaLabs98/nyaya-statute-db` — 4,271 rows: 17 acts + Constitution, official mappings, guidance notes
 - `NyayaLabs98/nyaya-3b-v3` — licence corrected to `qwen-research`
   (non-commercial, NOT Apache-2.0); card states it is tied with base
 

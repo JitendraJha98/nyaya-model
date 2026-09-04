@@ -21,7 +21,7 @@ The four parts:
 
 | Part | What it does | Status |
 |---|---|---|
-| Statute DB | 13 acts + Constitution, 1,257 official mappings | ✅ built, published |
+| Statute DB | 17 acts + Constitution, 1,257 official mappings | ✅ built, published |
 | Retriever | BM25 + dense over the DB | ✅ built |
 | **Reranker** | Picks the 3 that actually answer | ✅ **+12.7pts @k=1, generalises** |
 | Model | Reads context, writes cited answer | ❌ v6 regressed (RESULTS §1); base Qwen2.5-3B-Instruct is the reader |
@@ -33,7 +33,7 @@ The four parts:
 ### Tier 1 — ship regardless of v6 (this is the real contribution)
 
 1. **`NyayaLabs98/nyaya-statute-db`** (dataset) — *already public, needs a card*
-   13 acts plus the Constitution as clean JSONL, one row per section, plus the official IPC↔BNS and
+   17 acts plus the Constitution as clean JSONL, one row per section, plus the official IPC↔BNS and
    CrPC↔BNSS mapping tables. Post-July-2024 law. This is the asset people will
    actually reuse, and the one thing here that is genuinely hard to reproduce.
 
@@ -185,7 +185,7 @@ Consequences for the release:
    "Nyaya" for Indian legal AI. This does not block anything, but "the Nyaya
    model" will not read as ours, and that is worth knowing before building a
    launch around the name.
-3. **What is still genuinely differentiated:** the statute DB is 13 acts plus the Constitution with
+3. **What is still genuinely differentiated:** the statute DB is 17 acts plus the Constitution with
    `replaces` mappings and per-section `source_url`, which is more than a
    definitions dump; the retrieval work is measured with held-out validation,
    which none of the above appear to report; and the evaluation is published

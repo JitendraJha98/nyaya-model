@@ -11,12 +11,12 @@ pinned: false
 
 Open tooling for **current Indian law**: the Bharatiya Nyaya Sanhita, Bharatiya
 Nagarik Suraksha Sanhita and Bharatiya Sakshya Adhiniyam as in force since
-1 July 2024, plus the Constitution and ten other acts citizens actually run into,
+1 July 2024, plus the Constitution and fourteen other acts citizens actually run into,
 as clean section-level data with the official IPC↔BNS mappings, a measured
 retrieval stack, and an evaluation harness that publishes its own bugs.
 
 - **[nyaya-statute-db](https://huggingface.co/datasets/NyayaLabs98/nyaya-statute-db)** —
-  13 acts + the Constitution, 2,528 sections, 1,257 official mappings, 70 procedural guidance notes.
+  17 acts + the Constitution, 3,014 sections, 1,257 official mappings, 70 procedural guidance notes.
 - **[nyaya-3b-v3](https://huggingface.co/NyayaLabs98/nyaya-3b-v3)** — the reader model,
   pre-aligned to the Nyaya prompt format. Statistically tied with its base model;
   published for convenience; non-commercial (qwen-research).
