@@ -43,12 +43,26 @@ Push retried 2026-09-04 with the same PAT: still 403 (the branch adds
 `.github/workflows/tests.yml`, so the token needs *Workflows* write as well as
 *Contents*; *Administration* only for About/topics).
 
-**Kaggle queue:** `nyaya-shootout` (C1 session 1) still running; `nyaya-train-retriever`
-(C3: mmarco cross-encoder + e5-base on the 4,712 pairs) running as version 2 on T4,
-inputs `nyaya-model-src` + `nyaya-retriever-pairs`. Version 1 failed after data prep
-(4,412 train / 300 val pairs, 21,668 reranker examples): Kaggle ships wandb and the
-legacy `CrossEncoder.fit()` reports to it with no key; fixed by disabling all reporters
-through environment variables in the first cell.
+**Day 2 (2026-09-04, afternoon).** Shootout v6 finished `base-768` (35.8% fact recall,
+tied with the 384-token run: +1.5 points, CI spans zero; predictions committed) and then
+crashed loading `NyayaLabs98/nyaya-3b-v3`: the Hub files were written by transformers 5.12
+(`extra_special_tokens` as a list breaks 4.5x; no `rope_theta`, so 4.x silently uses
+10000 instead of 1000000). Fixed files are ready (Qwen2.5-3B-Instruct tokenizer, verified
+identical ids; config with both rope keys) but the Hub commit needs the owner's approval;
+the shootout (v7, v3 + qwen3-4b) evaluates a locally patched copy meanwhile. The GGUF is
+unaffected (rope base 1e6 in its header).
+C3 done: `nyaya-train-retriever` v2 trained both models on one T4 (272 s + 132 s).
+Never-audited full-hit recall @1/@3/@5/@8 — BM25 45.8/61.0/74.6/81.4; **mini reranker
+51.7/70.3/76.3/82.2** (118M, 3.2 s CPU at depth 20, so not in the browser demo); **BM25 +
+embed-v1 RRF 49.2/73.7/78.0/88.1** (zero-shot e5-base was below BM25 at every k). Published
+`NyayaLabs98/nyaya-embed-v1` (MIT) and `NyayaLabs98/nyaya-reranker-mini-v1` (Apache-2.0)
+with cards. `scripts/26` gained `--dense-model` (per-model vector cache) and `--endpoint`
+(any OpenAI-compatible server, same prompts, greedy); `scripts/20` reads `TEACHER_MODEL`.
+Kernel `nyaya-retriever-effect` (base reader + embed-v1 retriever, paired vs base-768) is
+running. **C4 reopened without a paid API:** `scripts/kaggle_teacher.ipynb` serves
+`Qwen/Qwen2.5-14B-Instruct-AWQ` with vLLM on the T4s, scores it on Eval-v1 through
+`--endpoint`, and generates RAFT v7 data only if the teacher beats base-768 by ≥5 points
+with a CI excluding zero; queued behind the two running kernels.
 
 ## Global Constraints
 
