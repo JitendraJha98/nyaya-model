@@ -150,10 +150,13 @@ not been tuned against. All of it, with the corrections, is in
   with no act in the database — and the retriever still returns eight confident
   sections for them (`reports/coverage_probe.json`, `scripts/35_coverage_probe.py`).
   Adding those acts and a coverage gate is the current work.
-- **Hindi.** 19 of the 53 Devanagari questions in that set retrieve no statute
-  at all; the index is built over English statute text. Eval-v1 has only 9 Hindi
-  and 10 Hinglish questions, so the multilingual claim rests on BhashaBench, not
-  on our own benchmark.
+- **Hindi.** 19 of the 53 Devanagari questions in that set retrieved no statute
+  at all, because the index is built over English statute text. Rewriting the
+  question into statutory English with the reader model before retrieval
+  (`--rewrite`) brings that down to 3 of 53 (`reports/rewrite_measurement.json`);
+  whether the sections found are the right ones still needs a Hindi holdout.
+  Eval-v1 has only 9 Hindi and 10 Hinglish questions, so the multilingual claim
+  rests on BhashaBench, not on our own benchmark.
 - **No case law**, statutory text only. **No human evaluation** has been passed.
 - `nyaya-eval-v0` is public, so it is contaminated as a held-out benchmark;
   Eval-v1's private half derives from it.

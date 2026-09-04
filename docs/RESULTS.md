@@ -158,9 +158,18 @@ saved run on CPU with no model loaded.
 
 ## 5. Known weaknesses
 
-- **Hindi is 14 points behind English** (40.7% vs 54.9% on BhashaBench). No
-  amount of retrieval work addresses this; it is the clearest target for
-  anyone continuing.
+- **Hindi is 14 points behind English** (40.7% vs 54.9% on BhashaBench) on the
+  model side. On the retrieval side, 19 of the 53 Devanagari questions in the
+  269 real citizen questions retrieved **zero** statute sections, because the
+  index is English statute text. **Query rewriting fixes most of that:** having
+  the reader model rewrite a Hindi/Hinglish question into one line of statutory
+  English before retrieval (`nyaya.rewrite`, `--rewrite`) cuts zero-hit
+  Devanagari questions from 19 to 3 of 53 and Hinglish from 1 to 0 of 214, at
+  5.2 s per rewrite on a CPU with the Q4 GGUF (`reports/rewrite_measurement.json`,
+  `scripts/33_measure_rewrite.py`, rewriter = nyaya-3b-v3 Q4_K_M). Whether the
+  sections it now finds are the *right* ones is not yet measured: the 9
+  gold-bearing Hindi/Hinglish Eval-v1 questions were already full hits before
+  and after. That needs the Hindi holdout.
 - **Retrieval still misses ~19%** of gold sections at k=8.
 - **Coverage is 13 acts plus the Constitution.** Absence is silent — a retriever returns the nearest
   thing it has regardless.

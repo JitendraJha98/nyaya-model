@@ -1,0 +1,122 @@
+{
+  "model": "nyaya-3b-v3-Q4_K_M",
+  "endpoint": "http://127.0.0.1:8080/v1",
+  "seconds_per_rewrite": 5.2,
+  "citizen_questions": {
+    "n": {
+      "devanagari": 53,
+      "hinglish": 214
+    },
+    "zero_statute_hits_before": {
+      "devanagari": 19,
+      "hinglish": 1
+    },
+    "zero_statute_hits_after": {
+      "devanagari": 3,
+      "hinglish": 0
+    }
+  },
+  "eval_v1_public_hi_hinglish": {
+    "gold_bearing": 9,
+    "full_hit_at_8_before": 9,
+    "full_hit_at_8_after": 9
+  },
+  "samples": [
+    {
+      "question": "गाड़ी का चालान ऑनलाइन कैसे भरते हैं? मुझे वेबसाइट समझ नहीं आ रही",
+      "rewritten": "How do I fill out the online form for my vehicle's insurance details? I am unable to understand the website.",
+      "after_top": [
+        "constitution_1950:159",
+        "constitution_1950:60",
+        "constitution_1950:69"
+      ]
+    },
+    {
+      "question": "मेरी गाड़ी टो कर ली गई नो पार्किंग से लेकिन वहाँ कोई बोर्ड नहीं लगा था, क्या मैं फाइन वापस मांग सकता हूँ?",
+      "rewritten": "यदि आपकी गाड़ी टो कर जाती है और उस पर कोई बोर्ड नह",
+      "after_top": []
+    },
+    {
+      "question": "ऑनलाइन एफआईआर कैसे दर्ज करें? थाने जाने का टाइम नहीं है",
+      "rewritten": "Online FIR register karna kaise hai aur police station jaane ka time nahi hai?",
+      "after_top": [
+        "bnss_2023:173",
+        "bnss_2023:174",
+        "bnss_2023:175"
+      ]
+    },
+    {
+      "question": "पड़ोसी ने मारपीट की और उल्टा मेरे खिलाफ ही रिपोर्ट लिखवा दी, अब मैं अपना पक्ष कैसे रखूँ?",
+      "rewritten": "Your neighbor has submitted a report against you for theft and its reverse, and now you must determine your legal position.",
+      "after_top": [
+        "bns_2023:309",
+        "bnss_2023:177",
+        "bnss_2023:292"
+      ]
+    },
+    {
+      "question": "sasural walo ne mera streedhan gehne sab rakh liye, wapas kaise lu?",
+      "rewritten": "Sasural walein ke paas aapke padosi ke dhanon mein sahi prakar ki jagah shamil karne ke liye ek kanooni karyawahi (maintenance) ke li",
+      "after_top": [
+        "bnss_2023:144",
+        "bnss_2023:146",
+        "bnss_2023:147"
+      ]
+    },
+    {
+      "question": "मकान की रजिस्ट्री में कितना खर्चा आता है? स्टाम्प ड्यूटी कैसे पता करें?",
+      "rewritten": "क्षेत्रीय रजिस्ट्री और स्टाम्प ड्यूटी की जाँच करें त",
+      "after_top": []
+    },
+    {
+      "question": "पावर ऑफ अटॉर्नी से जमीन खरीदना सही है या रजिस्ट्री जरूरी है?",
+      "rewritten": "Power of attorney for land acquisition is valid, but registration is mandatory under the Real Property Act.",
+      "after_top": [
+        "bns_2023:255",
+        "bns_2023:256",
+        "constitution_1950:285"
+      ]
+    },
+    {
+      "question": "क्या प्राइवेट स्कूल से RTI में जानकारी मांग सकते हैं फीस के बारे में?",
+      "rewritten": "Prayatnakshatra School RTI ke baare mein kya information diya jaye?",
+      "after_top": [
+        "constitution_1950:21A",
+        "constitution_1950:243ZO",
+        "constitution_1950:350A"
+      ]
+    },
+    {
+      "question": "फेसबुक पे किसी ने मेरे बारे में झूठी पोस्ट डाली है बदनाम करने के लिए, क्या मानहानि का केस बन सकता है?",
+      "rewritten": "Facebook पर आपके बारे में गलत जानकारी दी गई है, इसे अपने",
+      "after_top": []
+    },
+    {
+      "question": "काम के दौरान चोट लगी थी अब कंपनी इलाज का खर्चा नहीं दे रही, ESI कार्ड है मेरे पास, क्या करूँ?",
+      "rewritten": "Your company is refusing to pay the medical expenses despite your ESI Card being valid.",
+      "after_top": [
+        "bns_2023:214",
+        "bns_2023:65",
+        "bns_2023:70"
+      ]
+    },
+    {
+      "question": "जमीन की म्यूटेशन यानी दाखिल खारिज कैसे होती है रजिस्ट्री के बाद? पटवारी पैसे मांग रहा है",
+      "rewritten": "Post-registration, land mutation (purchase or sale) triggers a statutory process for updating the property registry to reflect the new owner.",
+      "after_top": [
+        "bns_2023:219",
+        "bns_2023:220",
+        "bns_2023:255"
+      ]
+    },
+    {
+      "question": "जॉइंट अकाउंट में एक की डेथ हो जाए तो पैसा दूसरे को अपने आप मिल जाता है क्या?",
+      "rewritten": "जॉइंट अकाउंट में एक निर्धारित शिकायत की गई डेथ (deficiency",
+      "after_top": [
+        "bnss_2023:226",
+        "bnss_2023:233",
+        "bnss_2023:280"
+      ]
+    }
+  ]
+}
