@@ -28,8 +28,16 @@ sys.path.insert(0, str(ROOT / "src"))
 from nyaya.scoring import score_record  # noqa: E402
 
 RUNS = ROOT / "outputs" / "eval-v1"
-REPORT = ROOT / "reports" / "eval_v1_comparison.json"
 BOOTSTRAP_ROUNDS = 10000
+
+
+def report_path(label_b: str) -> Path:
+    """One file per candidate, so no comparison ever overwrites another.
+
+    A single eval_v1_comparison.json used to hold whichever comparison ran
+    last; the v3 and v5 CIs quoted in the README then existed in no committed
+    file. Now each candidate keeps its own report."""
+    return ROOT / "reports" / f"eval_v1_comparison_{label_b}.json"
 
 
 def load_run(label: str) -> dict:
@@ -120,12 +128,13 @@ def main() -> None:
               f"interval on {head['metric']} includes zero, so {args.b} and "
               f"{args.a} are statistically indistinguishable on this benchmark.")
 
-    REPORT.parent.mkdir(parents=True, exist_ok=True)
-    REPORT.write_text(json.dumps(
+    out = report_path(args.b)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(
         {"baseline": args.a, "candidate": args.b,
          "bootstrap_rounds": BOOTSTRAP_ROUNDS, "results": results},
         ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"\n[compare] wrote {REPORT}")
+    print(f"\n[compare] wrote {out}")
 
 
 if __name__ == "__main__":

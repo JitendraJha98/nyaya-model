@@ -1,0 +1,70 @@
+{
+  "baseline": "base",
+  "candidate": "nyaya-3b-v5",
+  "bootstrap_rounds": 10000,
+  "results": [
+    {
+      "metric": "fact_recall",
+      "n": 409,
+      "a": {
+        "label": "base",
+        "mean": 0.3427
+      },
+      "b": {
+        "label": "nyaya-3b-v5",
+        "mean": 0.2397
+      },
+      "delta": -0.103,
+      "ci95": [
+        -0.1352,
+        -0.0723
+      ],
+      "indistinguishable": false,
+      "b_better_on": 22,
+      "b_worse_on": 94,
+      "tied_on": 293
+    },
+    {
+      "metric": "citation_recall",
+      "n": 144,
+      "a": {
+        "label": "base",
+        "mean": 0.5278
+      },
+      "b": {
+        "label": "nyaya-3b-v5",
+        "mean": 0.4931
+      },
+      "delta": -0.0347,
+      "ci95": [
+        -0.0972,
+        0.0278
+      ],
+      "indistinguishable": true,
+      "b_better_on": 8,
+      "b_worse_on": 14,
+      "tied_on": 122
+    },
+    {
+      "metric": "substance_recall",
+      "n": 360,
+      "a": {
+        "label": "base",
+        "mean": 0.3044
+      },
+      "b": {
+        "label": "nyaya-3b-v5",
+        "mean": 0.1869
+      },
+      "delta": -0.1175,
+      "ci95": [
+        -0.1525,
+        -0.0825
+      ],
+      "indistinguishable": false,
+      "b_better_on": 16,
+      "b_worse_on": 83,
+      "tied_on": 261
+    }
+  ]
+}

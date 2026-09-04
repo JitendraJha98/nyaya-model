@@ -150,7 +150,7 @@ saved run on CPU with no model loaded.
   amount of retrieval work addresses this; it is the clearest target for
   anyone continuing.
 - **Retrieval still misses ~19%** of gold sections at k=8.
-- **Coverage is 16 acts.** Absence is silent — a retriever returns the nearest
+- **Coverage is 13 acts plus the Constitution.** Absence is silent — a retriever returns the nearest
   thing it has regardless.
 - **No case law**, statutory text only.
 - **No human evaluation** has been run. The project's own ship gate is unmet.
