@@ -160,13 +160,18 @@ one Kaggle T4, paired against `base-768` (`reports/eval_v1_comparison_qwen3-4b.j
 | `Qwen/Qwen2.5-3B-Instruct` (`base-768`) | qwen-research | 35.8% | 55.6% | — | 185 | 12.3 |
 | `NyayaLabs98/nyaya-3b-v3` | qwen-research | 33.8% | 48.6% | tied on facts, CI [−5.2, +1.2]; **worse** on citations, CI [−13.9, −0.4] | 169 | 10.9 |
 | **`Qwen/Qwen3-4B-Instruct-2507`** | **Apache-2.0** | **50.6%** | **72.2%** | **+14.8, CI [+11.4, +18.3]** | 306 | 31.5 |
+| `Llama-3.2-3B-Instruct` (Unsloth re-upload) | llama3.2 | 36.2% | 57.3% | tied, CI [−2.5, +3.4] | 149 | 11.7 |
+| `gemma-3-4b-it` | gemma | — | — | not evaluable: 413 empty answers in fp16 on a T4 | — | — |
 
 Qwen3-4B is better on 119 questions and worse on 22. Its answers are longer, which
 the substance scorer partly rewards, but citation accuracy (strict, length-blind)
 rises by the same margin. It is also Apache-2.0, which the 3B base is not. It is
 the default reader from this commit; combined with `nyaya-embed-v1` it is the
-configuration in the table above (52.0%). Session 2 of the shootout (Gemma-3-4B,
-Llama-3.2-3B) is pending gated-model access. A served 14B teacher (`Qwen2.5-14B-Instruct-AWQ`) scored 45.0%
+configuration in the table above (52.0%). Session 2 settled the 3B class: Llama-3.2-3B
+and Qwen2.5-3B are indistinguishable (better on 51, worse on 58). Gemma-3-4B could
+not be scored: Gemma 3 overflows in float16 and the T4 has no bf16, so every answer
+came back empty (`reports/eval_v1_gemma3_fp16_failure.json`); Phi-4-mini was dropped
+to stay inside the weekly GPU quota. A served 14B teacher (`Qwen2.5-14B-Instruct-AWQ`) scored 45.0%
 under the embed-v1 retriever, above the 3B reader there but below Qwen3-4B, so
 distillation was dropped and its 1,456 verified answers were published instead
 (`NyayaLabs98/nyaya-train-v7-raft`; `docs/RESULTS.md` §1).

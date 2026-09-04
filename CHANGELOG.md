@@ -31,6 +31,29 @@
   and a reviewer brief; `--split holdout` in the Eval-v1 runner.
 - Recomputed and corrected: fact recall by retrieval outcome (63.2% / 20.3%),
   the v5/v6 retriever-version caveat, coverage probe over real questions.
+- Statute DB grown from 14 to 27 acts + the Constitution (3,736 sections) through
+  the India Code DSpace API (`nyaya.indiacode`, `scripts/42`); real citizen
+  questions with no act in the database fell from 25% to 3%.
+- Retriever models trained on the project's own pairs and published:
+  `NyayaLabs98/nyaya-embed-v1` (default dense stage; never-audited recall@8
+  88.1% vs 81.4% for BM25; +3.9 points of reader fact recall on the 3B reader)
+  and `NyayaLabs98/nyaya-reranker-mini-v1` (118M, +5.9 at k=1).
+- Default reader is `Qwen/Qwen3-4B-Instruct-2507` (Apache-2.0): 50.6% fact recall
+  vs 35.8% for Qwen2.5-3B under the same retriever; the default configuration
+  scores 52.0% / 77.1% citation accuracy, +16.2 points over the system as first
+  published (paired 95% CI [+12.7, +19.9]). Llama-3.2-3B ties the 3B base;
+  Gemma-3-4B is unscoreable in fp16 on a T4.
+- External check: BhashaBench-Legal, 3,000 paired questions, letter-logit scoring —
+  Qwen3-4B 52.5% vs 49.6% (+3.0, CI [+1.0, +5.0]); the generation-parsed pass is
+  kept as a documented failure.
+- Teacher test (C4) without a paid API: a served Qwen2.5-14B-AWQ scored 45.0%,
+  above the 3B reader but below Qwen3-4B, so no v7 was trained; its 1,456
+  citation-verified answers are published as `NyayaLabs98/nyaya-train-v7-raft`.
+- Eval runner: `--dense-model` with per-model vector caches, `--endpoint` for any
+  OpenAI-compatible server, unlabelled runs named after the model.
+- `NyayaLabs98/nyaya-3b-v3` Hub metadata made loadable by transformers 4.x
+  (tokenizer config and `rope_theta`); repository history rewritten to remove a
+  collaborator's employer address; work merged to `main`.
 
 ## 0.2.0 — 2026-08-07
 

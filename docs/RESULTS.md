@@ -32,8 +32,10 @@ on one Kaggle T4; paired 10,000-round bootstrap against `base-768`
 | `Qwen2.5-3B-Instruct` (`base-768`) | 35.8% | 55.6% | 31.6% | — | — |
 | `nyaya-3b-v3` (768 tokens) | 33.8% | 48.6% | 30.6% | −2.0, CI [−5.2, +1.2] **tied** | 56 / 70 / 283 |
 | **`Qwen3-4B-Instruct-2507`** | **50.6%** | **72.2%** | **46.8%** | **+14.8, CI [+11.4, +18.3]** | **119 / 22 / 268** |
+| `Llama-3.2-3B-Instruct` (session 2, Unsloth re-upload) | 36.2% | 57.3% | 32.3% | +0.4, CI [−2.5, +3.4] **tied** | 51 / 58 / 300 |
+| `gemma-3-4b-it` (session 2) | — | — | — | invalid: 413 empty answers | — |
 
-Three things this settles:
+Four things this settles:
 
 - **v3 is tied with base a second time**, now with the tokenizer and config
   files corrected (the Hub copy was written by transformers 5.12; see §3) and
@@ -47,6 +49,17 @@ Three things this settles:
   citation accuracy — strict, length-blind — rises by the same 16.7 points, and
   the paired per-question count is 119 better to 22 worse. Cost: 31.5 s per
   question on a T4 against 12.3 s, and 1 extra GB of weights.
+
+- **The 3B class is flat.** Llama-3.2-3B lands exactly where Qwen2.5-3B does
+  (36.2% vs 35.8%, interval spanning zero, 149 words per answer). Whatever
+  separates the readers here is not brand; it is generation and size.
+- **Gemma-3-4B could not be scored on this hardware.** Every one of its 413
+  answers decoded to an empty string after 768 generated tokens: Gemma 3 is
+  documented to overflow in float16, and the T4 has no bf16 tensor cores.
+  Emulated bf16 would have taken roughly four times the 3.6 h the run consumed,
+  so it was not retried (`reports/eval_v1_gemma3_fp16_failure.json`, predictions
+  kept under `outputs/eval-v1/gemma-3-4b/`). Phi-4-mini was dropped by the owner
+  to stay inside the weekly GPU quota.
 
 `Qwen3-4B-Instruct-2507` is Apache-2.0, unlike the 3B base (qwen-research). It
 is the default reader from this commit. The combined configuration (Qwen3-4B

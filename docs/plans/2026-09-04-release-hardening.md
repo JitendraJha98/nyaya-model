@@ -55,7 +55,11 @@ recall, 77.1% citation accuracy**; vs base-768 +16.2 [+12.7, +19.9]; vs base-768
 Session 2 and BhashaBench no longer need a token: session 2 loads the ungated Unsloth re-uploads
 of Gemma-3-4B-it and Llama-3.2-3B-Instruct (same weights), and BhashaBench reads the owner's
 private Kaggle parquet copy of all 24,365 questions (`bhashabench-legal-cache`) — 3,000-question
-paired subset, both readers, one session. Both kernels running (2026-09-04 ~17:30 UTC).
+paired subset, both readers, one session. **Both done (2026-09-05):** BhashaBench with letter-logit
+scoring (the generation-parsed pass left 522 Qwen3-4B answers unparsed) — Qwen3-4B 52.5% vs base
+49.6%, +3.0 [+1.0, +5.0], Hindi 43.1 vs 37.4. Session 2 — Llama-3.2-3B 36.2%, tied with the 3B base;
+Gemma-3-4B invalid (413 empty answers, fp16 overflow on the T4, not retried). All measurement work
+is closed; `v0.3.0` tagged. Open: the human holdout review (owner) and token revocation (owner).
 Owner's decisions: holdout review deferred; Phi-4-mini, v7 fine-tune and out-of-scope acts skipped.
 
 **Blocked:** C1 session 2 and C2 (need the `HF_TOKEN` Kaggle secret and accepted gated-model
