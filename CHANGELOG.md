@@ -19,6 +19,18 @@
 - Docs: act count corrected to 13 + the Constitution; v5 fact recall 24.0%;
   BhashaBench-Legal status stated; stale plan statuses closed.
 - `nyaya ask` command-line entry point over the standard-library retriever.
+- Retrieval: relevance floor on guidance notes; calibrated coverage gate
+  (`StatuteIndex.coverage`); Hindi/Hinglish query rewriting (`nyaya.rewrite`,
+  `--rewrite`) that cuts zero-hit Devanagari questions from 19/53 to 3/53.
+- Statute DB: `replaces` (from the official mapping tables) and
+  `punishment_summary` populated; re-uploaded to the Hub.
+- Static browser-side demo (`space-static/`, a JavaScript port of the retriever,
+  parity-checked on 389 questions) at huggingface.co/spaces/NyayaLabs98/nyaya-demo;
+  GGUF builds (Q4_K_M, Q8_0, Ollama Modelfile) at NyayaLabs98/nyaya-3b-v3-GGUF.
+- Holdout-v1 tooling: stratified selection of 180 unpublished citizen questions
+  and a reviewer brief; `--split holdout` in the Eval-v1 runner.
+- Recomputed and corrected: fact recall by retrieval outcome (63.2% / 20.3%),
+  the v5/v6 retriever-version caveat, coverage probe over real questions.
 
 ## 0.2.0 — 2026-08-07
 

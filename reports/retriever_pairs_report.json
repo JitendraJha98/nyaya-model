@@ -1,0 +1,9 @@
+{
+  "records": 5292,
+  "miss_skipped": 120,
+  "no_gold_in_db": 460,
+  "eval_near_duplicate": 0,
+  "pairs": 4712,
+  "source": "train.jsonl",
+  "negatives_per_query": 20
+}
