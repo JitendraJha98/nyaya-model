@@ -44,8 +44,11 @@ Push retried 2026-09-04 with the same PAT: still 403 (the branch adds
 *Contents*; *Administration* only for About/topics).
 
 **Kaggle queue:** `nyaya-shootout` (C1 session 1) still running; `nyaya-train-retriever`
-(C3: mmarco cross-encoder + e5-base on the 4,712 pairs) pushed as version 1 on T4,
-inputs `nyaya-model-src` + `nyaya-retriever-pairs`.
+(C3: mmarco cross-encoder + e5-base on the 4,712 pairs) running as version 2 on T4,
+inputs `nyaya-model-src` + `nyaya-retriever-pairs`. Version 1 failed after data prep
+(4,412 train / 300 val pairs, 21,668 reranker examples): Kaggle ships wandb and the
+legacy `CrossEncoder.fit()` reports to it with no key; fixed by disabling all reporters
+through environment variables in the first cell.
 
 ## Global Constraints
 
