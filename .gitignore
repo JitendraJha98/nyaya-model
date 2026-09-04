@@ -33,6 +33,7 @@ data/splits_rag/**
 data/splits_rag_v3/**
 # regenerable: scripts/29 + scripts/19 -> scripts/30, deterministic
 data/splits_v5/**
+data/splits_rag_v7/**
 data/generated/grounding_v1.jsonl
 data/dpo/**
 !data/**/
