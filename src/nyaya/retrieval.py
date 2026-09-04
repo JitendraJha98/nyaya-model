@@ -75,6 +75,29 @@ TITLE_BONUS = 0.75
 # the backfill in retrieve().
 KB_SLOTS = 2
 
+# A guidance note only rides along when its own BM25 score is at least this
+# fraction of the best statute score. Before Sept 2026 the two KB_SLOTS were
+# filled unconditionally: 413/413 Eval-v1 answers got two notes, e.g.
+# drunk-driving penalties appended to "what is the punishment for murder".
+# Measured on the 305 public Eval-v1 questions: 0.3 removes only the clearly
+# irrelevant tail (untouchability -> third-party insurance at 0.09, acid attack
+# -> hit-and-run at 0.21) and keeps a note for 284/305. BM25 cannot judge
+# relevance much finer than that; the cross-encoder reranker should, and takes
+# over this decision when one is attached.
+GUIDANCE_FLOOR_RATIO = 0.3
+
+# Below this best-statute BM25 score a question is treated as outside the
+# database's coverage: about a quarter of real citizen questions (tenancy,
+# property, loans, children; reports/coverage_probe.json). Calibrated by
+# scripts/32_calibrate_retrieval.py (reports/coverage_calibration.json, Sept
+# 2026) on real Hinglish/Hindi questions, not on the eval set, whose statutory
+# English scores far higher: 10.0 keeps 92% of real questions in covered domains
+# and 100% of never-audited eval questions, and flags 29% of real questions in
+# uncovered domains. A weak gate, deliberately conservative -- BM25 barely
+# separates the two populations (medians 22.9 vs 13.9). The durable fixes are
+# adding the missing acts and a reranker-based gate.
+COVERAGE_MIN_SCORE = 10.0
+
 # Lay/Hindi legal vocabulary -> the statutory phrasing it names. General
 # Indian legal-aid terminology (statute titles, standard usage) — NOT tuned
 # per eval question; calibrated only against the generated train split.
@@ -553,7 +576,9 @@ class StatuteIndex:
         # Ranking for stage 2. Pure BM25 by default; when the optional dense
         # stage is enabled its cosine ranking is fused with BM25 via
         # reciprocal-rank fusion (exact references above always win).
-        bm25_order = [i for _score, i in self._bm25(query)]
+        bm25 = self._bm25(query)
+        score_of = {i: s for s, i in bm25}
+        bm25_order = [i for _score, i in bm25]
         order = (rrf_fuse([bm25_order, self.dense.rank(query)])
                  if self.dense is not None else bm25_order)
 
@@ -562,7 +587,16 @@ class StatuteIndex:
             row = self.rows[i]
             if f"{row['act_id']}:{row['section'].upper()}" in chosen:
                 continue
-            (guidance if row["act_id"] == "procedures_kb" else statutes).append(row)
+            (guidance if row["act_id"] == "procedures_kb" else statutes).append((i, row))
+
+        # Guidance rides along only when it is about the question: its own BM25
+        # score must reach GUIDANCE_FLOOR_RATIO of the best statute score. KB
+        # rows are short and keyword-dense, so without a floor some note
+        # cracks the top-8 on every query, relevant or not.
+        top_statute = max((score_of.get(i, 0.0) for i, _r in statutes), default=0.0)
+        floor = GUIDANCE_FLOOR_RATIO * top_statute
+        statute_rows = [r for _i, r in statutes]
+        guidance_rows = [r for i, r in guidance if score_of.get(i, 0.0) >= floor]
 
         slots = max(0, k - len(picked))
         if self.reranker is not None:
@@ -570,19 +604,39 @@ class StatuteIndex:
             # additive and cannot win statute slots (see the docstring above).
             # `picked` is excluded: exact citation lookups are resolved facts,
             # not ranking guesses, and no model score may displace them.
-            statute_take = self.reranker.rerank(query, statutes, slots)
-            guidance_pool = self.reranker.rerank(query, guidance, KB_SLOTS)
+            statute_take = self.reranker.rerank(query, statute_rows, slots)
+            guidance_pool = self.reranker.rerank(query, guidance_rows, KB_SLOTS)
         else:
-            statute_take = statutes[:slots]
-            guidance_pool = guidance[:KB_SLOTS]
+            statute_take = statute_rows[:slots]
+            guidance_pool = guidance_rows[:KB_SLOTS]
 
         if picked or statute_take:
             guidance_take = guidance_pool
         else:
-            # No statute matched at all — fill k from the KB instead.
-            guidance_take = (self.reranker.rerank(query, guidance, k)
-                             if self.reranker is not None else guidance[:k])
+            # No statute matched at all — fill k from the KB instead. No floor
+            # here: a purely procedural question has no statute score to compare.
+            all_guidance = [r for _i, r in guidance]
+            guidance_take = (self.reranker.rerank(query, all_guidance, k)
+                             if self.reranker is not None else all_guidance[:k])
         return picked + statute_take + guidance_take
+
+    def coverage(self, query: str) -> dict:
+        """Is this question inside the acts the database holds?
+
+        An explicit citation is a resolved fact and always counts as covered.
+        Otherwise the best statute BM25 score must reach COVERAGE_MIN_SCORE.
+        Absence used to be silent: for a tenancy question the retriever returned
+        "estoppel of tenant" from the Evidence Act with full confidence.
+        """
+        if self.referenced_keys(query):
+            return {"top_statute_score": None, "covered": True, "reason": "explicit citation"}
+        best = 0.0
+        for score, i in self._bm25(query):
+            if self.rows[i]["act_id"] != "procedures_kb":
+                best = score
+                break
+        return {"top_statute_score": round(best, 3), "covered": best >= COVERAGE_MIN_SCORE,
+                "reason": "bm25" if best >= COVERAGE_MIN_SCORE else "no act in the database scores high enough"}
 
     def set_reranker(self, reranker) -> None:
         """Attach a cross-encoder second stage (see nyaya.rerank).

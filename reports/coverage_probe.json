@@ -49,5 +49,8 @@
       "zero": 19
     }
   },
-  "coverage_gate_flagged": null
+  "coverage_gate_flagged": {
+    "latin": 28,
+    "devanagari": 36
+  }
 }

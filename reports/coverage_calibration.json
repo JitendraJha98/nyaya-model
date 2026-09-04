@@ -1,0 +1,63 @@
+{
+  "populations": {
+    "eval_in_coverage": {
+      "n": 67,
+      "p05": 15.68,
+      "p25": 21.512,
+      "median": 31.997
+    },
+    "real_in_coverage": {
+      "n": 63,
+      "p05": 7.989,
+      "p25": 15.68,
+      "median": 24.25
+    },
+    "real_out_of_coverage": {
+      "n": 54,
+      "p05": 0.0,
+      "p25": 9.794,
+      "median": 13.859
+    }
+  },
+  "table": [
+    {
+      "threshold": 4.0,
+      "eval_in_coverage_kept": 1.0,
+      "real_in_coverage_kept": 0.968,
+      "real_out_of_coverage_flagged": 0.111
+    },
+    {
+      "threshold": 6.0,
+      "eval_in_coverage_kept": 1.0,
+      "real_in_coverage_kept": 0.968,
+      "real_out_of_coverage_flagged": 0.111
+    },
+    {
+      "threshold": 8.0,
+      "eval_in_coverage_kept": 1.0,
+      "real_in_coverage_kept": 0.921,
+      "real_out_of_coverage_flagged": 0.148
+    },
+    {
+      "threshold": 10.0,
+      "eval_in_coverage_kept": 1.0,
+      "real_in_coverage_kept": 0.905,
+      "real_out_of_coverage_flagged": 0.278
+    },
+    {
+      "threshold": 12.0,
+      "eval_in_coverage_kept": 1.0,
+      "real_in_coverage_kept": 0.841,
+      "real_out_of_coverage_flagged": 0.352
+    },
+    {
+      "threshold": 15.0,
+      "eval_in_coverage_kept": 0.97,
+      "real_in_coverage_kept": 0.762,
+      "real_out_of_coverage_flagged": 0.519
+    }
+  ],
+  "rule": "largest threshold keeping >= 90% of both in-coverage populations",
+  "chosen_threshold": 10.0,
+  "note": "BM25 top score is a weak separator on real questions; the durable fixes are adding the missing acts and a reranker-based gate."
+}

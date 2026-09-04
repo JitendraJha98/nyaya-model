@@ -22,7 +22,8 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "src"))
 
 from nyaya.prompts import NYAYA_SYSTEM_PROMPT  # noqa: E402
-from nyaya.retrieval import build_rag_prompt, format_context, load_statute_index  # noqa: E402
+from nyaya.retrieval import (  # noqa: E402
+    COVERAGE_MIN_SCORE, build_rag_prompt, format_context, load_statute_index)
 
 BASE_MODEL = "Qwen/Qwen2.5-3B-Instruct"
 
@@ -108,12 +109,21 @@ def main() -> None:
         question = (question or "").strip()
         if not question:
             return "Ask a question to begin.", ""
+        coverage = index.coverage(question)
         hits = index.retrieve(question, k=k)
         sources = "\n\n".join(
             f"**{h['act_name']} — Section {h['section']}**  \n"
             f"*{h.get('title') or ''}*  \n"
             f"{(h.get('text') or '')[:600]}"
             for h in hits) or "_No matching sections found._"
+        if not coverage["covered"]:
+            # Absence used to be silent: a tenancy question got eight confident
+            # sections from acts that have nothing to do with tenancy.
+            return (
+                "**This question appears to fall outside the acts in this database.** "
+                f"(best statute match {coverage['top_statute_score']:.1f}, gate {COVERAGE_MIN_SCORE}). "
+                "The sections on the right are the nearest matches, not an answer. "
+                "For free legal aid contact NALSA / DLSA (helpline 15100)."), sources
         if generate is None:
             return ("_Retrieval-only mode — the sections the model would be "
                     "given are shown on the right._"), sources
