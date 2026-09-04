@@ -104,7 +104,7 @@ committed predictions by `scripts/36_retrieval_outcome.py`
 over 43 records could not be reproduced and is withdrawn.
 
 **Retriever-version caveat.** The base and v3 predictions were generated on
-2026-08-06, before the second vocabulary pass (commit 57d89ec); v5 and v6 on
+2026-08-06, before the second vocabulary pass (commit 19189df); v5 and v6 on
 2026-08-07, after it. Under the later retriever 109 records had every gold
 section in context, against 94 for base/v3, so v5 and v6 saw *better*
 retrieval and still scored worse. The paired CIs stand, but "same retriever"

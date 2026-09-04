@@ -18,7 +18,7 @@ A change that generalises improves both. A change that was fitted to the eval
 improves only the audited group, and the aggregate number is then an artefact
 of how many failures happened to be inspected.
 
-Result for the LEGAL_SYNONYMS expansion (commits 5c3d843, 57d89ec):
+Result for the LEGAL_SYNONYMS expansion (commits decc4d1, 19189df):
 
     AUDITED        n=32    full@8   0.0% -> 71.9%   (+71.9)
     NEVER AUDITED  n=118   full@8  80.5% -> 81.4%   (+0.8)
@@ -108,7 +108,7 @@ def measure(synonyms: dict, records, gold_keys, k: int, depth: int) -> dict:
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--baseline-ref", default="503d0df",
+    p.add_argument("--baseline-ref", default="008288e",
                    help="git ref holding the pre-change LEGAL_SYNONYMS")
     p.add_argument("--k", type=int, default=8)
     p.add_argument("--depth", type=int, default=100)

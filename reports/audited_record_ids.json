@@ -1,6 +1,6 @@
 {
   "note": "Records whose retrieval failures were inspected while writing LEGAL_SYNONYMS. Recall including these is tuned-on and optimistic; report the never-audited slice instead.",
-  "baseline_ref": "503d0df",
+  "baseline_ref": "008288e",
   "audited": [
     "nyaya_eval_000003",
     "nyaya_eval_000010",
