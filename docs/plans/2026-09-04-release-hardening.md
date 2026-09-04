@@ -39,8 +39,13 @@ are image scans (0% Devanagari in India Code's own text extraction).
 write); history rewrite (needs explicit approval of the destructive command);
 C1 session 2 and C2 (need the `HF_TOKEN` Kaggle secret and accepted gated-model
 terms); C4 dropped (paid teacher API); D2 gold review (needs a human reviewer).
-Remaining D1 acts (inheritance, dowry, senior citizens, guardianship, labour) can
-now be added the same way.
+Push retried 2026-09-04 with the same PAT: still 403 (the branch adds
+`.github/workflows/tests.yml`, so the token needs *Workflows* write as well as
+*Contents*; *Administration* only for About/topics).
+
+**Kaggle queue:** `nyaya-shootout` (C1 session 1) still running; `nyaya-train-retriever`
+(C3: mmarco cross-encoder + e5-base on the 4,712 pairs) pushed as version 1 on T4,
+inputs `nyaya-model-src` + `nyaya-retriever-pairs`.
 
 ## Global Constraints
 
