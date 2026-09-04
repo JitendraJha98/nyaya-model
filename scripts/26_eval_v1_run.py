@@ -40,9 +40,10 @@ if hasattr(sys.stdout, "reconfigure"):
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from nyaya.scoring import aggregate, score_record  # noqa: E402
+from nyaya.scoring import aggregate, score_record
 
 MODEL_ID = "Qwen/Qwen2.5-3B-Instruct"
+DEFAULT_DENSE_MODEL = "intfloat/multilingual-e5-base"  # nyaya.dense.DEFAULT_ATTACH_MODEL
 EVAL_FILES = {
     "public": ROOT / "data" / "eval" / "nyaya_eval_v1_public.jsonl",
     "private": ROOT / "data" / "eval" / "nyaya_eval_v1_private.jsonl",
@@ -51,6 +52,19 @@ EVAL_FILES = {
     # (scripts/40_select_holdout.py, docs/HOLDOUT_REVIEW.md). Gitignored.
     "holdout": ROOT / "data" / "eval" / "nyaya_holdout_v1_private.jsonl",
 }
+
+
+def _dense_cache_path(model_name: str) -> Path:
+    """Doc-vector cache for a dense model. e5-base keeps the historical shared
+    file; every other embedder gets a cache named after it (a Hub id keeps its
+    org, a local directory keeps its basename) so two models never share vectors."""
+    cache_dir = ROOT / "data" / "generated"
+    if model_name == DEFAULT_DENSE_MODEL:
+        return cache_dir / "e5_doc_vectors.npy"
+    looks_local = (model_name.startswith(("/", ".", "~")) or "\\" in model_name
+                   or model_name.count("/") > 1 or Path(model_name).exists())
+    name = Path(model_name).name if looks_local else model_name.replace("/", "__")
+    return cache_dir / f"dense_vectors_{name}.npy"
 
 
 def _results_path(out_dir: Path) -> Path:
@@ -151,7 +165,10 @@ def main() -> None:
     p.add_argument("--model", default=MODEL_ID, help="Base model id, merged dir, or Hub repo")
     p.add_argument("--adapter", default="none", help='LoRA adapter dir, or "none"')
     p.add_argument("--split", choices=sorted(EVAL_FILES), default="all")
-    p.add_argument("--dense", action="store_true", help="hybrid BM25 + e5 retrieval")
+    p.add_argument("--dense", action="store_true", help="hybrid BM25 + dense retrieval")
+    p.add_argument("--dense-model", default=DEFAULT_DENSE_MODEL,
+                   help="embedder for --dense: Hub id or local dir (default e5-base, the model "
+                        "behind every committed run)")
     p.add_argument("--rewrite", action="store_true",
                    help="rewrite Hindi/Hinglish questions into statutory English before retrieval (nyaya.rewrite)")
     p.add_argument("--no-rag", action="store_true")
@@ -188,8 +205,8 @@ def main() -> None:
         index = helpers.load_statute_index(str(ROOT / "data" / "canonical"))
         if args.dense:
             from nyaya.dense import attach_dense_index
-            attach_dense_index(
-                index, cache_path=ROOT / "data" / "generated" / "e5_doc_vectors.npy")
+            attach_dense_index(index, model_name=args.dense_model,
+                               cache_path=_dense_cache_path(args.dense_model))
 
     print(f"[eval-v1] {label}: {len(records)} questions, model={args.model}, "
           f"adapter={adapter or 'none'}, k={'off' if args.no_rag else args.k}")
@@ -242,6 +259,7 @@ def main() -> None:
         "split": args.split,
         "rag": not args.no_rag,
         "dense": args.dense,
+        "dense_model": args.dense_model if args.dense else None,
         "rewrite": args.rewrite,
         "k": args.k,
         "max_new_tokens": args.max_new_tokens,

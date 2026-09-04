@@ -60,3 +60,15 @@ def test_chat_text_keeps_the_system_role_when_supported(helpers):
     text = helpers.chat_text(_NormalTokenizer(), "hello")
     assert text.startswith("system:You are Nyaya")
     assert "user:hello" in text
+
+
+def test_dense_cache_path_is_per_model(runner):
+    """The e5-base doc vectors live in the shared e5_doc_vectors.npy; any other
+    embedder must get its own cache, or its run silently reuses e5-base vectors."""
+    default = runner._dense_cache_path(runner.DEFAULT_DENSE_MODEL)
+    assert default.name == "e5_doc_vectors.npy"
+    other = runner._dense_cache_path("NyayaLabs98/nyaya-embed-v1")
+    assert other != default and other.parent == default.parent
+    assert other.name == "dense_vectors_NyayaLabs98__nyaya-embed-v1.npy"
+    local = runner._dense_cache_path("/kaggle/working/models/nyaya-embed-v1")
+    assert local.name == "dense_vectors_nyaya-embed-v1.npy"
