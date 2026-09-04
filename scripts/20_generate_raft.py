@@ -16,7 +16,7 @@ two candidates per task at temperature; pairing happens in scripts/21.
 Usage:
     python scripts/20_generate_raft.py --splits train val test
     python scripts/20_generate_raft.py --splits train --samples 2 --sample-fraction 0.4
-    TEACHER_BASE_URL=http://inference-server:8000/v1 python scripts/20_generate_raft.py ...
+    TEACHER_BASE_URL=https://<openai-compatible-host>/v1 python scripts/20_generate_raft.py ...
 """
 
 import argparse

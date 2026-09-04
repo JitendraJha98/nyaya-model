@@ -32,7 +32,7 @@ Four parts: **statute DB → retriever → reranker → model**. The model is
 structural reason: templated targets have a fixed shape and the model learns
 the shape, not the task. Answer length collapsed 173 → 90 → 57 words, and
 shorter answers carry fewer of the facts being scored. Beating base needs a
-strong teacher model (the A100-served Gemma the project no longer has), not
+strong teacher model (the self-hosted Gemma the project no longer has), not
 another template.
 
 ## 3. What actually worked: retrieval
@@ -66,10 +66,10 @@ Read before trusting any number.
 5. **"Committed" was assumed, not checked.** `outputs/**` is gitignored;
    prediction files silently were not committed. `git ls-files` settles it.
 
-## 5. Hardware reality (A100 cluster → free GPU)
+## 5. Hardware reality (80 GB GPUs → Kaggle T4)
 
-The cluster is gone. Everything runs on Kaggle T4s now, and these were all
-invisible on A100s:
+The original GPU environment is gone. Everything runs on Kaggle T4s now, and these were all
+invisible on 80 GB GPUs:
 
 - **bf16 is emulated on Turing.** `torch.cuda.is_bf16_supported()` returns True
   *with emulation* — ~5× slower, cost 4.5h before it was spotted. Gate on

@@ -42,7 +42,7 @@ MODEL_ID = "Qwen/Qwen2.5-3B-Instruct"
 def pick_dtype():
     """Native bf16 only on Ampere+ (sm_80); fp16 on older GPUs.
 
-    Training ran on A100s (native bf16), but evals now run on whatever free GPU
+    Training ran on GPUs with native bf16, but evals now run on whatever free GPU
     is available, and Turing T4s (sm_75) have no bf16 tensor cores.
 
     Do NOT use torch.cuda.is_bf16_supported() here. It defaults to

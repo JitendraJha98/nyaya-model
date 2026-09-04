@@ -4,7 +4,7 @@ The single most important rule (docs/ROADMAP.md): every example is generated
 FROM verbatim statute text passed into the prompt; the teacher must never cite
 from memory. This module builds the deterministic generation plan and parses
 teacher responses into TrainingRecord rows; scripts/04_generate_examples.py
-wires it to an OpenAI-compatible endpoint (vLLM serving the teacher model).
+wires it to any OpenAI-compatible chat-completions endpoint.
 
 Slices (composition configured in configs/generation.yaml):
   grounded_qa / hindi_qa / hinglish_qa  statute-grounded citizen Q&A

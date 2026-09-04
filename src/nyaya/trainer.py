@@ -1,7 +1,7 @@
 """LoRA training wrapper: load a YAML config (configs/*.yaml), attach a LoRA
 adapter to the full-precision bf16 base model, and run TRL SFTTrainer.
 
-NO quantization — project decision (2026-07-13): the GPU pool (A100 80GB)
+NO quantization — project decision (2026-07-13): the original 80 GB GPUs
 fits Qwen2.5-3B in bf16 with LoRA comfortably, so QLoRA/4-bit complexity
 (bitsandbytes) is deliberately out. load_config() rejects configs that try.
 
@@ -169,7 +169,7 @@ def train(config_path: str | Path) -> dict:
     #
     # Sharding is not needed anyway: Qwen2.5-3B in fp16 is ~6.2 GB and fits a
     # single 16 GB T4 with LoRA and gradient checkpointing. "auto" was
-    # inherited from the 80 GB A100 setup where it was equally unnecessary.
+    # inherited from the original 80 GB multi-GPU setup where it was equally unnecessary.
     device_map = {"": 0} if _cuda_available() else None
     print(f"[train] loading {config['model_id']} as {dtype} on {device_map}")
     model = AutoModelForCausalLM.from_pretrained(

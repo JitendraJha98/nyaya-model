@@ -48,7 +48,7 @@ training:
   bf16: true
   optim: adamw_torch_fused
   neftune_noise_alpha: 5
-  # T4s have 16GB, not the A100 80GB this pipeline was built on. Batch 1 with
+  # T4s have 16GB, not the 80 GB GPUs this pipeline was built on. Batch 1 with
   # accumulation 16 keeps the effective batch at 16 without OOM.
   per_device_train_batch_size: 1
   gradient_accumulation_steps: 16

@@ -1,8 +1,8 @@
 # Grounded synthetic generation (roadmap Step 7) — consumed by
 # scripts/04_generate_examples.py, logic in src/nyaya/generation.py.
 #
-# Teacher: any OpenAI-compatible endpoint. Default is the in-cluster vLLM
-# serving Gemma 4 31B-IT (k8s/teacher-vllm.yaml; Apache-2.0, so training
+# Teacher: any OpenAI-compatible chat-completions endpoint. v1-v4 used a
+# self-hosted Gemma 4 31B-IT (Apache-2.0, so training
 # Nyaya on its outputs is clean). Swap model/base_url to change teachers —
 # the pipeline is teacher-agnostic by design.
 #
@@ -13,9 +13,9 @@ dataset_version: nyaya_instruct_v1
 seed: 42
 
 teacher:
-  base_url: "http://localhost:8000/v1"   # kubectl port-forward svc/inference-server 8000:8000 -n askdata-ng
+  base_url: "http://localhost:8000/v1"   # override with TEACHER_BASE_URL (e.g. a hosted API)
   model: "google/gemma-4-31b-it"
-  api_key_env: NYAYA_TEACHER_API_KEY     # optional; plain vLLM needs none
+  api_key_env: NYAYA_TEACHER_API_KEY     # required for hosted APIs; local servers may need none
   max_tokens: 2048
   temperature: 0.8
   timeout_s: 300

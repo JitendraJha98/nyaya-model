@@ -123,9 +123,9 @@ on every run so the honest number cannot be lost.
 
 ---
 
-## 4. Portability defects (A100 cluster → free GPU)
+## 4. Portability defects (80 GB GPUs → free Kaggle T4)
 
-The pipeline had only ever run on 80 GB A100s. Every one of these was invisible
+The pipeline had only ever run on 80 GB datacentre GPUs. Every one of these was invisible
 there and fatal elsewhere — they are what "self-hostable" actually costs.
 
 | defect | symptom |
@@ -134,7 +134,7 @@ there and fatal elsewhere — they are what "self-hostable" actually costs.
 | `device_map="auto"` | accelerate wraps `forward` in a `functools.partial`; TRL's chunked-CE patch needs `__func__`. Dies before step 1. |
 | `max_seq_length: 6144` | longest real example is 3,850 tokens; the rest was activation memory spent on padding |
 | dual-GPU default | Kaggle's T4×2 → DataParallel puts inputs on `cuda:1`, model on `cuda:0` |
-| aggregate-only eval | v1–v4 saved no predictions, so when the scorer was found broken there was nothing to re-score. Every result died with the cluster. |
+| aggregate-only eval | v1–v4 saved no predictions, so when the scorer was found broken there was nothing to re-score. Every result died with the environment that produced them. |
 
 `scripts/26` now always writes `predictions.jsonl`, and `--rescore` re-grades a
 saved run on CPU with no model loaded.

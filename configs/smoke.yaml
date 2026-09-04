@@ -4,7 +4,7 @@
 # eval pipeline works.
 #
 # Method: full-precision bf16 LoRA — NO quantization (project decision 2026-07-13;
-# the A100-80GB pool fits a 3B bf16 base + LoRA comfortably).
+# the original 80 GB training GPUs fit a 3B bf16 base + LoRA comfortably; Kaggle T4s need train_v5's settings).
 
 run_name: legal-3b-smoke
 model_id: Qwen/Qwen2.5-3B-Instruct

@@ -123,7 +123,7 @@ docs/
 ```
 
 Every eval run writes `predictions.jsonl`. Scoring can then be revised on CPU
-forever — v1–v4 kept only aggregates and their results died with the cluster
+forever — v1–v4 kept only aggregates and their results died with the GPU environment
 that produced them.
 
 ---

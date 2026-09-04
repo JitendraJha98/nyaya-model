@@ -6,9 +6,8 @@ memory). Output records use the universal TrainingRecord schema with
 metadata.source_sections — the grouped-split key — always populated for
 grounded slices.
 
-Teacher: any OpenAI-compatible endpoint (configs/generation.yaml). Default is
-the in-cluster vLLM serving Gemma 4 31B-IT via
-    kubectl port-forward svc/nyaya-teacher 8000:8000 -n askdata-ng
+Teacher: any OpenAI-compatible chat-completions endpoint (configs/generation.yaml).
+Set TEACHER_BASE_URL and NYAYA_TEACHER_API_KEY for a hosted API.
 
 Resumable: completed task_ids are recovered from the output file on restart.
 Prints a live citation-gate preview (verify_citations against the statute DB)
@@ -94,12 +93,12 @@ def main() -> None:
     parser.add_argument("--composition", choices=["pilot", "full"], default="pilot")
     parser.add_argument("--limit", type=int, help="only run the first N pending tasks")
     parser.add_argument("--concurrency", type=int, default=1,
-                        help="parallel teacher requests (vLLM batches server-side)")
+                        help="parallel teacher requests (the server batches them)")
     args = parser.parse_args()
 
     config = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
     teacher = config["teacher"]
-    # In-cluster runs reach the teacher via Service DNS — no port-forward.
+    # TEACHER_BASE_URL overrides the config so the same script works against any host.
     teacher["base_url"] = os.environ.get("TEACHER_BASE_URL", teacher["base_url"])
     version = config["dataset_version"]
     composition = config[f"{args.composition}_composition"]
@@ -129,7 +128,7 @@ def main() -> None:
     def run_task(task):
         return task, call_teacher(task["prompt"], teacher, session)
 
-    # Teacher calls run concurrently (vLLM batches server-side); parsing and
+    # Teacher calls run concurrently (servers batch concurrent requests); parsing and
     # JSONL writes stay on this thread so the output file is append-safe.
     with out_file.open("a", encoding="utf-8") as fh, \
          ThreadPoolExecutor(max_workers=max(1, args.concurrency)) as pool:

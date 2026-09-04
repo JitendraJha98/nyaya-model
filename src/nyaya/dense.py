@@ -8,8 +8,7 @@ cosine ranking with BM25 via RRF:
   content-fingerprinted on-disk embedding cache. Default e5-small (~470 MB,
   CPU-friendly, handles the Devanagari queries pure BM25 struggles with).
 - attach_dense_index(index, cache_path): the GPU-job path — model reused for
-  batch query embedding, doc vectors cached to a named .npy (staged on the
-  cluster PVC). Default e5-base, the model behind the committed frozen-eval
+  batch query embedding, doc vectors cached to a named .npy. Default e5-base, the model behind the committed frozen-eval
   recall numbers (reports/retrieval_recall_dense.json).
 
 e5 models REQUIRE the "query: " / "passage: " prefixes; cosine scores are

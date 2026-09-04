@@ -1,6 +1,6 @@
 """Self-contained DPO math (Rafailov et al. 2023) — no TRL dependency.
 
-The cluster image pins transformers 5.x with torch 2.4: every TRL release's
+The original training image pinned transformers 5.x with torch 2.4: every TRL release's
 DPOTrainer needs either older transformers or newer torch, so the loss and
 the log-prob accounting live here instead (they are ~40 lines), unit-tested
 against synthetic tensors. scripts/23 owns the training loop.

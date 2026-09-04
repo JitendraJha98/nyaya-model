@@ -1,10 +1,7 @@
 """Step 24 — Publish Nyaya-3B-v3 to the Hugging Face Hub.
 
-Pushes the MERGED full model (from the cluster PVC), an honest auto-generated
+Pushes the MERGED full model (a merged model directory), an honest auto-generated
 model card, and the training/eval artifacts to `NyayaLabs98/nyaya-3b-v3`.
-
-Run this FROM THE CLUSTER (inside the pod / a K8s job) where the merged model
-lives on the PVC — do not copy 6 GB down to a laptop and back up.
 
 Eval numbers in the card are read from reports/ so the card can never drift
 from the actual results. The card carries the mandatory "legal information,
@@ -12,20 +9,20 @@ not legal advice" disclaimer (docs/ROADMAP.md, Positioning & safety).
 
 Auth: create a WRITE token for the NyayaLabs98 org, then either
     huggingface-cli login          (interactive, once)
-    export HF_TOKEN=hf_...          (headless / K8s secret)
+    export HF_TOKEN=hf_...          (headless)
 
 Usage:
     # dry run — build the card, upload nothing
-    python scripts/24_publish_hf.py --model-dir /pvc/outputs/legal-3b-v3-merged --dry-run
+    python scripts/24_publish_hf.py --model-dir outputs/nyaya-3b-v3-merged --dry-run
 
     # publish the model + training artifacts
-    python scripts/24_publish_hf.py --model-dir /pvc/outputs/legal-3b-v3-merged
+    python scripts/24_publish_hf.py --model-dir outputs/nyaya-3b-v3-merged
 
     # also publish the training/RAG datasets (public)
-    python scripts/24_publish_hf.py --model-dir /pvc/outputs/legal-3b-v3-merged --publish-datasets
+    python scripts/24_publish_hf.py --model-dir outputs/nyaya-3b-v3-merged --publish-datasets
 
     # ALSO publish the frozen eval set — IRREVERSIBLE, burns the benchmark
-    python scripts/24_publish_hf.py --model-dir /pvc/outputs/legal-3b-v3-merged \
+    python scripts/24_publish_hf.py --model-dir outputs/nyaya-3b-v3-merged \
         --publish-datasets --publish-eval
 """
 
