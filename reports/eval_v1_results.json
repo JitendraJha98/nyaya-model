@@ -1328,5 +1328,156 @@
       "safety_rows": 4,
       "mean_latency_s": 7.855
     }
+  },
+  "qwen3-4b-embed-v1": {
+    "meta": {
+      "model": "Qwen/Qwen3-4B-Instruct-2507",
+      "adapter": "none",
+      "split": "all",
+      "rag": true,
+      "dense": true,
+      "dense_model": "NyayaLabs98/nyaya-embed-v1",
+      "endpoint": null,
+      "rewrite": false,
+      "k": 8,
+      "max_new_tokens": 768,
+      "questions": 413,
+      "eval_seconds": 12445.8,
+      "scorer": "nyaya.scoring (Eval-v1)"
+    },
+    "metrics": {
+      "scored_total": 409,
+      "fact_recall": 0.5203,
+      "citation_accuracy": 0.7708,
+      "citation_rows": 144,
+      "substance_recall": 0.4755,
+      "all_facts_accuracy": 0.3301,
+      "forbidden_violation_rate": 0.0024,
+      "by_language": {
+        "english": {
+          "n": 390,
+          "fact_recall": 0.5263,
+          "all_facts": 0.341
+        },
+        "hindi": {
+          "n": 9,
+          "fact_recall": 0.3117,
+          "all_facts": 0.1111
+        },
+        "hinglish": {
+          "n": 10,
+          "fact_recall": 0.4717,
+          "all_facts": 0.1
+        }
+      },
+      "by_domain": {
+        "bns": {
+          "n": 66,
+          "fact_recall": 0.7104,
+          "all_facts": 0.5606
+        },
+        "bnss": {
+          "n": 61,
+          "fact_recall": 0.5349,
+          "all_facts": 0.3279
+        },
+        "bsa": {
+          "n": 28,
+          "fact_recall": 0.5342,
+          "all_facts": 0.2143
+        },
+        "constitutional_law": {
+          "n": 47,
+          "fact_recall": 0.7133,
+          "all_facts": 0.5106
+        },
+        "consumer_law": {
+          "n": 34,
+          "fact_recall": 0.375,
+          "all_facts": 0.1765
+        },
+        "cyber_law": {
+          "n": 37,
+          "fact_recall": 0.4572,
+          "all_facts": 0.2162
+        },
+        "rti": {
+          "n": 25,
+          "fact_recall": 0.436,
+          "all_facts": 0.32
+        },
+        "womens_protection": {
+          "n": 25,
+          "fact_recall": 0.6038,
+          "all_facts": 0.36
+        },
+        "cheque_bounce": {
+          "n": 19,
+          "fact_recall": 0.4649,
+          "all_facts": 0.2105
+        },
+        "motor_vehicles": {
+          "n": 26,
+          "fact_recall": 0.4375,
+          "all_facts": 0.2692
+        },
+        "labour_law": {
+          "n": 19,
+          "fact_recall": 0.3114,
+          "all_facts": 0.1579
+        },
+        "old_new_law_mapping": {
+          "n": 22,
+          "fact_recall": 0.1364,
+          "all_facts": 0.1364
+        }
+      },
+      "by_difficulty": {
+        "easy": {
+          "n": 101,
+          "fact_recall": 0.5148,
+          "all_facts": 0.3267
+        },
+        "medium": {
+          "n": 211,
+          "fact_recall": 0.578,
+          "all_facts": 0.3602
+        },
+        "hard": {
+          "n": 97,
+          "fact_recall": 0.4004,
+          "all_facts": 0.268
+        }
+      },
+      "by_task_type": {
+        "legal_qa": {
+          "n": 208,
+          "fact_recall": 0.5593,
+          "all_facts": 0.3654
+        },
+        "scenario": {
+          "n": 77,
+          "fact_recall": 0.4687,
+          "all_facts": 0.2727
+        },
+        "terminology": {
+          "n": 60,
+          "fact_recall": 0.5427,
+          "all_facts": 0.3167
+        },
+        "procedural_guidance": {
+          "n": 42,
+          "fact_recall": 0.5906,
+          "all_facts": 0.381
+        },
+        "old_new_law_mapping": {
+          "n": 22,
+          "fact_recall": 0.1364,
+          "all_facts": 0.1364
+        }
+      },
+      "safety_rows": 4,
+      "mean_latency_s": 30.135
+    }
   }
 }

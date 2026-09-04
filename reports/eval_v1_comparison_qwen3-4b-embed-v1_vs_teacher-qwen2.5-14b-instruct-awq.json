@@ -1,0 +1,70 @@
+{
+  "baseline": "teacher-qwen2.5-14b-instruct-awq",
+  "candidate": "qwen3-4b-embed-v1",
+  "bootstrap_rounds": 10000,
+  "results": [
+    {
+      "metric": "fact_recall",
+      "n": 409,
+      "a": {
+        "label": "teacher-qwen2.5-14b-instruct-awq",
+        "mean": 0.4503
+      },
+      "b": {
+        "label": "qwen3-4b-embed-v1",
+        "mean": 0.5203
+      },
+      "delta": 0.0699,
+      "ci95": [
+        0.0391,
+        0.1007
+      ],
+      "indistinguishable": false,
+      "b_better_on": 96,
+      "b_worse_on": 36,
+      "tied_on": 277
+    },
+    {
+      "metric": "citation_recall",
+      "n": 144,
+      "a": {
+        "label": "teacher-qwen2.5-14b-instruct-awq",
+        "mean": 0.6806
+      },
+      "b": {
+        "label": "qwen3-4b-embed-v1",
+        "mean": 0.7708
+      },
+      "delta": 0.0903,
+      "ci95": [
+        0.0278,
+        0.1562
+      ],
+      "indistinguishable": false,
+      "b_better_on": 21,
+      "b_worse_on": 7,
+      "tied_on": 116
+    },
+    {
+      "metric": "substance_recall",
+      "n": 360,
+      "a": {
+        "label": "teacher-qwen2.5-14b-instruct-awq",
+        "mean": 0.4012
+      },
+      "b": {
+        "label": "qwen3-4b-embed-v1",
+        "mean": 0.4755
+      },
+      "delta": 0.0743,
+      "ci95": [
+        0.0401,
+        0.1082
+      ],
+      "indistinguishable": false,
+      "b_better_on": 83,
+      "b_worse_on": 32,
+      "tied_on": 245
+    }
+  ]
+}

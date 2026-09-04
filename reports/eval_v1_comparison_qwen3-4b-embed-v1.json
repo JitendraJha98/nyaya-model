@@ -1,0 +1,70 @@
+{
+  "baseline": "base-768",
+  "candidate": "qwen3-4b-embed-v1",
+  "bootstrap_rounds": 10000,
+  "results": [
+    {
+      "metric": "fact_recall",
+      "n": 409,
+      "a": {
+        "label": "base-768",
+        "mean": 0.3578
+      },
+      "b": {
+        "label": "qwen3-4b-embed-v1",
+        "mean": 0.5203
+      },
+      "delta": 0.1624,
+      "ci95": [
+        0.1271,
+        0.1991
+      ],
+      "indistinguishable": false,
+      "b_better_on": 135,
+      "b_worse_on": 24,
+      "tied_on": 250
+    },
+    {
+      "metric": "citation_recall",
+      "n": 144,
+      "a": {
+        "label": "base-768",
+        "mean": 0.5556
+      },
+      "b": {
+        "label": "qwen3-4b-embed-v1",
+        "mean": 0.7708
+      },
+      "delta": 0.2153,
+      "ci95": [
+        0.1458,
+        0.2882
+      ],
+      "indistinguishable": false,
+      "b_better_on": 37,
+      "b_worse_on": 3,
+      "tied_on": 104
+    },
+    {
+      "metric": "substance_recall",
+      "n": 360,
+      "a": {
+        "label": "base-768",
+        "mean": 0.3164
+      },
+      "b": {
+        "label": "qwen3-4b-embed-v1",
+        "mean": 0.4755
+      },
+      "delta": 0.1591,
+      "ci95": [
+        0.1204,
+        0.198
+      ],
+      "indistinguishable": false,
+      "b_better_on": 112,
+      "b_worse_on": 25,
+      "tied_on": 223
+    }
+  ]
+}
