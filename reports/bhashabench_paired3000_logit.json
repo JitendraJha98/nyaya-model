@@ -1,0 +1,147 @@
+{
+  "benchmark": "bharatgenai/BhashaBench-Legal",
+  "subset": 3000,
+  "subset_rule": "datasets shuffle(seed=0).select(range(3000)) over english+hindi parquet copies (full set, 24,365)",
+  "scoring": "argmax over next-token logits of the option letters A-D (with and without leading space); nothing generated, nothing unparsed",
+  "hardware": "Kaggle T4, fp16, batch 8",
+  "measured_at": "2026-09-04 (UTC)",
+  "models": {
+    "base": "Qwen/Qwen2.5-3B-Instruct",
+    "qwen3-4b": "Qwen/Qwen3-4B-Instruct-2507"
+  },
+  "accuracy": {
+    "base": 0.4957,
+    "qwen3-4b": 0.5253,
+    "chance": 0.25
+  },
+  "paired": {
+    "delta": 0.0297,
+    "ci95": [
+      0.0097,
+      0.0503
+    ],
+    "bootstrap_rounds": 10000,
+    "better": 523,
+    "worse": 434,
+    "tied": 2043
+  },
+  "by_language": {
+    "english": {
+      "n": 2084,
+      "base": 0.5489,
+      "qwen3-4b": 0.5667
+    },
+    "hindi": {
+      "n": 916,
+      "base": 0.3745,
+      "qwen3-4b": 0.4312
+    }
+  },
+  "by_subject": {
+    "Civil Litigation & Procedure": {
+      "n": 885,
+      "base": 0.4633,
+      "qwen3-4b": 0.4701
+    },
+    "Constitutional & Administrative Law": {
+      "n": 469,
+      "base": 0.4691,
+      "qwen3-4b": 0.5181
+    },
+    "Criminal Law & Justice": {
+      "n": 333,
+      "base": 0.4805,
+      "qwen3-4b": 0.5285
+    },
+    "Corporate & Commercial Law": {
+      "n": 328,
+      "base": 0.5244,
+      "qwen3-4b": 0.5305
+    },
+    "General Academic Subjects": {
+      "n": 219,
+      "base": 0.6393,
+      "qwen3-4b": 0.6849
+    },
+    "Legal Theory & Jurisprudence": {
+      "n": 175,
+      "base": 0.5886,
+      "qwen3-4b": 0.6629
+    },
+    "Family & Personal Law": {
+      "n": 125,
+      "base": 0.48,
+      "qwen3-4b": 0.504
+    },
+    "International & Comparative Law": {
+      "n": 111,
+      "base": 0.4595,
+      "qwen3-4b": 0.5495
+    },
+    "Legal Skills & Communication": {
+      "n": 108,
+      "base": 0.3426,
+      "qwen3-4b": 0.2963
+    },
+    "Real Estate & Property Law": {
+      "n": 76,
+      "base": 0.4211,
+      "qwen3-4b": 0.5921
+    },
+    "Environmental & Energy Law": {
+      "n": 48,
+      "base": 0.6875,
+      "qwen3-4b": 0.6875
+    },
+    "Interdisciplinary Studies": {
+      "n": 42,
+      "base": 0.5714,
+      "qwen3-4b": 0.5476
+    },
+    "Tax & Revenue Law": {
+      "n": 25,
+      "base": 0.6,
+      "qwen3-4b": 0.68
+    },
+    "Employment & Labour Law": {
+      "n": 18,
+      "base": 0.6111,
+      "qwen3-4b": 0.4444
+    },
+    "Consumer & Competition Law": {
+      "n": 10,
+      "base": 0.2,
+      "qwen3-4b": 0.4
+    },
+    "Technology & Cyber Law": {
+      "n": 9,
+      "base": 0.4444,
+      "qwen3-4b": 0.4444
+    },
+    "Media & Entertainment Law": {
+      "n": 6,
+      "base": 0.5,
+      "qwen3-4b": 0.5
+    },
+    "Intellectual Property Law": {
+      "n": 6,
+      "base": 0.8333,
+      "qwen3-4b": 0.6667
+    },
+    "Human Rights & Social Justice": {
+      "n": 4,
+      "base": 0.75,
+      "qwen3-4b": 0.5
+    },
+    "Healthcare & Medical Law": {
+      "n": 3,
+      "base": 0.6667,
+      "qwen3-4b": 0.6667
+    }
+  },
+  "rows": [
+    "reports/bhashabench_rows/paired3000_logit_base.jsonl.gz",
+    "reports/bhashabench_rows/paired3000_logit_qwen3-4b.jsonl.gz"
+  ],
+  "note": "Supersedes reports/bhashabench_paired3000_generation.json (generation-scored, 522 unparsed for Qwen3-4B). The Aug-2026 1,500-sample numbers in bhashabench_scores.json used generation scoring on a different sample and are not paired with these."
+}
