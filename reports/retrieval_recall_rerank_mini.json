@@ -1,0 +1,101 @@
+{
+  "dense_model": null,
+  "eval_records": 500,
+  "gold_bearing": 150,
+  "partial": false,
+  "elapsed_minutes": 0.8,
+  "no_citation_gold": 350,
+  "unresolved_fact_count": 0,
+  "unresolved_facts_sample": [],
+  "recall": {
+    "k=1": {
+      "any_hit": 0.4733,
+      "full_hit": 0.44,
+      "full_hit_never_audited": 0.5169,
+      "n_never_audited": 118
+    },
+    "k=3": {
+      "any_hit": 0.6667,
+      "full_hit": 0.6267,
+      "full_hit_never_audited": 0.7034,
+      "n_never_audited": 118
+    },
+    "k=5": {
+      "any_hit": 0.7533,
+      "full_hit": 0.7133,
+      "full_hit_never_audited": 0.7627,
+      "n_never_audited": 118
+    },
+    "k=8": {
+      "any_hit": 0.84,
+      "full_hit": 0.8,
+      "full_hit_never_audited": 0.822,
+      "n_never_audited": 118
+    }
+  },
+  "by_language": {
+    "english": {
+      "n": 139,
+      "full_hit@8": 0.7914
+    },
+    "hindi": {
+      "n": 5,
+      "full_hit@8": 1.0
+    },
+    "hinglish": {
+      "n": 6,
+      "full_hit@8": 0.8333
+    }
+  },
+  "by_domain": {
+    "bns": {
+      "n": 46,
+      "full_hit@8": 0.7826
+    },
+    "bnss": {
+      "n": 25,
+      "full_hit@8": 0.84
+    },
+    "bsa": {
+      "n": 11,
+      "full_hit@8": 0.9091
+    },
+    "cheque_bounce": {
+      "n": 8,
+      "full_hit@8": 0.5
+    },
+    "constitutional_law": {
+      "n": 33,
+      "full_hit@8": 0.9091
+    },
+    "cyber_law": {
+      "n": 12,
+      "full_hit@8": 0.6667
+    },
+    "labour_law": {
+      "n": 1,
+      "full_hit@8": 1.0
+    },
+    "motor_vehicles": {
+      "n": 4,
+      "full_hit@8": 0.75
+    },
+    "old_new_law_mapping": {
+      "n": 1,
+      "full_hit@8": 1.0
+    },
+    "rti": {
+      "n": 3,
+      "full_hit@8": 0.6667
+    },
+    "womens_protection": {
+      "n": 6,
+      "full_hit@8": 0.6667
+    }
+  },
+  "audited_excluded": 32,
+  "phrase_coverage": {
+    "skipped": true
+  },
+  "measured_at": "2026-09-04 07:17:38"
+}
