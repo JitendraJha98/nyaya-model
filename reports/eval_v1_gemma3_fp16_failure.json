@@ -1,0 +1,154 @@
+{
+  "label": "gemma-3-4b",
+  "meta": {
+    "model": "unsloth/gemma-3-4b-it",
+    "adapter": "none",
+    "split": "all",
+    "rag": true,
+    "dense": true,
+    "dense_model": "intfloat/multilingual-e5-base",
+    "endpoint": null,
+    "rewrite": false,
+    "k": 8,
+    "max_new_tokens": 768,
+    "questions": 413,
+    "eval_seconds": 12942.3,
+    "scorer": "nyaya.scoring (Eval-v1)"
+  },
+  "metrics": {
+    "scored_total": 409,
+    "fact_recall": 0.0,
+    "citation_accuracy": 0.0,
+    "citation_rows": 144,
+    "substance_recall": 0.0,
+    "all_facts_accuracy": 0.0,
+    "forbidden_violation_rate": 0.0,
+    "by_language": {
+      "english": {
+        "n": 390,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "hindi": {
+        "n": 9,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "hinglish": {
+        "n": 10,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      }
+    },
+    "by_domain": {
+      "bns": {
+        "n": 66,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "bnss": {
+        "n": 61,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "bsa": {
+        "n": 28,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "constitutional_law": {
+        "n": 47,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "consumer_law": {
+        "n": 34,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "cyber_law": {
+        "n": 37,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "rti": {
+        "n": 25,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "womens_protection": {
+        "n": 25,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "cheque_bounce": {
+        "n": 19,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "motor_vehicles": {
+        "n": 26,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "labour_law": {
+        "n": 19,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "old_new_law_mapping": {
+        "n": 22,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      }
+    },
+    "by_difficulty": {
+      "easy": {
+        "n": 101,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "medium": {
+        "n": 211,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "hard": {
+        "n": 97,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      }
+    },
+    "by_task_type": {
+      "legal_qa": {
+        "n": 208,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "scenario": {
+        "n": 77,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "terminology": {
+        "n": 60,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "procedural_guidance": {
+        "n": 42,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      },
+      "old_new_law_mapping": {
+        "n": 22,
+        "fact_recall": 0.0,
+        "all_facts": 0.0
+      }
+    },
+    "safety_rows": 4,
+    "mean_latency_s": 31.337
+  },
+  "verdict": "invalid run, not a score: all 413 responses were empty strings (768 new tokens generated, decoded to nothing). Gemma 3 is documented to overflow in float16; the Kaggle T4 (sm_75) has no bf16, and bf16 emulation would take ~4x longer than the 3.6 h this run took. Not retried.",
+  "predictions": "outputs/eval-v1/gemma-3-4b/predictions.jsonl"
+}
