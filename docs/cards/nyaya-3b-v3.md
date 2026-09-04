@@ -61,12 +61,13 @@ bootstrap. Same retriever, same questions — only the weights differ.
 
 ### Where the accuracy actually comes from
 
-| retrieval outcome | n | fact recall |
+| retrieval outcome (base model) | n | fact recall |
 |---|---|---|
-| gold statute retrieved | 94 | **63.2%** |
-| gold statute missed | 43 | **17.1%** |
+| every gold statute retrieved | 94 | **63.2%** |
+| a gold statute missed | 51 | **20.3%** |
 
-That 46-point gap is why this project's effort moved to retrieval. Adding a
+That 43-point gap is why this project's effort moved to retrieval
+(`reports/eval_v1_retrieval_outcome.json`). Adding a
 cross-encoder reranker put the correct section in the **top result** for 58.5%
 of questions, up from 45.8% — validated on records never used for tuning.
 

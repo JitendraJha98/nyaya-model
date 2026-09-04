@@ -1,0 +1,58 @@
+{
+  "base": {
+    "gold_in_context": {
+      "n": 94,
+      "fact_recall": 0.6322
+    },
+    "gold_missing": {
+      "n": 51,
+      "fact_recall": 0.2026
+    },
+    "no_gold": {
+      "n": 264,
+      "fact_recall": 0.2666
+    }
+  },
+  "nyaya-3b-v3": {
+    "gold_in_context": {
+      "n": 94,
+      "fact_recall": 0.6287
+    },
+    "gold_missing": {
+      "n": 51,
+      "fact_recall": 0.1897
+    },
+    "no_gold": {
+      "n": 264,
+      "fact_recall": 0.2498
+    }
+  },
+  "nyaya-3b-v5": {
+    "gold_in_context": {
+      "n": 109,
+      "fact_recall": 0.5078
+    },
+    "gold_missing": {
+      "n": 36,
+      "fact_recall": 0.1914
+    },
+    "no_gold": {
+      "n": 264,
+      "fact_recall": 0.1355
+    }
+  },
+  "nyaya-3b-v6": {
+    "gold_in_context": {
+      "n": 109,
+      "fact_recall": 0.4316
+    },
+    "gold_missing": {
+      "n": 36,
+      "fact_recall": 0.1076
+    },
+    "no_gold": {
+      "n": 264,
+      "fact_recall": 0.1703
+    }
+  }
+}

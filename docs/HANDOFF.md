@@ -39,8 +39,8 @@ another template.
 
 Accuracy is dominated by whether the right statute reaches the context:
 
-- gold statute retrieved → **63.2%** fact recall (n=94)
-- gold statute missed → **17.1%** (n=43)
+- every gold statute retrieved → **63.2%** fact recall (n=94)
+- a gold statute missed → **20.3%** (n=51)   (`reports/eval_v1_retrieval_outcome.json`)
 
 **Cross-encoder reranking**, scored only on the 118 records never used for
 tuning: k=1 45.8% → **58.5%**, k=3 61.0% → **69.5%**. That is the one

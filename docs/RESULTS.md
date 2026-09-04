@@ -59,12 +59,24 @@ template. Fine-tuning at 3B with rule-based data is a closed path.
 
 Accuracy is dominated by whether the right statute reaches the context:
 
-| retrieval outcome | n | fact recall |
+| retrieval outcome (base, Eval-v1) | n | fact recall |
 |---|---|---|
-| gold statute retrieved | 94 | **63.2%** |
-| gold statute missed | 43 | **17.1%** |
+| every gold statute retrieved | 94 | **63.2%** |
+| at least one gold statute missed | 51 | **20.3%** |
+| no section in the gold facts | 264 | 26.7% |
 
-A 46-point gap. The model was never the bottleneck.
+A 43-point gap. The model was never the bottleneck. Recomputed from the
+committed predictions by `scripts/36_retrieval_outcome.py`
+(`reports/eval_v1_retrieval_outcome.json`); an earlier ad-hoc figure of 17.1%
+over 43 records could not be reproduced and is withdrawn.
+
+**Retriever-version caveat.** The base and v3 predictions were generated on
+2026-08-06, before the second vocabulary pass (commit 57d89ec); v5 and v6 on
+2026-08-07, after it. Under the later retriever 109 records had every gold
+section in context, against 94 for base/v3, so v5 and v6 saw *better*
+retrieval and still scored worse. The paired CIs stand, but "same retriever"
+is only exactly true for base vs v3. The 768-token reruns planned for the
+base-model shootout put every run under one retriever.
 
 ### Cross-encoder reranking
 

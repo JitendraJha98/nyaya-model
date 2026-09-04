@@ -6,7 +6,7 @@ Measured on Nyaya-Eval-v1, accuracy is dominated by whether the right statute
 reaches the context window:
 
     gold statute retrieved   63.2% fact_recall   (n=94)
-    gold statute missed      17.1% fact_recall   (n=43)
+    gold statute missed      20.3% fact_recall   (n=51)   reports/eval_v1_retrieval_outcome.json
 
 full_hit@8 is 65.3%, so roughly a third of questions are answered without the
 section they need. Fixing that is worth far more than more fine-tuning, which

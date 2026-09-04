@@ -1,0 +1,53 @@
+{
+  "questions": 269,
+  "acts_in_db": [
+    "bns_2023",
+    "bnss_2023",
+    "bsa_2023",
+    "constitution_1950",
+    "cpa_2019",
+    "dv_act_2005",
+    "hma_1955",
+    "it_act_2000",
+    "mv_act_1988",
+    "ni_act_1881",
+    "posh_2013",
+    "rti_2005",
+    "sma_1954",
+    "wages_code_2019"
+  ],
+  "per_bucket": {
+    "traffic": 15,
+    "police_fir_bail": 28,
+    "children": 17,
+    "consumer": 8,
+    "tenancy_rent": 9,
+    "contract_loan": 16,
+    "dowry": 1,
+    "senior_citizens": 4,
+    "employment": 9,
+    "property_inheritance": 24,
+    "cheque_bank_fraud": 23
+  },
+  "buckets_without_an_act": [
+    "tenancy_rent",
+    "property_inheritance",
+    "contract_loan",
+    "dowry",
+    "senior_citizens",
+    "children"
+  ],
+  "questions_in_buckets_without_an_act": 66,
+  "uncategorised": 138,
+  "zero_statute_hits": {
+    "latin": {
+      "n": 216,
+      "zero": 1
+    },
+    "devanagari": {
+      "n": 53,
+      "zero": 19
+    }
+  },
+  "coverage_gate_flagged": null
+}

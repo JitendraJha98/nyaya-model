@@ -144,7 +144,7 @@ describing the file.
 > of answering questions.
 >
 > The real bottleneck was never the model. When the right statute reaches the
-> context, accuracy is 63%. When it doesn't, 17%. So I built a cross-encoder
+> context, accuracy is 63%. When it doesn't, 20%. So I built a cross-encoder
 > reranker: the right section now lands in the top result 46% → 58% of the
 > time, validated on held-out questions.
 >

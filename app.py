@@ -143,7 +143,7 @@ def main() -> None:
         gr.Markdown(
             "---\nAccuracy is honest about its limits: on the project's own "
             "benchmark the model answers **63%** of questions correctly when "
-            "the right statute is retrieved, and **17%** when it is not — which "
+            "the right statute is retrieved, and **20%** when it is not — which "
             "is why the retrieved sections are shown alongside every answer."
         )
 
