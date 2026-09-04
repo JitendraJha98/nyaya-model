@@ -17,6 +17,8 @@ Usage:
     python scripts/20_generate_raft.py --splits train val test
     python scripts/20_generate_raft.py --splits train --samples 2 --sample-fraction 0.4
     TEACHER_BASE_URL=https://<openai-compatible-host>/v1 python scripts/20_generate_raft.py ...
+    TEACHER_BASE_URL=http://127.0.0.1:8000/v1 TEACHER_MODEL=Qwen/Qwen2.5-14B-Instruct-AWQ \
+        python scripts/20_generate_raft.py --version nyaya_instruct_v7   # local vLLM teacher
 """
 
 import argparse
@@ -113,6 +115,7 @@ def main() -> None:
     config = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
     teacher = config["teacher"]
     teacher["base_url"] = os.environ.get("TEACHER_BASE_URL", teacher["base_url"])
+    teacher["model"] = os.environ.get("TEACHER_MODEL", teacher["model"])
 
     index = load_statute_index(ROOT / "data" / "canonical")
     if args.dense:

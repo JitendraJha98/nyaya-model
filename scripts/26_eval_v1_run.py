@@ -178,6 +178,14 @@ def main() -> None:
     p.add_argument("--max-new-tokens", type=int, default=384)
     p.add_argument("--label")
     p.add_argument("--out-dir", default=str(ROOT))
+    p.add_argument("--endpoint", metavar="URL",
+                   help="OpenAI-compatible base URL (e.g. http://127.0.0.1:8000/v1): the reader is "
+                        "served there and --model is the name sent in each request; nothing is loaded here")
+    p.add_argument("--endpoint-extra", metavar="JSON", default=None,
+                   help="extra request fields for --endpoint as a JSON object, e.g. chat_template_kwargs "
+                        "with enable_thinking false for Qwen3 on vLLM")
+    p.add_argument("--concurrency", type=int, default=None,
+                   help="parallel requests per batch for --endpoint (default: --batch-size)")
     args = p.parse_args()
 
     # --- CPU path: re-grade a saved run -----------------------------------
@@ -208,23 +216,32 @@ def main() -> None:
             attach_dense_index(index, model_name=args.dense_model,
                                cache_path=_dense_cache_path(args.dense_model))
 
-    print(f"[eval-v1] {label}: {len(records)} questions, model={args.model}, "
+    served = f"endpoint={args.endpoint}, " if args.endpoint else ""
+    print(f"[eval-v1] {label}: {len(records)} questions, model={args.model}, {served}"
           f"adapter={adapter or 'none'}, k={'off' if args.no_rag else args.k}")
 
-    tokenizer, model = helpers.load_model(adapter, model_id=args.model)
     retrieval_log: dict = {}
     rewrite_log: dict = {}
-    generate = helpers.build_rag_generate_fn(
-        tokenizer, model, index, args.k, retrieval_log,
-        max_new_tokens=args.max_new_tokens,
-        rewrite=args.rewrite, rewrite_log=rewrite_log)
+    if args.endpoint:
+        generate = helpers.build_endpoint_generate_fn(
+            args.endpoint, args.model, index, args.k, retrieval_log,
+            max_new_tokens=args.max_new_tokens, rewrite=args.rewrite, rewrite_log=rewrite_log,
+            concurrency=args.concurrency or args.batch_size,
+            extra_body=json.loads(args.endpoint_extra) if args.endpoint_extra else None)
+    else:
+        tokenizer, model = helpers.load_model(adapter, model_id=args.model)
+        generate = helpers.build_rag_generate_fn(
+            tokenizer, model, index, args.k, retrieval_log,
+            max_new_tokens=args.max_new_tokens,
+            rewrite=args.rewrite, rewrite_log=rewrite_log)
 
     predictions = []
     t0 = time.time()
     for start in range(0, len(records), args.batch_size):
         batch = records[start:start + args.batch_size]
         t1 = time.perf_counter()
-        responses = generate_with_oom_retry(generate, [r["question"] for r in batch])
+        questions = [r["question"] for r in batch]
+        responses = generate(questions) if args.endpoint else generate_with_oom_retry(generate, questions)
         latency = (time.perf_counter() - t1) / len(batch)
         for record, response in zip(batch, responses):
             predictions.append({
@@ -260,6 +277,7 @@ def main() -> None:
         "rag": not args.no_rag,
         "dense": args.dense,
         "dense_model": args.dense_model if args.dense else None,
+        "endpoint": args.endpoint,
         "rewrite": args.rewrite,
         "k": args.k,
         "max_new_tokens": args.max_new_tokens,

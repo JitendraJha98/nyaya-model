@@ -32,6 +32,8 @@ if hasattr(sys.stdout, "reconfigure"):  # Devanagari on cp1252 Windows consoles
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from jinja2 import TemplateError
+
 from nyaya.evaluation import load_eval_records, run_eval
 from nyaya.prompts import NYAYA_SYSTEM_PROMPT
 from nyaya.retrieval import build_rag_prompt, load_statute_index
@@ -93,7 +95,7 @@ def chat_text(tokenizer, user_content: str) -> str:
                 {"role": "user", "content": user_content}]
     try:
         return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    except Exception:  # jinja TemplateError, or a TypeError from a strict template
+    except (TypeError, ValueError, TemplateError):  # strict templates raise any of these
         merged = [{"role": "user", "content": f"{NYAYA_SYSTEM_PROMPT}\n\n{user_content}"}]
         return tokenizer.apply_chat_template(merged, tokenize=False, add_generation_prompt=True)
 
@@ -136,6 +138,68 @@ def build_rag_generate_fn(tokenizer, model, index, k: int,
                                  do_sample=False, pad_token_id=tokenizer.pad_token_id)
         return tokenizer.batch_decode(out[:, inputs["input_ids"].shape[1]:],
                                       skip_special_tokens=True)
+
+    return generate
+
+
+def build_endpoint_generate_fn(base_url: str, model: str, index, k: int,
+                               retrieval_log: dict, max_new_tokens: int = 384,
+                               rewrite: bool = False, rewrite_log: dict | None = None,
+                               concurrency: int = 8, extra_body: dict | None = None,
+                               timeout_s: int = 600):
+    """generate_fn for run_eval against any OpenAI-compatible chat endpoint
+    (vLLM, llama.cpp's llama-server, Ollama, or a hosted API).
+
+    Same retrieval, same system prompt and same RAG prompt as the transformers
+    path, greedy decoding (temperature 0), so a reader served this way is scored
+    on the same footing as one loaded in-process. Retrieval runs in the calling
+    thread (the dense stage is not thread-safe); only the HTTP calls of a batch
+    run concurrently. NYAYA_TEACHER_API_KEY is sent as a bearer token when set.
+    extra_body is merged into every request, e.g.
+    {"chat_template_kwargs": {"enable_thinking": False}} for Qwen3 on vLLM.
+    """
+    import os
+    from concurrent.futures import ThreadPoolExecutor
+
+    import requests
+
+    from nyaya.rewrite import rewrite_query
+
+    headers = {"Content-Type": "application/json"}
+    key = os.environ.get("NYAYA_TEACHER_API_KEY")
+    if key:
+        headers["Authorization"] = f"Bearer {key}"
+    url = f"{base_url.rstrip('/')}/chat/completions"
+    session = requests.Session()
+
+    def chat(user_content: str, max_tokens: int) -> str:
+        body = {"model": model, "temperature": 0, "max_tokens": max_tokens,
+                "messages": [{"role": "system", "content": NYAYA_SYSTEM_PROMPT},
+                             {"role": "user", "content": user_content}]}
+        body.update(extra_body or {})
+        last_error = None
+        for attempt in range(3):
+            try:
+                resp = session.post(url, headers=headers, json=body, timeout=timeout_s)
+                resp.raise_for_status()
+                return resp.json()["choices"][0]["message"]["content"] or ""
+            except (requests.RequestException, KeyError, IndexError, ValueError) as exc:
+                last_error = exc
+                if attempt < 2:
+                    time.sleep(5 * (attempt + 1))
+        raise RuntimeError(f"endpoint call failed after 3 attempts: {last_error}")
+
+    def generate(questions):
+        prompts = []
+        for q in questions:
+            query = rewrite_query(q, lambda prompt: chat(prompt, 48)) if rewrite else q
+            if rewrite_log is not None and query != q:
+                rewrite_log[q] = query
+            hits = index.retrieve(query, k=k) if index else []
+            retrieval_log[q] = [f"{h['act_id']}:{h['section'].upper()}" for h in hits]
+            prompts.append(build_rag_prompt(q, hits) if index else q)
+        with ThreadPoolExecutor(max_workers=max(1, min(concurrency, len(prompts)))) as pool:
+            return list(pool.map(lambda prompt: chat(prompt, max_new_tokens), prompts))
 
     return generate
 
