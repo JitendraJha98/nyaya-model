@@ -46,14 +46,12 @@ IN_COVERAGE = re.compile(
     r"|\bfir\b|police|thana|थाने|bail|zamanat|arrest|giraftar|\bncr\b"
     r"|flipkart|amazon|refund|defective|warranty|consumer|cheque|check bounce|\bupi\b|\botp\b|scam|fraud"
     r"|divorce|talaq|तलाक|\brti\b|domestic violence|dowry|dahej", re.IGNORECASE)
-# Domains with no act in the DB as of Sept 2026 (after the Transfer of Property,
-# Contract, POCSO and Juvenile Justice Acts were added): inheritance, dowry,
-# parents / senior citizens, custody.
+# Domains with no act in the DB as of Sept 2026 (after 14 acts were added from
+# the India Code API): rent control, tax, passports/visas, intellectual property,
+# arbitration, insurance regulation.
 OUT_OF_COVERAGE = re.compile(
-    r"wasiyat|\bwill\b|inheritance|hissa|batwara|succession|virasat|वसीयत|विरासत"
-    r"|dowry|dahej|दहेज"
-    r"|parents|maa baap|buzurg|senior citizen|बुजुर्ग|माँ-बाप"
-    r"|custody|guardian", re.IGNORECASE)
+    r"rent control|income tax|\bgst\b|passport|visa|immigration|trademark|copyright|patent"
+    r"|arbitration|irdai|insurance ombudsman|property tax|stamp duty", re.IGNORECASE)
 
 
 def _score(index, text: str) -> float:
@@ -95,9 +93,9 @@ def main() -> None:
     for thr in CANDIDATES:
         table.append({
             "threshold": thr,
-            "eval_in_coverage_kept": sum(s >= thr for s in eval_in) / len(eval_in),
-            "real_in_coverage_kept": sum(s >= thr for s in real_in) / len(real_in),
-            "real_out_of_coverage_flagged": sum(s < thr for s in real_out) / len(real_out),
+            "eval_in_coverage_kept": sum(s >= thr for s in eval_in) / max(1, len(eval_in)),
+            "real_in_coverage_kept": sum(s >= thr for s in real_in) / max(1, len(real_in)),
+            "real_out_of_coverage_flagged": (sum(s < thr for s in real_out) / len(real_out)) if real_out else None,
         })
     ok = [row for row in table if row["eval_in_coverage_kept"] >= KEEP_RATE and row["real_in_coverage_kept"] >= KEEP_RATE]
     chosen = max(ok, key=lambda row: row["threshold"]) if ok else table[0]

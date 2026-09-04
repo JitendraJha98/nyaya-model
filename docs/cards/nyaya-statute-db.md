@@ -27,12 +27,12 @@ task_categories:
 **Current Indian law as clean, section-level JSONL** — the Bharatiya Nyaya
 Sanhita, Bharatiya Nagarik Suraksha Sanhita and Bharatiya Sakshya Adhiniyam as
 in force after **1 July 2024**, plus the official old→new mapping tables, the
-Constitution and fourteen other acts a citizen actually runs into.
+Constitution and twenty-four other acts a citizen actually runs into.
 
 Most Indian legal datasets predate the 2024 criminal-law overhaul and still
 describe the IPC, CrPC and Evidence Act as current law. This one does not.
 
-## Contents — 4,271 rows: 18 act files, 1 mapping table, 1 guidance file
+## Contents — 5,063 rows: 28 act files, 1 mapping table, 1 guidance file
 
 | File | Rows | Act |
 |---|---:|---|
@@ -54,6 +54,16 @@ describe the IPC, CrPC and Evidence Act as current law. This one does not.
 | `contract_act_1872.jsonl` | 192 | Indian Contract Act, 1872 (from the India Code API) |
 | `pocso_2012.jsonl` | 47 | Protection of Children from Sexual Offences Act, 2012 (from the India Code API) |
 | `jj_act_2015.jsonl` | 112 | Juvenile Justice (Care and Protection of Children) Act, 2015 (from the India Code API) |
+| `hsa_1956.jsonl` | 28 | Hindu Succession Act, 1956 (from the India Code API) |
+| `isa_1925.jsonl` | 392 | Indian Succession Act, 1925 (from the India Code API) |
+| `dpa_1961.jsonl` | 13 | Dowry Prohibition Act, 1961 (from the India Code API) |
+| `mwpsc_2007.jsonl` | 32 | Maintenance and Welfare of Parents and Senior Citizens Act, 2007 (from the India Code API) |
+| `gwa_1890.jsonl` | 51 | Guardians and Wards Act, 1890 (from the India Code API) |
+| `hmga_1956.jsonl` | 13 | Hindu Minority and Guardianship Act, 1956 (from the India Code API) |
+| `hama_1956.jsonl` | 29 | Hindu Adoptions and Maintenance Act, 1956 (from the India Code API) |
+| `limitation_1963.jsonl` | 30 | Limitation Act, 1963 (from the India Code API) |
+| `lsa_1987.jsonl` | 40 | Legal Services Authorities Act, 1987 (from the India Code API) |
+| `css_2020.jsonl` | 164 | Code on Social Security, 2020 (from the India Code API) |
 | **`law_mappings.jsonl`** | **1,257** | **official IPC↔BNS / CrPC↔BNSS / IEA↔BSA mappings** |
 | `procedures_kb.jsonl` | 70 | hand-written "how do I…" procedural guidance |
 
@@ -80,7 +90,7 @@ describe the IPC, CrPC and Evidence Act as current law. This one does not.
 derived from the official tables in `law_mappings.jsonl` (present on 346/358 BNS,
 479/531 BNSS and 168/170 BSA rows; the mapping file itself remains the source of
 truth for old→new lookups, e.g. "Section 302 IPC" → BNS 103). `punishment_summary`
-is the section's first penalty clause where one exists (323 rows across all acts).
+is the section's first penalty clause where one exists (331 rows across all acts).
 `tags` are curated keywords and are present only on the guidance notes.
 
 ## Intended use
@@ -96,7 +106,7 @@ from 45.8%.
 
 ## Limitations — read these
 
-- **Coverage is 17 acts plus the Constitution, not all Indian law.** Anything outside them is absent,
+- **Coverage is 27 acts plus the Constitution, not all Indian law.** Anything outside them is absent,
   and absence is silent: a retriever will still return the nearest thing it has.
 - **Statutes change.** `effective_date` is recorded, but nothing here tracks
   amendments after collection. Verify against

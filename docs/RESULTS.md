@@ -176,8 +176,8 @@ saved run on CPU with no model loaded.
   indiacode.gov.in API). Indexing Hindi statute text is closed as a path;
   Hindi retrieval relies on query rewriting.
 - **Retrieval still misses ~19%** of gold sections at k=8.
-- **Coverage is 17 acts plus the Constitution** (four added from the India Code API in
-  Sept 2026; 4% of real citizen questions still fall outside). Absence is flagged by
+- **Coverage is 27 acts plus the Constitution** (fourteen added from the India Code API in
+  Sept 2026; 3% of real citizen questions still fall in domains with no act). Absence is flagged by
   the coverage gate but a retriever still returns the nearest
   thing it has regardless.
 - **No case law**, statutory text only.

@@ -38,7 +38,7 @@
 <body>
 <div class="page">
   <h1>Nyaya</h1>
-  <p class="sub">The statute retriever behind an open Indian legal guidance system. Ask in English, Hindi or Hinglish and see the sections of <b>current</b> Indian law (BNS / BNSS / BSA in force since 1 July 2024, the Constitution and fourteen other acts) your question resolves to. Old IPC / CrPC numbers are bridged through the official mapping tables. Runs entirely in your browser.</p>
+  <p class="sub">The statute retriever behind an open Indian legal guidance system. Ask in English, Hindi or Hinglish and see the sections of <b>current</b> Indian law (BNS / BNSS / BSA in force since 1 July 2024, the Constitution and twenty-four other acts) your question resolves to. Old IPC / CrPC numbers are bridged through the official mapping tables. Runs entirely in your browser.</p>
   <div class="disc"><b>⚖️ Not legal advice.</b> Nyaya provides legal <i>information</i>. The practice of law in India is reserved to advocates enrolled under the Advocates Act, 1961. Consult a licensed advocate for anything consequential. Free legal aid: NALSA / DLSA (helpline 15100).</div>
 
   <form id="f">
@@ -53,7 +53,7 @@
   <div id="banner" class="banner"></div>
   <div id="out"></div>
 
-  <p class="foot">Coverage: 17 acts + the Constitution (3,014 sections), 1,257 official IPC↔BNS / CrPC↔BNSS / IEA↔BSA mappings, 70 procedural guidance notes. Absence is flagged, not hidden: 4% of real citizen questions (inheritance, dowry, senior citizens, custody) still fall outside the indexed acts. This page is a JavaScript port of the Python retriever, checked for identical results on real questions. Code, data, and every measurement including the wrong ones: <a href="https://github.com/JitendraJha98/nyaya-model">github.com/JitendraJha98/nyaya-model</a>. Reader model: <a href="https://huggingface.co/NyayaLabs98/nyaya-3b-v3">NyayaLabs98/nyaya-3b-v3</a>.</p>
+  <p class="foot">Coverage: 27 acts + the Constitution (3,736 sections), 1,257 official IPC↔BNS / CrPC↔BNSS / IEA↔BSA mappings, 70 procedural guidance notes. Absence is flagged, not hidden: 3% of real citizen questions still fall in domains with no indexed act, and a coverage gate says so. This page is a JavaScript port of the Python retriever, checked for identical results on real questions. Code, data, and every measurement including the wrong ones: <a href="https://github.com/JitendraJha98/nyaya-model">github.com/JitendraJha98/nyaya-model</a>. Reader model: <a href="https://huggingface.co/NyayaLabs98/nyaya-3b-v3">NyayaLabs98/nyaya-3b-v3</a>.</p>
 </div>
 <script type="module">
   import { buildIndex } from "./app.js";
@@ -74,7 +74,7 @@
     const b = $("banner");
     if (cov.covered && cov.top_statute_score === null) { b.className = "banner cite"; b.textContent = "Explicit citation resolved."; }
     else if (cov.covered) { b.className = "banner ok"; b.textContent = `Inside the database (best statute match ${cov.top_statute_score.toFixed(1)}).`; }
-    else { b.className = "banner warn"; b.textContent = `This question appears to fall outside the acts in this database (best statute match ${cov.top_statute_score.toFixed(1)}, gate ${idx.params.coverage_min_score}). The sections below are the nearest matches, not an answer. Inheritance, dowry, senior-citizen and custody law are not indexed yet.`; }
+    else { b.className = "banner warn"; b.textContent = `This question appears to fall outside the acts in this database (best statute match ${cov.top_statute_score.toFixed(1)}, gate ${idx.params.coverage_min_score}). The sections below are the nearest matches, not an answer. Rent control, tax, passports and intellectual property are not indexed.`; }
     $("out").innerHTML = rows.length ? rows.map(r => r.act_id === "procedures_kb"
       ? `<div class="card kb"><h3>${esc(r.title)}</h3><p class="meta">official guidance</p><p>${esc(r.text.slice(0, 700))}</p></div>`
       : `<div class="card"><h3>Section ${esc(r.section)} of the ${esc(r.act_name)}</h3><p class="meta">${esc(r.title)}</p><p>${esc(r.text.slice(0, 700))}${r.text.length > 700 ? " …" : ""}</p></div>`).join("")

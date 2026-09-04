@@ -14,7 +14,7 @@ short_description: Current Indian law, section by section
 The statute retriever behind the Nyaya Indian legal guidance system, ported to
 JavaScript and run entirely client-side over an exported copy of the statute
 database. Type a question in English, Hindi or Hinglish and see the sections of
-current law (BNS / BNSS / BSA post-July-2024, the Constitution and fourteen other acts)
+current law (BNS / BNSS / BSA post-July-2024, the Constitution and twenty-four other acts)
 it resolves to, with a coverage verdict. `scripts/39_build_static_demo.py --check`
 in the repository verifies that this port returns the same sections as the Python
 retriever on real questions.

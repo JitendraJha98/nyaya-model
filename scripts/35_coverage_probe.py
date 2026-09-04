@@ -44,8 +44,9 @@ BUCKETS = {
     # Indian Contract Act added Sept 2026
     "contract_loan": (r"agreement|contract|\bloan\b|\bemi\b|recovery agent|guarantor|udhaar|udhar|कर्ज|लोन|byaj|interest rate", True),
     "employment": (r"notice period|\bpf\b|gratuity|resign|terminate|fired|salary|tankhwah|वेतन|naukri|offer letter|\bbond\b", True),
-    "dowry": (r"dowry|dahej|दहेज", False),
-    "senior_citizens": (r"parents|maa baap|buzurg|senior citizen|बुजुर्ग|माँ-बाप|old age", False),
+    # Dowry Prohibition Act 1961 and the Senior Citizens Act 2007 added Sept 2026
+    "dowry": (r"dowry|dahej|दहेज", True),
+    "senior_citizens": (r"parents|maa baap|buzurg|senior citizen|बुजुर्ग|माँ-बाप|old age", True),
     # POCSO 2012 and Juvenile Justice Act 2015 added Sept 2026
     "children": (r"\bchild|bachch|baccha|\bminor\b|17 saal|16 saal|nabalig|बच्च|school", True),
     "traffic": (r"challan|helmet|\bdl\b|licence|license|gaadi|bike|scooty|\bcar\b|rc book|parking|drink and drive|pollution|toll|traffic", True),

@@ -189,3 +189,44 @@ api_acts:
     act_name: "Juvenile Justice (Care and Protection of Children) Act, 2015"
     indiacode_title: "The Juvenile Justice (Care and Protection of Children) Act, 2015"
     enabled: true
+  # second batch, Sept 2026: inheritance, dowry, parents, guardianship, limitation, legal aid, labour
+  - act_id: hsa_1956
+    act_name: "Hindu Succession Act, 1956"
+    indiacode_title: "The Hindu Succession Act, 1956"
+    enabled: true
+  - act_id: isa_1925
+    act_name: "Indian Succession Act, 1925"
+    indiacode_title: "The Indian Succession Act, 1925"
+    enabled: true
+  - act_id: dpa_1961
+    act_name: "Dowry Prohibition Act, 1961"
+    indiacode_title: "The Dowry Prohibition Act, 1961"
+    enabled: true
+  - act_id: mwpsc_2007
+    act_name: "Maintenance and Welfare of Parents and Senior Citizens Act, 2007"
+    indiacode_title: "The Maintenance and Welfare of Parents and Senior Citizens Act, 2007"
+    enabled: true
+  - act_id: gwa_1890
+    act_name: "Guardians and Wards Act, 1890"
+    indiacode_title: "The Guardians and Wards Act, 1890"
+    enabled: true
+  - act_id: hmga_1956
+    act_name: "Hindu Minority and Guardianship Act, 1956"
+    indiacode_title: "The Hindu Minority and Guardianship Act, 1956"
+    enabled: true
+  - act_id: hama_1956
+    act_name: "Hindu Adoptions and Maintenance Act, 1956"
+    indiacode_title: "The Hindu Adoptions and Maintenance Act, 1956"
+    enabled: true
+  - act_id: limitation_1963
+    act_name: "Limitation Act, 1963"
+    indiacode_title: "The Limitation Act, 1963"
+    enabled: true
+  - act_id: lsa_1987
+    act_name: "Legal Services Authorities Act, 1987"
+    indiacode_title: "The Legal Services Authorities Act, 1987"
+    enabled: true
+  - act_id: css_2020
+    act_name: "Code on Social Security, 2020"
+    indiacode_title: "The Code on Social Security, 2020"
+    enabled: true

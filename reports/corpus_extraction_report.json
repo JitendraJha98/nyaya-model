@@ -290,6 +290,203 @@
       "pdfs": [
         "a2016-2.pdf"
       ]
+    },
+    "hsa_1956": {
+      "extracted": 31,
+      "expected": null,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0,
+      "source": "indiacode-api",
+      "handle": "123456789/496402",
+      "indiacode_act_id": "AC_CEN_3_20_00027_195630_1517807324239",
+      "live_sections": 28,
+      "repealed_or_empty_dropped": 3,
+      "repealed_sections": [
+        "23",
+        "24",
+        "31"
+      ],
+      "pdfs": [
+        "a1956-30.pdf",
+        "H1956-30.pdf"
+      ]
+    },
+    "isa_1925": {
+      "extracted": 393,
+      "expected": null,
+      "monotonic": true,
+      "numbering_gaps": [
+        "52"
+      ],
+      "empty_or_short": [],
+      "clean_fraction": 0.9975,
+      "source": "indiacode-api",
+      "handle": "123456789/496435",
+      "indiacode_act_id": "AC_CEN_3_20_00058_192539_1523349789879",
+      "live_sections": 392,
+      "repealed_or_empty_dropped": 1,
+      "repealed_sections": [
+        "392"
+      ],
+      "pdfs": [
+        "A1925-39.pdf"
+      ]
+    },
+    "dpa_1961": {
+      "extracted": 13,
+      "expected": null,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0,
+      "source": "indiacode-api",
+      "handle": "123456789/496002",
+      "indiacode_act_id": "AC_CEN_13_14_00003_196128_1517807322681",
+      "live_sections": 13,
+      "repealed_or_empty_dropped": 0,
+      "repealed_sections": [],
+      "pdfs": [
+        "a1961-28.pdf",
+        "H1961-28.pdf"
+      ]
+    },
+    "mwpsc_2007": {
+      "extracted": 32,
+      "expected": null,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0,
+      "source": "indiacode-api",
+      "handle": "123456789/496161",
+      "indiacode_act_id": "AC_CEN_25_35_00007_200756_1517807326382",
+      "live_sections": 32,
+      "repealed_or_empty_dropped": 0,
+      "repealed_sections": [],
+      "pdfs": [
+        "a2007-56.pdf",
+        "H2007-56.pdf"
+      ]
+    },
+    "gwa_1890": {
+      "extracted": 55,
+      "expected": null,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0,
+      "source": "indiacode-api",
+      "handle": "123456789/496426",
+      "indiacode_act_id": "AC_CEN_3_20_00047_189008_1523274313365",
+      "live_sections": 51,
+      "repealed_or_empty_dropped": 4,
+      "repealed_sections": [
+        "2",
+        "5",
+        "52",
+        "53"
+      ],
+      "pdfs": [
+        "a1890-8.pdf",
+        "H1890-8.pdf"
+      ]
+    },
+    "hmga_1956": {
+      "extracted": 13,
+      "expected": null,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0,
+      "source": "indiacode-api",
+      "handle": "123456789/496394",
+      "indiacode_act_id": "AC_CEN_3_20_00013_195632_1517807320902",
+      "live_sections": 13,
+      "repealed_or_empty_dropped": 0,
+      "repealed_sections": [],
+      "pdfs": [
+        "a1956-32.pdf",
+        "H1956-32.pdf"
+      ]
+    },
+    "hama_1956": {
+      "extracted": 30,
+      "expected": null,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0,
+      "source": "indiacode-api",
+      "handle": "123456789/496396",
+      "indiacode_act_id": "AC_CEN_3_20_00015_195678_1517807320925",
+      "live_sections": 29,
+      "repealed_or_empty_dropped": 1,
+      "repealed_sections": [
+        "29"
+      ],
+      "pdfs": [
+        "a1956-78.pdf",
+        "H1956-78.pdf"
+      ]
+    },
+    "limitation_1963": {
+      "extracted": 32,
+      "expected": null,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0,
+      "source": "indiacode-api",
+      "handle": "123456789/496389",
+      "indiacode_act_id": "AC_CEN_3_20_00005_196336_1517807319297",
+      "live_sections": 30,
+      "repealed_or_empty_dropped": 2,
+      "repealed_sections": [
+        "28",
+        "32"
+      ],
+      "pdfs": [
+        "a1963-36.pdf",
+        "H1963-36.pdf"
+      ]
+    },
+    "lsa_1987": {
+      "extracted": 40,
+      "expected": null,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0,
+      "source": "indiacode-api",
+      "handle": "123456789/496492",
+      "indiacode_act_id": "AC_CEN_3_46_00003_198739_1517807322718",
+      "live_sections": 40,
+      "repealed_or_empty_dropped": 0,
+      "repealed_sections": [],
+      "pdfs": [
+        "a1987-39.pdf",
+        "H1987-39.pdf"
+      ]
+    },
+    "css_2020": {
+      "extracted": 164,
+      "expected": null,
+      "monotonic": true,
+      "numbering_gaps": [],
+      "empty_or_short": [],
+      "clean_fraction": 1.0,
+      "source": "indiacode-api",
+      "handle": "123456789/496700",
+      "indiacode_act_id": "AC_CEN_6_0_00036_202036_1623221080799",
+      "live_sections": 164,
+      "repealed_or_empty_dropped": 0,
+      "repealed_sections": [],
+      "pdfs": [
+        "a2020-36.pdf",
+        "hH2020-36_compressed.pdf"
+      ]
     }
   },
   "mappings": {

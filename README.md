@@ -59,7 +59,7 @@ default.
 
 | Part | What it does | State |
 |---|---|---|
-| **Statute DB** | 17 acts + the Constitution (3,014 sections), 1,257 official IPC↔BNS / CrPC↔BNSS / IEA↔BSA mappings, 70 procedural guidance notes | ✅ [`NyayaLabs98/nyaya-statute-db`](https://huggingface.co/datasets/NyayaLabs98/nyaya-statute-db) |
+| **Statute DB** | 27 acts + the Constitution (3,736 sections), 1,257 official IPC↔BNS / CrPC↔BNSS / IEA↔BSA mappings, 70 procedural guidance notes | ✅ [`NyayaLabs98/nyaya-statute-db`](https://huggingface.co/datasets/NyayaLabs98/nyaya-statute-db) |
 | **Retriever** | Exact-citation lookup (any script, old or new law), BM25 with lay-to-statute vocabulary, optional dense fusion | ✅ `src/nyaya/retrieval.py` |
 | **Reranker** | Cross-encoder picks which retrieved sections actually answer the question | ✅ +12.7 points at k=1, validated on never-audited records |
 | **Reader** | Reads the retrieved sections, writes a cited answer | `Qwen/Qwen2.5-3B-Instruct` (swappable) |
@@ -154,13 +154,18 @@ not been tuned against. All of it, with the corrections, is in
   Act 1954, Hindu Marriage Act 1955, Protection of Women from Domestic Violence
   Act 2005, Right to Information Act 2005, POSH Act 2013, Transfer of Property
   Act 1882, Indian Contract Act 1872, Protection of Children from Sexual Offences
-  Act 2012, Juvenile Justice (Care and Protection of Children) Act 2015 (the last
-  four pulled section-by-section from the India Code API, `scripts/42`).
+  Act 2012, Juvenile Justice (Care and Protection of Children) Act 2015, Hindu
+  Succession Act 1956, Indian Succession Act 1925, Dowry Prohibition Act 1961,
+  Maintenance and Welfare of Parents and Senior Citizens Act 2007, Guardians and
+  Wards Act 1890, Hindu Minority and Guardianship Act 1956, Hindu Adoptions and
+  Maintenance Act 1956, Limitation Act 1963, Legal Services Authorities Act 1987,
+  Code on Social Security 2020 (the last fourteen pulled section-by-section from
+  the India Code API, `scripts/42`).
 - **Absence is flagged, not hidden.** Of 269 real citizen questions collected for
   this project, 66 (25%) originally fell in domains with no act in the database —
   rent, property, loans, children, parents — and the retriever returned eight
-  confident sections anyway. After the four acts above, 12 (4%) remain
-  (inheritance, dowry, senior citizens, custody), and a coverage gate flags
+  confident sections anyway. After the fourteen acts added from the India Code
+  API, 9 (3%) remain in domains with no act at all, and a coverage gate flags
   questions the database cannot answer (`reports/coverage_probe.json`,
   `scripts/35_coverage_probe.py`).
 - **Hindi.** 19 of the 53 Devanagari questions in that set retrieved no statute

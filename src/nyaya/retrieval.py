@@ -41,6 +41,10 @@ _FAMILY_TO_ACT_ID = {family: act_id for act_id, family in (
     # from the India Code API (scripts/42), Sept 2026
     ("tpa_1882", "tpa"), ("contract_act_1872", "contract act"),
     ("pocso_2012", "pocso"), ("jj_act_2015", "jj act"),
+    ("hsa_1956", "hsa"), ("isa_1925", "isa"), ("dpa_1961", "dpa"),
+    ("mwpsc_2007", "senior citizens act"), ("gwa_1890", "gwa"), ("hmga_1956", "hmga"),
+    ("hama_1956", "hama"), ("limitation_1963", "limitation act"), ("lsa_1987", "lsa"),
+    ("css_2020", "social security code"),
 )}
 _OLD_TO_NEW_ACT = {"ipc": "bns", "crpc": "bnss", "iea": "bsa"}
 

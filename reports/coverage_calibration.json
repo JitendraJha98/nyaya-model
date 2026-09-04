@@ -2,21 +2,21 @@
   "populations": {
     "eval_in_coverage": {
       "n": 67,
-      "p05": 16.181,
-      "p25": 21.946,
-      "median": 32.212
+      "p05": 17.052,
+      "p25": 22.934,
+      "median": 32.282
     },
     "real_in_coverage": {
       "n": 67,
-      "p05": 8.227,
-      "p25": 15.087,
-      "median": 32.73
+      "p05": 8.963,
+      "p25": 17.407,
+      "median": 33.766
     },
     "real_out_of_coverage": {
-      "n": 11,
-      "p05": 8.223,
-      "p25": 13.961,
-      "median": 17.521
+      "n": 3,
+      "p05": 11.415,
+      "p25": 11.415,
+      "median": 15.779
     }
   },
   "table": [
@@ -41,20 +41,20 @@
     {
       "threshold": 10.0,
       "eval_in_coverage_kept": 1.0,
-      "real_in_coverage_kept": 0.91,
-      "real_out_of_coverage_flagged": 0.182
+      "real_in_coverage_kept": 0.925,
+      "real_out_of_coverage_flagged": 0.0
     },
     {
       "threshold": 12.0,
       "eval_in_coverage_kept": 1.0,
-      "real_in_coverage_kept": 0.866,
-      "real_out_of_coverage_flagged": 0.182
+      "real_in_coverage_kept": 0.881,
+      "real_out_of_coverage_flagged": 0.333
     },
     {
       "threshold": 15.0,
-      "eval_in_coverage_kept": 0.985,
+      "eval_in_coverage_kept": 1.0,
       "real_in_coverage_kept": 0.776,
-      "real_out_of_coverage_flagged": 0.273
+      "real_out_of_coverage_flagged": 0.333
     }
   ],
   "rule": "largest threshold keeping >= 90% of both in-coverage populations",

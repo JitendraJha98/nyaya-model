@@ -143,10 +143,9 @@ September 2026 — v3 was trained without it.
   numbers previously shown on this card.
 - `nyaya-eval-v0` is public, so it is **contaminated** as a held-out benchmark;
   Eval-v1's private half derives from it and is reconstructible.
-- Coverage is 17 acts plus the Constitution. Of 269 real citizen questions, 4%
-  still fall outside it (inheritance, dowry, senior citizens, custody); the
-  retriever then returns the nearest section it has. Use the coverage gate in
-  the repository.
+- Coverage is 27 acts plus the Constitution. Of 269 real citizen questions,
+  3% fall in domains with no act at all; the retriever then returns the nearest
+  section it has. Use the coverage gate in the repository.
 
 ## Usage
 

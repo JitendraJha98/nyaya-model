@@ -7,11 +7,21 @@
     "constitution_1950",
     "contract_act_1872",
     "cpa_2019",
+    "css_2020",
+    "dpa_1961",
     "dv_act_2005",
+    "gwa_1890",
+    "hama_1956",
     "hma_1955",
+    "hmga_1956",
+    "hsa_1956",
+    "isa_1925",
     "it_act_2000",
     "jj_act_2015",
+    "limitation_1963",
+    "lsa_1987",
     "mv_act_1988",
+    "mwpsc_2007",
     "ni_act_1881",
     "pocso_2012",
     "posh_2013",
@@ -34,11 +44,9 @@
     "cheque_bank_fraud": 23
   },
   "buckets_without_an_act": [
-    "tenancy_rent",
-    "dowry",
-    "senior_citizens"
+    "tenancy_rent"
   ],
-  "questions_in_buckets_without_an_act": 12,
+  "questions_in_buckets_without_an_act": 9,
   "uncategorised": 138,
   "zero_statute_hits": {
     "latin": {
@@ -51,7 +59,7 @@
     }
   },
   "coverage_gate_flagged": {
-    "latin": 20,
+    "latin": 14,
     "devanagari": 36
   }
 }

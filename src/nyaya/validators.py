@@ -44,6 +44,17 @@ ACT_ALIASES = {
     "pocso": ["pocso", "pocso act", "protection of children from sexual offences act", "पॉक्सो"],
     "jj act": ["jj act", "juvenile justice act", "juvenile justice (care and protection of children) act",
                "किशोर न्याय अधिनियम"],
+    "hsa": ["hsa", "hindu succession act", "हिंदू उत्तराधिकार अधिनियम"],
+    "isa": ["indian succession act", "भारतीय उत्तराधिकार अधिनियम"],
+    "dpa": ["dowry prohibition act", "दहेज प्रतिषेध अधिनियम"],
+    "senior citizens act": ["senior citizens act", "maintenance and welfare of parents and senior citizens act",
+                            "वरिष्ठ नागरिक अधिनियम"],
+    "gwa": ["guardians and wards act", "संरक्षक और प्रतिपाल्य अधिनियम"],
+    "hmga": ["hindu minority and guardianship act", "हिंदू अप्राप्तवयता और संरक्षकता अधिनियम"],
+    "hama": ["hindu adoptions and maintenance act", "हिंदू दत्तक और भरण-पोषण अधिनियम"],
+    "limitation act": ["limitation act", "परिसीमा अधिनियम"],
+    "lsa": ["legal services authorities act", "विधिक सेवा प्राधिकरण अधिनियम"],
+    "social security code": ["code on social security", "social security code", "सामाजिक सुरक्षा संहिता"],
 }
 
 # act_id prefixes in data/canonical -> act family key above
@@ -66,6 +77,16 @@ _ACT_ID_FAMILY = {
     "contract_act": "contract act",
     "pocso": "pocso",
     "jj_act": "jj act",
+    "hsa": "hsa",
+    "isa": "isa",
+    "dpa": "dpa",
+    "mwpsc": "senior citizens act",
+    "gwa": "gwa",
+    "hmga": "hmga",
+    "hama": "hama",
+    "limitation": "limitation act",
+    "lsa": "lsa",
+    "css": "social security code",
 }
 
 # Matches "Section 318", "Sections 34", "Sec. 173", "§420", "§ 420", "dhara 154",
