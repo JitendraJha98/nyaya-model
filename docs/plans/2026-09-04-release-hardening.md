@@ -72,6 +72,18 @@ k=8, dense stage swapped from zero-shot e5-base to `nyaya-embed-v1`: fact recall
 vectors apart; README, RESULTS §2/§6, the v3 card, the embedder card and the org card
 carry the numbers. Kaggle source snapshot re-versioned.
 
+**Shootout session 1 done (kernel v7, 4.9 h):** `nyaya-3b-v3-768` (corrected tokenizer/config,
+local copy) 33.8% — tied with base-768 on facts (CI [−5.2, +1.2]), worse on citations
+(CI [−13.9, −0.4]); **`Qwen/Qwen3-4B-Instruct-2507` 50.6% fact recall, 72.2% citation, +14.8
+points, CI [+11.4, +18.3], better on 119 / worse on 22**, Apache-2.0, 306 words and 31.5 s per
+question vs 185 words / 12.3 s. Default reader switched to Qwen3-4B (`MODEL_ID`; the 3B base is
+`LEGACY_MODEL_ID`); unlabelled eval runs are named after the model. README/RESULTS/cards updated
+and pushed. Kernel `nyaya-qwen3-embed` (Qwen3-4B + embed-v1, paired vs both parents) is running;
+its number becomes the system headline. Teacher kernel v3 (vLLM tp2 came up in 170 s in v2; v2
+died when the query encoder found 30 MB free on GPU 0 — fixed by pre-encoding the statute
+vectors and capping vLLM at 80%) is running; its gate baseline (base-768-embed-v1) must move to
+`qwen3-4b-embed-v1` once that exists — a 14B teacher has to beat the 4B reader, not the 3B.
+
 ## Global Constraints
 
 - **GPU work runs only on Kaggle.** Accelerator "GPU T4 x2", always `os.environ["CUDA_VISIBLE_DEVICES"] = "0"` before importing torch, fp16 (never bf16) on T4, 12-hour session cap, roughly 30 GPU-hours per week (check the quota bar in the notebook sidebar). Secrets are per notebook: add `HF_TOKEN` to each notebook that needs it.
