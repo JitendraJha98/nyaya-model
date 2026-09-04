@@ -62,7 +62,15 @@ Kernel `nyaya-retriever-effect` (base reader + embed-v1 retriever, paired vs bas
 running. **C4 reopened without a paid API:** `scripts/kaggle_teacher.ipynb` serves
 `Qwen/Qwen2.5-14B-Instruct-AWQ` with vLLM on the T4s, scores it on Eval-v1 through
 `--endpoint`, and generates RAFT v7 data only if the teacher beats base-768 by ≥5 points
-with a CI excluding zero; queued behind the two running kernels.
+with a CI excluding zero; running as kernel `nyaya-teacher` v1.
+
+**Retriever effect (kernel `nyaya-retriever-effect`, 83 min):** same base reader, 768 tokens,
+k=8, dense stage swapped from zero-shot e5-base to `nyaya-embed-v1`: fact recall **35.8% →
+39.7%**, paired Δ +3.9 points, 95% CI **[+0.9, +7.0]**, better on 64 / worse on 45 / tied on
+300 — the first end-to-end improvement in the project with an interval clear of zero.
+`nyaya-embed-v1` is now `DEFAULT_ATTACH_MODEL`; `doc_vector_cache()` keeps each embedder's
+vectors apart; README, RESULTS §2/§6, the v3 card, the embedder card and the org card
+carry the numbers. Kaggle source snapshot re-versioned.
 
 ## Global Constraints
 
