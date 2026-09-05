@@ -27,8 +27,8 @@ model-index:
       type: retrieval
       name: Statute-section retrieval (hybrid BM25 + dense, RRF)
     dataset:
-      type: NyayaLabs98/nyaya-eval-v1
-      name: Nyaya-Eval-v1, never-audited slice (n=118)
+      type: NyayaLabs98/nyaya-eval-v0
+      name: Nyaya-Eval-v1 (graded successor of nyaya-eval-v0, in the repository), never-audited slice (n=118)
     metrics:
     - type: recall_at_1
       value: 49.2

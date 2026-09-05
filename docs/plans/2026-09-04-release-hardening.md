@@ -1636,7 +1636,7 @@ Note `replaces` becomes a list of strings (the schema in `schemas.py` says dict;
 
 | Credential | Who provides | Unlocks | Needed by |
 |---|---|---|---|
-| HF **write** token, fine-grained, scoped to NyayaLabs98 repos | owner, after rotating the leaked one | Tasks B2–B6, D1 Step 4, D3 Step 3, C3 Step 4 (cards, org page, GGUF repo, Space, dataset re-uploads) | Day 1 |
+| HF **write** token, fine-grained, scoped to NyayaLabs98 repos | owner, after rotating the previous one | Tasks B2–B6, D1 Step 4, D3 Step 3, C3 Step 4 (cards, org page, GGUF repo, Space, dataset re-uploads) | Day 1 |
 | HF **read** token as Kaggle secret `HF_TOKEN`, on an account that accepted the gated terms | owner | Tasks C1 (Gemma, Llama), C2 (BhashaBench) | Day 2 |
 | Kaggle: nothing programmatic. Owner runs notebooks in the browser. Optional `kaggle.json` if the executor should push notebooks with `kaggle kernels push` | owner (optional) | convenience only | — |
 | GitHub: nothing programmatic. Executor commits locally; owner pushes and sets About/topics in the UI. Optional PAT (repo scope) if the executor should set About/topics via API | owner (optional) | convenience only | — |
