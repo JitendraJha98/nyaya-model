@@ -221,10 +221,12 @@ questions, generation-scored: base 47.8%, v3 45.2%, tied) is kept in
 
 ## What we learned
 
-**Base + retrieval is the product.** Five fine-tunes of a 3B model on Indian
-law were tied with or worse than the base model once the evaluation could tell
-the difference. Beating base would need a strong teacher model, not another
-template.
+**Retrieval plus the right open reader is the product.** Five fine-tunes of a 3B
+model on Indian law were tied with or worse than the base model once the
+evaluation could tell the difference. A served 14B teacher passed its gate
+against the 3B reader and still scored below Qwen3-4B, so distillation had no
+headroom either. What moved the score was a retriever trained on our own
+question–section pairs (+3.9) and a newer-generation reader (+14.8).
 
 **Measure before you claim.** Four bugs in our own evaluation each made a
 number look like progress: the first benchmark scored its own gold answers at
@@ -276,7 +278,7 @@ not been tuned against. All of it, with the corrections, is in
 
 ```bash
 pip install -e ".[dev]"                                    # retriever, scorer, tests
-python -m pytest -q                                        # ~360 tests, CPU, no downloads
+python -m pytest -q                                        # ~380 tests, CPU, no downloads
 
 # re-grade any committed run on CPU — no model needed
 python scripts/26_eval_v1_run.py --rescore outputs/eval-v1/base/predictions.jsonl --label base
@@ -305,7 +307,7 @@ Pinned versions that passed the suite: `requirements.lock`.
 src/nyaya/
   retrieval.py    statute index: exact citation lookup, BM25, RRF fusion, coverage
   rerank.py       cross-encoder second stage
-  dense.py        optional dense embedding stage
+  dense.py        dense stage (nyaya-embed-v1 by default), fused with BM25
   scoring.py      Eval-v1 scorer: strict citations, partial-credit substance
   evaluation.py   Eval-v0 harness (retained for continuity)
   trainer.py      LoRA SFT; precision follows the hardware
@@ -345,10 +347,11 @@ docs/
 
 ## Claims this project does not make
 
-One external benchmark has been run: BhashaBench-Legal (1,500-question sample,
-exact MCQ scoring) — base 47.8%, v3 45.2%, tied (`reports/bhashabench_scores.json`).
-No human evaluation has been passed. Nyaya is **not** claimed to be the best
-Indian legal model, and no fine-tune here has beaten its own base model.
+One external benchmark has been run: BhashaBench-Legal, where the default reader
+scores 52.5% against 49.6% for the 3B base on 3,000 paired questions (chance 25%);
+no comparison against any other legal model has been made. No human evaluation has
+been passed. Nyaya is **not** claimed to be the best Indian legal model, no fine-tune
+here has beaten its own base model, and nothing here is legal advice.
 See `docs/RELEASE_PLAN.md`.
 
 ## Citation

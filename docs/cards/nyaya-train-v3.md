@@ -76,7 +76,9 @@ is **statistically tied with its base model** on Nyaya-Eval-v1 (fact recall
 32.9% vs 34.3%, 95% CI on the paired difference spans zero). The data is
 published for reproducibility and for **retriever training** — each record is a
 citizen question paired with its gold statute sections, which is a contrastive
-training set — not as a proven recipe for beating the base model.
+training set — not as a proven recipe for beating the base model. A second, smaller set
+from a stronger teacher, also not trained on, is
+[`nyaya-train-v7-raft`](https://huggingface.co/datasets/NyayaLabs98/nyaya-train-v7-raft).
 
 ## Licence
 

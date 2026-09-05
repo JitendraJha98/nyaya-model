@@ -42,7 +42,10 @@ from the merged bf16 weights.
 ## Read this first
 
 On the project's own benchmark this model is **statistically tied with the base
-model it was fine-tuned from**. The system's accuracy comes from **retrieval**: with
+model it was fine-tuned from**, and the Nyaya system now uses `Qwen/Qwen3-4B-Instruct-2507`
+(Apache-2.0, official GGUF builds exist) as its default reader: 52.0% fact recall against
+33.8% for these weights under identical retrieval. These files remain for anyone who wants
+the Nyaya-aligned 3B. The system's accuracy comes from **retrieval**: with
 the right statute section in context the reader reaches 63% fact recall, without it
 20%. Used bare, this model answers from memory like any 3B model and can cite the
 wrong section. Pair it with the statute retriever:

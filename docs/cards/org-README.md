@@ -1,5 +1,5 @@
 ---
-title: NyayaAI
+title: Nyaya
 emoji: ⚖️
 colorFrom: gray
 colorTo: green
@@ -7,7 +7,7 @@ sdk: static
 pinned: false
 ---
 
-# NyayaAI
+# Nyaya
 
 Open tooling for **current Indian law**: the Bharatiya Nyaya Sanhita, Bharatiya
 Nagarik Suraksha Sanhita and Bharatiya Sakshya Adhiniyam as in force since
@@ -15,19 +15,23 @@ Nagarik Suraksha Sanhita and Bharatiya Sakshya Adhiniyam as in force since
 as clean section-level data with the official IPC↔BNS mappings, a measured
 retrieval stack, and an evaluation harness that publishes its own bugs.
 
+**Try it in the browser, nothing to install:** [nyaya-demo](https://huggingface.co/spaces/NyayaLabs98/nyaya-demo)
+— the retriever runs client-side over the statute database; type a question in English,
+Hindi or Hinglish and see the sections of current law it resolves to.
+
 - **[nyaya-statute-db](https://huggingface.co/datasets/NyayaLabs98/nyaya-statute-db)** —
   27 acts + the Constitution, 3,736 sections, 1,257 official mappings, 70 procedural guidance notes.
-- **[nyaya-3b-v3](https://huggingface.co/NyayaLabs98/nyaya-3b-v3)** — the fine-tuned reader,
-  pre-aligned to the Nyaya prompt format. Statistically tied with its base model;
-  published for convenience; non-commercial (qwen-research). The repository's default
-  reader is now `Qwen/Qwen3-4B-Instruct-2507` (Apache-2.0): 50.6% fact recall against
-  35.8% for the 3B base under the same retriever, paired CI [+11.4, +18.3].
 - **[nyaya-embed-v1](https://huggingface.co/NyayaLabs98/nyaya-embed-v1)** — bi-encoder
   fine-tuned on the project's question–section pairs; lifts the base reader's fact recall
   by +3.9 points (95% CI [+0.9, +7.0]), the only end-to-end gain with an interval clear of
   zero. MIT.
 - **[nyaya-reranker-mini-v1](https://huggingface.co/NyayaLabs98/nyaya-reranker-mini-v1)** —
   118M cross-encoder, +5.9 points at k=1 over BM25 on never-tuned records. Apache-2.0.
+- **[nyaya-3b-v3](https://huggingface.co/NyayaLabs98/nyaya-3b-v3)** — the project's fine-tuned
+  reader, kept for the record: statistically tied with its base model; non-commercial
+  (qwen-research). GGUF builds for llama.cpp / Ollama: [nyaya-3b-v3-GGUF](https://huggingface.co/NyayaLabs98/nyaya-3b-v3-GGUF).
+  The system's default reader is `Qwen/Qwen3-4B-Instruct-2507` (Apache-2.0): 50.6% fact
+  recall against 35.8% for the 3B base under the same retriever, paired CI [+11.4, +18.3].
 - **[nyaya-train-v3](https://huggingface.co/datasets/NyayaLabs98/nyaya-train-v3)** —
   6,429 statute-grounded, citation-verified training records.
 - **[nyaya-train-v7-raft](https://huggingface.co/datasets/NyayaLabs98/nyaya-train-v7-raft)** —

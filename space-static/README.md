@@ -19,6 +19,9 @@ it resolves to, with a coverage verdict. `scripts/39_build_static_demo.py --chec
 in the repository verifies that this port returns the same sections as the Python
 retriever on real questions.
 
-Reader model: [NyayaLabs98/nyaya-3b-v3](https://huggingface.co/NyayaLabs98/nyaya-3b-v3).
+This page is retrieval only. The full system reads these sections with
+`Qwen/Qwen3-4B-Instruct-2507` (52.0% fact recall on the project's benchmark); the
+project's own fine-tune, [nyaya-3b-v3](https://huggingface.co/NyayaLabs98/nyaya-3b-v3),
+is statistically tied with its base and is not the default.
 Code and data: [github.com/JitendraJha98/nyaya-model](https://github.com/JitendraJha98/nyaya-model).
 **Not legal advice.**

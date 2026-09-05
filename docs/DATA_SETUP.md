@@ -34,6 +34,8 @@ Accept the terms on each gated dataset page (open each URL once, click agree):
 # 14 statute PDFs (English) from India Code, downloaded + extracted into the
 # canonical corpus                                 -> data/raw/acts, data/canonical
 python scripts/03_build_corpus.py                  # see configs/acts.yaml
+# 14 more acts section-by-section from the India Code DSpace API (indiacode.gov.in)
+python scripts/42_fetch_act_sections.py            # api_acts in configs/acts.yaml
 
 # 12 Hindi statute PDFs + 4 procedure pages        -> data/raw/assets     (~160 MB)
 python scripts/13_download_raw_assets.py

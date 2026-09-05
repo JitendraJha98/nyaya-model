@@ -1,7 +1,8 @@
 # Nyaya — Release Plan
 
-**Status:** decided 2026-08-07 (v6 regressed; base + retrieval ships). Pre-publication
-checklist tracked below; execution plan in `docs/plans/2026-09-04-release-hardening.md`.
+**Status:** shipped as v0.3.0 on 2026-09-05 (decided 2026-08-07: base + retrieval ships;
+executed 2026-09-04/05, see `docs/plans/2026-09-04-release-hardening.md`). The reader is
+`Qwen/Qwen3-4B-Instruct-2507`, the dense stage `nyaya-embed-v1`.
 **Owner decision required before anything below goes public.**
 
 ---
@@ -24,7 +25,7 @@ The four parts:
 | Statute DB | 27 acts + Constitution, 1,257 official mappings | ✅ built, published |
 | Retriever | BM25 + dense over the DB | ✅ built |
 | **Reranker** | Picks the 3 that actually answer | ✅ **+12.7pts @k=1, generalises** |
-| Model | Reads context, writes cited answer | ❌ v6 regressed (RESULTS §1); base Qwen2.5-3B-Instruct is the reader |
+| Model | Reads context, writes cited answer | ✅ `Qwen/Qwen3-4B-Instruct-2507`, unmodified (+14.8 over the 3B base); every fine-tune tied or regressed (RESULTS §1) |
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 license: other
 license_name: gov-india-public-domain
-license_link: https://www.indiacode.nic.in/
+license_link: https://www.indiacode.gov.in/
 language:
 - en
 - hi
@@ -99,10 +99,11 @@ Built as the retrieval corpus for an Indian legal question-answering system.
 It suits any RAG setup that needs to cite Indian law by section, and is equally
 usable as a plain lookup table.
 
-Measured in that role (409 questions, BM25 + exact-citation lookup): the gold
-section reaches the top 8 for **~81%** of questions with a resolvable citation.
-Adding a cross-encoder reranker moves it to the **top 1** for 58.5% of them, up
-from 45.8%.
+Measured in that role on the 118 evaluation questions never used to tune retrieval:
+BM25 + exact-citation lookup puts every gold section in the top 8 for **81.4%** of
+them; fused with [`nyaya-embed-v1`](https://huggingface.co/NyayaLabs98/nyaya-embed-v1)
+(trained on this data) **88.1%**; a cross-encoder reranker moves the gold section to the
+**top 1** for 58.5%, up from 45.8%.
 
 ## Limitations — read these
 
@@ -110,7 +111,11 @@ from 45.8%.
   and absence is silent: a retriever will still return the nearest thing it has.
 - **Statutes change.** `effective_date` is recorded, but nothing here tracks
   amendments after collection. Verify against
-  [India Code](https://www.indiacode.nic.in/) before relying on any provision.
+  [India Code](https://www.indiacode.gov.in/) before relying on any provision.
+- **India Code moved** from indiacode.nic.in to indiacode.gov.in in 2026. Rows collected
+  before September 2026 carry the old `source_url`; some of those item pages no longer
+  resolve, though the act itself is on the new site. Rows added through the new API carry
+  `indiacode.gov.in` handles.
 - **No case law.** Statutory text only. Judicial interpretation frequently
   determines what a section means in practice.
 - **`procedures_kb.jsonl` is hand-written**, verified against act text but not
@@ -129,7 +134,8 @@ through NALSA / DLSA under the Legal Services Authorities Act, 1987.
 
 Statutory text is Government of India material, **public domain in India under
 Section 52(1)(q) of the Copyright Act, 1957**. Sourced from
-[India Code](https://www.indiacode.nic.in/) and legislative.gov.in; per-row
+[India Code](https://www.indiacode.gov.in/) (PDFs before September 2026, the DSpace REST API
+after) and legislative.gov.in; per-row
 `source_url` records where each section came from. Indian Kanoon HTML was not
 scraped.
 

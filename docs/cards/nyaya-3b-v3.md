@@ -62,7 +62,13 @@ model-index:
       url: https://github.com/JitendraJha98/nyaya-model/blob/main/reports/bhashabench_scores.json
 ---
 
-# Nyaya-3B — the model component of the Nyaya legal guidance system
+# Nyaya-3B-v3 — the project's fine-tuned reader, kept for the record
+
+> **Looking for the best configuration?** The Nyaya system now uses
+> `Qwen/Qwen3-4B-Instruct-2507` (Apache-2.0) on the `nyaya-embed-v1` retriever: 52.0% fact
+> recall against 33.8% for this model under the same conditions. Setup and numbers in the
+> [repository README](https://github.com/JitendraJha98/nyaya-model#results). This card stays
+> because the weights are public and the negative result is part of the evidence.
 
 > **⚖️ Not legal advice.** Nyaya provides legal *information*. The practice of law
 > in India is reserved to advocates enrolled under the Advocates Act, 1961.

@@ -5,6 +5,15 @@ what is true, what was tried, what failed, and what not to repeat.
 
 Full evidence: `docs/RESULTS.md`. Release rules: `docs/RELEASE_PLAN.md`.
 
+> **Update, 2026-09-05 (v0.3.0).** The reader is now `Qwen/Qwen3-4B-Instruct-2507`
+> (Apache-2.0) and the dense stage is `NyayaLabs98/nyaya-embed-v1`, trained on the
+> project's own pairs. Default configuration: **52.0% fact recall / 77.1% citation
+> accuracy** on Eval-v1, +16.2 over the 0.2.0 system (paired 95% CI [+12.7, +19.9]).
+> A served 14B teacher scored 45.0%, below the 4B reader, so no v7 was trained
+> (`nyaya-train-v7-raft` holds its answers). Statute DB is 27 acts + the Constitution via
+> the India Code API. Everything below the line describes the state before that work;
+> §2 and §3 still hold. Day-by-day record: `docs/plans/2026-09-04-release-hardening.md`.
+
 ---
 
 ## 1. What the project is
@@ -13,8 +22,9 @@ An **open Indian legal guidance system** — not a model. Ask a question in
 English/Hindi/Hinglish, get a plain-language answer cited to a section of
 current law (BNS/BNSS/BSA, post-1-July-2024, with IPC↔BNS bridging).
 
-Four parts: **statute DB → retriever → reranker → model**. The model is
-`Qwen/Qwen2.5-3B-Instruct`, unmodified. That is deliberate — see §3.
+Four parts: **statute DB → retriever → reranker → model**. The model was
+`Qwen/Qwen2.5-3B-Instruct`, unmodified, until v0.3.0; it is now
+`Qwen/Qwen3-4B-Instruct-2507`, also unmodified. That is deliberate — see §3.
 
 ## 2. The single most important fact
 
