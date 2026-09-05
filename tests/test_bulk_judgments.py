@@ -3,6 +3,10 @@
 import sys
 from pathlib import Path
 
+import pytest
+
+pytest.importorskip("boto3")  # scripts/12 pulls S3 exports; boto3 is not a dev dependency
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
