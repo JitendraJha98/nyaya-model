@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="330" viewBox="0 0 1120 330" role="img" aria-label="Nyaya architecture: question, statute database, retriever, reranker, reader, cited answer, scorer">
+  <style>
+    .t { font-family: "Segoe UI", "Noto Sans", Arial, sans-serif; }
+    .h { font-size: 17px; font-weight: 600; fill: #101828; }
+    .s { font-size: 13px; fill: #344054; }
+    .m { font-size: 12px; fill: #5B6675; }
+    .box { fill: #FFFFFF; stroke: #B9C3CF; stroke-width: 1.5; }
+    .acc { fill: #DDEFEF; stroke: #0E6B6B; }
+    .arrow { stroke: #5B6675; stroke-width: 1.8; fill: none; marker-end: url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5B6675"/>
+    </marker>
+  </defs>
+  <rect width="1120" height="330" fill="#F3F5F8"/>
+
+  <!-- question -->
+  <rect x="20" y="110" width="170" height="90" rx="6" class="box"/>
+  <text x="105" y="146" text-anchor="middle" class="t h">Question</text>
+  <text x="105" y="168" text-anchor="middle" class="t s">English · Hindi · Hinglish</text>
+  <text x="105" y="186" text-anchor="middle" class="t m">"police FIR nahi likh rahi?"</text>
+
+  <!-- statute DB -->
+  <rect x="240" y="20" width="220" height="80" rx="6" class="box acc"/>
+  <text x="350" y="50" text-anchor="middle" class="t h">Statute DB</text>
+  <text x="350" y="70" text-anchor="middle" class="t s">27 acts + Constitution · 3,736 sections</text>
+  <text x="350" y="88" text-anchor="middle" class="t m">BNS · BNSS · BSA · IPC↔BNS mappings</text>
+
+  <!-- retriever -->
+  <rect x="240" y="120" width="220" height="90" rx="6" class="box"/>
+  <text x="350" y="150" text-anchor="middle" class="t h">Retriever</text>
+  <text x="350" y="170" text-anchor="middle" class="t s">exact citation · BM25 · nyaya-embed-v1</text>
+  <text x="350" y="190" text-anchor="middle" class="t m">recall@8 88.1% on never-tuned questions</text>
+
+  <!-- reranker -->
+  <rect x="510" y="120" width="180" height="90" rx="6" class="box"/>
+  <text x="600" y="150" text-anchor="middle" class="t h">Reranker</text>
+  <text x="600" y="170" text-anchor="middle" class="t s">optional cross-encoder</text>
+  <text x="600" y="190" text-anchor="middle" class="t m">+12.7 pts at k=1 (bge) · mini 118M</text>
+
+  <!-- reader -->
+  <rect x="740" y="120" width="180" height="90" rx="6" class="box acc"/>
+  <text x="830" y="150" text-anchor="middle" class="t h">Reader</text>
+  <text x="830" y="170" text-anchor="middle" class="t s">Qwen3-4B-Instruct-2507</text>
+  <text x="830" y="190" text-anchor="middle" class="t m">Apache-2.0 · swappable · free T4</text>
+
+  <!-- answer -->
+  <rect x="970" y="110" width="130" height="90" rx="6" class="box"/>
+  <text x="1035" y="146" text-anchor="middle" class="t h">Cited answer</text>
+  <text x="1035" y="168" text-anchor="middle" class="t s">"Section 173 BNSS…"</text>
+  <text x="1035" y="186" text-anchor="middle" class="t m">not legal advice</text>
+
+  <!-- scorer -->
+  <rect x="510" y="240" width="410" height="70" rx="6" class="box"/>
+  <text x="715" y="266" text-anchor="middle" class="t h">Scorer · Nyaya-Eval-v1</text>
+  <text x="715" y="288" text-anchor="middle" class="t s">strict citations, partial-credit facts · 413 questions · paired bootstrap · every prediction committed</text>
+
+  <!-- arrows -->
+  <path d="M190,155 L236,155" class="arrow"/>
+  <path d="M350,100 L350,116" class="arrow"/>
+  <path d="M460,165 L506,165" class="arrow"/>
+  <path d="M690,165 L736,165" class="arrow"/>
+  <path d="M920,155 L966,155" class="arrow"/>
+  <path d="M1035,200 L1035,275 L924,275" class="arrow"/>
+
+  <!-- footer numbers -->
+  <text x="20" y="262" class="t s">Default configuration on Nyaya-Eval-v1:</text>
+  <text x="20" y="284" class="t h">52.0% fact recall · 77.1% citation accuracy</text>
+  <text x="20" y="304" class="t m">+16.2 points over the first release, 95% CI [+12.7, +19.9]</text>
+</svg>

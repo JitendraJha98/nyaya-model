@@ -66,6 +66,8 @@ scripts to reproduce the older runs.
 
 ## How it works
 
+![Nyaya architecture: question → statute DB + retriever → optional reranker → reader → cited answer, all scored on Nyaya-Eval-v1](docs/img/architecture.svg)
+
 | Part | What it does | State |
 |---|---|---|
 | **Statute DB** | 27 acts + the Constitution (3,736 sections), 1,257 official IPC↔BNS / CrPC↔BNSS / IEA↔BSA mappings, 70 procedural guidance notes | ✅ [`NyayaLabs98/nyaya-statute-db`](https://huggingface.co/datasets/NyayaLabs98/nyaya-statute-db) |
